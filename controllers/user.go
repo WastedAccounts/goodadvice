@@ -2,7 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
-	"mjs/v1/models"
+	"goodadvice/v1/models"
 	"net/http"
 	"regexp"
 	"strconv"

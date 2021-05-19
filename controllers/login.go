@@ -3,7 +3,7 @@ package controllers
 import (
 	"fmt"
 	"html/template"
-	"mjs/v1/models"
+	"goodadvice/v1/models"
 	"net/http"
 	"regexp"
 )

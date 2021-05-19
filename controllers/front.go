@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"mjs/v1/models"
+	"goodadvice/v1/models"
 	"net/http"
 )
 

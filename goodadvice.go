@@ -7,11 +7,8 @@ import (
 	"net/http"
 )
 
-
-
 func main()  {
 	fmt.Println("Server is starting")
-	//models.SetDatasource()
 	appinit.Init()
 	controllers.RegisterControllers()
 	http.ListenAndServe(":3000", nil)

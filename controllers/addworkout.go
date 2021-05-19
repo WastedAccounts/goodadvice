@@ -3,7 +3,7 @@ package controllers
 import (
 	"html/template"
 	"log"
-	"mjs/v1/models"
+	"goodadvice/v1/models"
 	"net/http"
 	"regexp"
 	"time"

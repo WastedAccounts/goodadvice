@@ -3,9 +3,9 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"goodadvice/v1/models"
 	"html/template"
 	"log"
-	"goodadvice/v1/models"
 	"net/http"
 	"regexp"
 	"strconv"
