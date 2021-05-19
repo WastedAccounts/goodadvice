@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>WOD</title>
+  <style>
+    ul.breadcrumb {
+      padding: 10px 16px;
+      list-style: none;
+      background-color: #eee;
+    }
+    ul.breadcrumb li {
+      display: inline;
+      font-size: 18px;
+    }
+    ul.breadcrumb li+li:before {
+      padding: 8px;
+      color: black;
+      content: "/\00a0";
+    }
+    ul.breadcrumb li a {
+      color: #0275d8;
+      text-decoration: none;
+    }
+    ul.breadcrumb li a:hover {
+      color: #01447e;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<ul class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <!--li><a href="/login">Login</a></li>
+  <li><a href="/wod">WOD</a></li-->
+  <li>Workout</li>
+</ul>
+
+<form action="/wod" method="get">
+  <br />
+  <b><label id="hello" >Hi, {{.UsrName}}!  </label></b>
+  <br />
+  <b><label id="hello2" >It's {{.WoDate}}. Let's get to work.   </label></b>
+  <br />
+  <textarea id="woid"  name="woid" type="string" hidden="true" >{{.WoID}}</textarea>
+  <textarea id="uid" name="uid" type="string" hidden="true" >{{.UsrID}}</textarea>
+  <br />
+  </label>
+  <b>Name:</b>
+  <br />
+  <label name="name" id="name" type="string"><pre>{{.WoName}}</pre></label>
+  <br />
+  <b>Strength work:</b>
+  <br />
+  <label id="strength" style="width:250px;height:150px;" id="strength" type="string" ><pre>{{.WoStrength}}</pre></label>
+  <br />
+  <b>Conditioning work:</b>
+  <br />
+  <label style="width:250px;height:150px;" id="conditioning" name="conditioning" type="string" ><pre>{{.WoConditioning}}</pre></label>
+  <br />
+  <b>Pace:</b>
+  <br /><label id="pace" name="pace" type="string"><pre>{{.WoPace}}</pre></label>
+  <br />
+  <b>Pick another day</b>:<input type="date" data-date-inline-picker="true" id="date" name="date" value="{{.WoDate}}"/>
+  <br>
+  <input type="submit" name="loadWOD" value="Load WOD" />
+  <br />
+  <br />
+  <br />
+  <b>Notes:</b>
+  <br />
+  <textarea name="notes" style="width:250px;height:150px;" id="notes" type="string">{{.UsrNotes}}</textarea>
+  <br />
+  <input type="submit" value="Save notes" name="savenotes" formaction="/wod" formmethod="post" />
+</form>
+</body>
+
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Workout</title>
+  <style>
+    ul.breadcrumb {
+      padding: 10px 16px;
+      list-style: none;
+      background-color: #eee;
+    }
+    ul.breadcrumb li {
+      display: inline;
+      font-size: 18px;
+    }
+    ul.breadcrumb li+li:before {
+      padding: 8px;
+      color: black;
+      content: "/\00a0";
+    }
+    ul.breadcrumb li a {
+      color: #0275d8;
+      text-decoration: none;
+    }
+    ul.breadcrumb li a:hover {
+      color: #01447e;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<ul class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <!--li><a href="/login">Login</a></li>
+  <li><a href="/wod">WOD</a></li-->
+  <li>Edit Workout</li>
+</ul>
+<form action="/addwod">
+  <a class="logo" href="/addwod">Add Workout</a>
+  <br />
+  <br />
+  <label id="id" name="id" hidden="true">{{.ID}}</label>
+  <label id="edit" name="edit" hidden="true">edit</label>
+  <b>Name:</b>
+  <br />
+  <textarea name="name" id="name" style="width:250px;" id="name">{{.Name}}</textarea>
+  <br />
+  <b>Strength work:</b>
+  <br />
+  <textarea name="strength" id="strength" style="width:250px;height:150px;" >{{.Strength}}</textarea>
+  <br />
+  <b>Conditioning work:</b>
+  <br />
+  <textarea name="conditioning" id="conditioning" style="width:250px;height:150px;">{{.Conditioning}}</textarea>
+  <br />
+  <b>Pace:</b><select name="pace" id="pace" value="{{.Pace}}">
+  <option value="fast">Fast</option>
+  <option value="moderate">Moderate</option>
+  <option value="steady">Steady</option>
+  <option value="slow">Slow</option>
+</select>
+  <br />
+  <b>Date of workout:</b><input type="date" data-date-inline-picker="true" id="date" name="date" value="{{.Date}}" />
+  <br />
+  <input type="submit" name="save" id="save" value="save WOD" formmethod="post">
+  <input type="submit" name="load" id="load" value="load WOD" formmethod="get">
+</form>
+</body>
+</html>

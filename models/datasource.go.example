@@ -1,0 +1,3 @@
+package models
+
+var DataSource = "user:password@tcp(ip:port)/schemaname?parseTime=true"
