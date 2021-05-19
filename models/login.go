@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -152,7 +151,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	cookieID = strconv.Itoa(uid) + "/" + id.String()
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 	//expiration := time.Now().Add(20 * time.Second) //time.Now().Add(5 * time.Minute) //
-	cookie := http.Cookie{Name: "WODerator", Value: cookieID , Expires: expiration}
+	cookie := http.Cookie{Name: "goodadvice", Value: cookieID , Expires: expiration}
 	http.SetCookie(w, &cookie)
 }
 
@@ -201,7 +200,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 		// update cookie on client
 		cookieID = c.Uid + "/" + suid.String()
 		expiration := time.Now().Add(365 * 24 * time.Hour)
-		cookie := http.Cookie{Name: "WODerator", Value: cookieID , Expires: expiration}
+		cookie := http.Cookie{Name: "goodadvice", Value: cookieID , Expires: expiration}
 		http.SetCookie(w, &cookie)
 		c.Exists = true
 	}
@@ -229,7 +228,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 
 func validateCookie (w http.ResponseWriter, r *http.Request) Cookie {
 	var c Cookie
-	cookie, err := r.Cookie("WODerator")
+	cookie, err := r.Cookie("goodadvice")
 	// No cookie then get guest WOD page
 	if err != nil {
 		// if not exist redirect to login page

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"mjs/v1/appinit"
-	"mjs/v1/controllers"
+	"goodadvice/v1/appinit"
+	"goodadvice/v1/controllers"
 	"net/http"
 )
 

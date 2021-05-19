@@ -2,4 +2,3 @@
 Dockerfile
 env-file
 .env
-datasource.go

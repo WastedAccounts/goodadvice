@@ -1,9 +1,12 @@
-WODerator is a stupid name
-Hosting it under Thisisgoodadvice.com for now.
+goodadvice is a fitness tracking app
+Admins can create daily workouts that are accessible to users and guests
+Those workouts are editable by admins as well
+Users can leave notes about the workout and go back and review them later
+Guests can only view the daily workout. 
 
 
-Ideas:
-edit work out
+Future plans/ideas:
+Personal Records attached to User accounts
 Email verification
 search functionality
 Admin page 

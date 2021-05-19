@@ -1,4 +1,4 @@
-module mjs/v1
+module goodadvice/v1
 
 go 1.16
 

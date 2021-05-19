@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"log"
-	"mjs/v1/models"
+	"goodadvice/v1/models"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -52,7 +52,7 @@ func newWorkoutController() *workoutController {
 // Comes in from front.go
 func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check for a cookie first
-	//cookie, err := r.Cookie("WODerator")
+	//cookie, err := r.Cookie("goodadvice")
 	//// No cookie then get guest WOD page
 	//if err != nil {
 	//	// if not exist redirect to login page
