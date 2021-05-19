@@ -21,3 +21,4 @@ Random workout shows up if no workout assigned to the day
 random workout buttom
 Like/Hate button to rate workout
     Use this or go back and redo a workout
+"# goodadvice" 
