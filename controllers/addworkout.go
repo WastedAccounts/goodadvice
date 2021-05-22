@@ -1,42 +1,41 @@
 package controllers
 
 import (
+	"goodadvice/v1/models"
 	"html/template"
 	"log"
-	"goodadvice/v1/models"
 	"net/http"
 	"regexp"
-	"time"
 )
 
 type addWorkoutController struct {
 	addWorkoutIDPattern *regexp.Regexp
 }
 
-type AddWorkoutPageLoad struct {
-	WoID int `json:"woID"`
-	WoName string `json:"woName"`
-	WoStrength string `json:"woStrength"`
-	WoPace string `json:"woPace"`
-	WoConditioning string `json:"woConditioning"`
-	WoDate time.Time `json:"woDate"`
-	WoDOW string `json:"woDOW"`
-	UsrID string `json:"usrID"`
-	UsrNoteID int`json:"usrNoteID"`
-	UsrName string `json:"usrName""`
-	UsrNotes string `json:"usrNotes""`
-}
+//type AddWorkoutPageLoad struct {
+//	WoID int
+//	WoName string
+//	WoStrength string
+//	WoPace string
+//	WoConditioning string
+//	WoDate string
+//	WoDOW string
+//	UsrID string
+//	UsrNoteID int
+//	UsrName string
+//	UsrNotes string
+//}
+//
+//type Workout struct {
+//	ID int
+//	Name string
+//	Strength string
+//	Pace string
+//	Conditioning string
+//	Date string
+//}
 
-type Workout struct {
-	ID int `json:"ID"`
-	Name string `json:"Name"`
-	Strength string `json:"Strength"`
-	Pace string `json:"Pace"`
-	Conditioning string `json:"Conditioning"`
-	Date string `json:"Date"`
-	//DOW string `json:"DOW"`
-}
-
+// Used to control NEW vs EDIT templates
 var Edit bool
 
 // html templates
@@ -65,20 +64,19 @@ func (awc addWorkoutController) ServeHTTP(w http.ResponseWriter, r *http.Request
 			switch r.Method {
 			case http.MethodGet:
 				if r.FormValue("date") == "" {
-					pageLoad(w,r)
+					pageLoadAddWorkout(w)
 				} else {
-					loadWod(w,r)
+					loadWOD(w,r)
 				}
-
 			case http.MethodPost:
 				err := r.ParseForm()
 				if err != nil {
 					log.Fatalf("Failed to decode postFormByteSlice: %v", err)
 				}
 				if Edit == true {
-					editWOD(w, r)
+					editWOD(w,r)
 				} else {
-					postWOD(w, r, c.Uid)
+					postWOD(w,r,c.Uid)
 				}
 			default:
 				w.WriteHeader(http.StatusNotImplemented)
@@ -87,28 +85,37 @@ func (awc addWorkoutController) ServeHTTP(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func pageLoad(w http.ResponseWriter, r *http.Request) {
+// pageLoadAddWorkout - initial page load
+func pageLoadAddWorkout(w http.ResponseWriter) {
 	// default load todays wod if there is one for quick edits
 	//wo := models.GetWODGuest()
 	Edit = false
 	addwodtpl.Execute(w, nil)
 }
 
+// postWOD - write workout to the database and reloads it to the page
 func postWOD(w http.ResponseWriter, r *http.Request, uid string) {
-	wo := models.AddWOD(w, r, uid)
+	wo := models.AddWOD(r, uid)
+	if wo.Message == "" {
+		Edit = true
+		editwodtpl.Execute(w, wo)
+	} else {
+		Edit = false
+		addwodtpl.Execute(w, wo)
+	}
+}
+
+//loadWod - loads workout for selected date
+func loadWOD(w http.ResponseWriter, r *http.Request) {
+	wo := models.GetAddWODbydate(r.FormValue("date"))
 	Edit = true
 	editwodtpl.Execute(w, wo)
 }
 
-func loadWod(w http.ResponseWriter, r *http.Request) {
-	wo := models.GetAddWODbydate(w,r)
-	Edit = true
-	editwodtpl.Execute(w, wo)
-}
-
+// editWOD - saves changes made to the workout and reloads it to the page
 func editWOD (w http.ResponseWriter, r *http.Request) {
-	models.EditAddWOD(w,r)
+	models.EditAddWOD(r)
 	Edit = true
-	wo := models.GetAddWODbydate(w,r)
+	wo := models.GetAddWODbydate(r.FormValue("date"))
 	editwodtpl.Execute(w, wo)
 }

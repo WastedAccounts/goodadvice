@@ -29,6 +29,7 @@
   </style>
 </head>
 <body>
+
 <ul class="breadcrumb">
   <li><a href="/">Home</a></li>
   <!--li><a href="/login">Login</a></li>
@@ -38,9 +39,28 @@
 
 <form action="/wod" method="get">
   <br />
-  <b><label id="hello" >Hi, {{.UsrName}}!  </label></b>
+  <b><label id="hello" >{{.UsrGreeting}}, {{.UsrFirstname}}!  </label>
   <br />
-  <b><label id="hello2" >It's {{.WoDate}}. Let's get to work.   </label></b>
+  <script type="text/javascript">
+    var myDate = new Date();
+    var myDay = myDate.getDay();
+    // Array of days.
+    var weekday = ['Sunday', 'Monday', 'Tuesday',
+      'Wednesday', 'Thursday', 'Friday!!', 'Saturday'
+    ];
+    // get hour value.
+    var hours = myDate.getHours();
+    var ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    var minutes = myDate.getMinutes();
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    var myTime = hours  + " :" + minutes + " " + ampm;
+    document.write("It's " + weekday[myDay]);
+    document.write("\t and the time is : " + myTime);
+  </script>
+  <br />
+  <label id="hello2" >Let's get to work.   </label></b>
   <br />
   <textarea id="woid"  name="woid" type="string" hidden="true" >{{.WoID}}</textarea>
   <textarea id="uid" name="uid" type="string" hidden="true" >{{.UsrID}}</textarea>

@@ -3,11 +3,12 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type NewUser struct{
@@ -25,6 +26,7 @@ func Signup(w http.ResponseWriter, r *http.Request){
 	nu.Password = r.FormValue("password")
 	nu.User = r.FormValue("username")
 	nu.Email = r.FormValue("email")
+
 	// Salt and hash the password using the bcrypt algorithm
 	// The second argument is the cost of hashing, which we arbitrarily set as 8 (this value can be more or less, depending on the computing power you wish to utilize)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(nu.Password), 8)
@@ -81,7 +83,6 @@ func CheckUsername(r *http.Request) bool {
 		}
 	}
 	chkusername.Close()
-	fmt.Println("checkUsername is what now",checkUsername)
 	if checkUsername != 0 {
 		//if username already exists (not 0) return true
 		uf = true

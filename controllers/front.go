@@ -3,14 +3,11 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"goodadvice/v1/models"
 	"html/template"
 	"io"
-	"goodadvice/v1/models"
 	"net/http"
 )
-
-// Port forward call for k8s
-// kubectl port-forward mysql-5c9bd6bbb5-vq9vg 3306:3306 --address 0.0.0.0
 
 // html template
 var guesttpl = template.Must(template.ParseFiles("htmlpages/guestindex.html"))
@@ -23,11 +20,14 @@ func RegisterControllers() {
 	sc := newSignupController()
 	awc := newAddWorkoutController()
 	loc := newLogOutController()
+	adm := newAdminController()
 	http.HandleFunc("/", index)
 	//http.HandleFunc("/resume", resume)
 	//http.HandleFunc("/check", check)
 	//http.Handle("/users", *uc)
 	//http.Handle("/users/", *uc)
+	http.Handle("/admin", *adm)
+	http.Handle("/admin/", *adm)
 	http.Handle("/wod", *woc)
 	http.Handle("/wod/", *woc)
 	http.Handle("/login", *lc)

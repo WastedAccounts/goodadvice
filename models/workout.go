@@ -1,11 +1,11 @@
 package models
-//area before var -- {{$.Workout}} -- area after var
+
 import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
-	"net/http"
+	"math/rand"
 	"strconv"
 	"strings"
 )
@@ -29,14 +29,17 @@ type WorkoutNotes struct {
 }
 
 type WodUser struct {
-	ID    int    `json:"ID"`
-	UserName string `json:"UserName"`
-	FirstName string 	 `json:"FirstName"`
-	LastName string `json:"LastName"`
-	EmailAddress string   `json:"EmailAddress"`
+	ID    int
+	UserName string
+	FirstName string
+	LastName string
+	EmailAddress string
+	Greeting string
 }
 
-
+type GreetID struct {
+	ID int
+}
 
 
 func (w Workout) Write(bytes []byte) (int, error) {
@@ -51,6 +54,10 @@ var (
 	workout []*Workout
 )
 
+var (
+	greetid []*GreetID
+)
+
 // GetWOD get today's workout and post it to /wod on first page load
 func GetWOD(uid string) (Workout, WorkoutNotes, WodUser)  {
 	var wo Workout
@@ -61,9 +68,8 @@ func GetWOD(uid string) (Workout, WorkoutNotes, WodUser)  {
 	if err != nil {
 		panic(err.Error())
 	}
-	defer db.Close()
-	qs := "select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = CURDATE()"
-	results, err := db.Query(qs)
+	//qs := "select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = CURDATE()"
+	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = CURDATE()")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -79,8 +85,10 @@ func GetWOD(uid string) (Workout, WorkoutNotes, WodUser)  {
 	//t,_ := time.Parse(time.UnixDate, wo.Date.String())
 	//year, month, day := time.Now().Date()
 	//wo.DOW = t.Weekday().String() + " - " + month.String() + " " + strconv.Itoa(day) + " " + strconv.Itoa(year)
+	defer db.Close()
 	return wo, won, usr
 }
+
 // GetWOD get today's workout and post it to /wod on first page load
 func GetWODGuest() Workout {
 	var wo Workout
@@ -91,9 +99,7 @@ func GetWODGuest() Workout {
 	if err != nil {
 		panic(err.Error())
 	}
-	defer db.Close()
-	qs := "select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = CURDATE()"
-	results, err := db.Query(qs)
+	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = CURDATE()")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -107,6 +113,7 @@ func GetWODGuest() Workout {
 	//t,_ := time.Parse(time.UnixDate, wo.Date.String())
 	//year, month, day := time.Now().Date()
 	//wo.DOW = t.Weekday().String() + " - " + month.String() + " " + strconv.Itoa(day) + " " + strconv.Itoa(year)
+	defer db.Close()
 	return wo //, won, usr
 }
 
@@ -114,8 +121,7 @@ func GetWODGuest() Workout {
 func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 	var wo Workout
 	var id int
-	var name, strength, pace, conditioning string
-	var date string
+	var name, strength, pace, conditioning, date string
 	db, err := sql.Open("mysql", DataSource)
 	if err != nil {
 		panic(err.Error())
@@ -179,7 +185,6 @@ func PostWODNotes (n string, uid string, woid string){
 	var checkValue int
 	qs := "select id from comments where user_id = '" + uid + "' and workout_id = '" + woid + "'"
 	checkID, err := db.Query(qs)
-	fmt.Println(checkID)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -190,7 +195,6 @@ func PostWODNotes (n string, uid string, woid string){
 		}
 	}
 	if checkValue == 0 {
-		fmt.Println("checkValue is empty")
 		insertQry := fmt.Sprintf("insert into comments (user_id,workout_id,comment) values ('%d', '%d', '%s')",uidint,woidint,n)
 		insert, err := db.Query(insertQry)
 		if err != nil {
@@ -198,7 +202,6 @@ func PostWODNotes (n string, uid string, woid string){
 		}
 		insert.Close()
 	} else {
-		fmt.Println("checkValue is NOT empty")
 		updateQry := fmt.Sprintf("update comments set comment = '%s' where ID = '%d' and user_id = '%d' and workout_id = '%d'",n,checkValue, uidint,woidint)
 		update, err := db.Query(updateQry)
 		if err != nil {
@@ -219,9 +222,7 @@ func GetUser(uid string) WodUser{
 	if err != nil {
 		panic(err.Error())
 	}
-	defer db.Close()
-	qs := "select ID, username, firstname,lastlogindate,emailaddress from users where ID =" + uid
-	results, err := db.Query(qs)
+	results, err := db.Query("select ID, username, firstname,lastlogindate,emailaddress from users where ID = ?", uid)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -238,76 +239,117 @@ func GetUser(uid string) WodUser{
 			EmailAddress: emailaddress,
 		}
 	}
+	wu.Greeting = getRandomGreeting()
+	defer db.Close()
 	return wu
 }
 
-
-
-
-
-
-// AddWOD - Write new daily WOD to database
-func AddWOD1(wo Workout,w http.ResponseWriter, r *http.Request) (Workout, error) {
-	pace := wo.Pace
-	conditioning := wo.Conditioning
-	date := wo.Date //need to convert this to a date time somewhere
-	fmt.Println(wo.Name, wo.Strength, pace, conditioning, date)
-	// Open DB connection
+func getRandomGreeting() string {
+	var gid []GreetID
+	var greeting string
+	var id int
 	db, err := sql.Open("mysql", DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
-	defer db.Close()
-	insertQry := fmt.Sprintf("insert into workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date) values ('%s', '%s', '%s', '%s', %t)", wo.Name, wo.Strength, pace, conditioning, date)
-	fmt.Println(insertQry)
-	insert, err := db.Query(insertQry)
+	ids, err := db.Query("select ID from greetings")
+	fmt.Println("ids:",ids)
 	if err != nil {
 		panic(err.Error())
 	}
-	insert.Close()
-	return wo, nil
-}
-
-
-
-// CheckIfWorkoutExists check if uset exist by their email
-// if they don't we return false and then we can add them
-// If they do then we return true and a fresh pull
-// of their info from the database to do more work
-// ID is not known to the user and emails are unique
-func CheckIfWorkoutExists(u User) (User, bool) {
-	emailAddress := u.EmailAddress
-	var count int
-	var exists bool
-	fmt.Println(emailAddress)
-	// Open DB connection
-	db, err := sql.Open("mysql", DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-	checkQry := fmt.Sprintf("select count(EmailAddress) from visitors where EmailAddress = '%s'", emailAddress)
-	check, err := db.Query(checkQry)
-	for check.Next() {
-		err = check.Scan(&count)
-	}
-	fmt.Println(count)
-	if count != 0 {
-		getuser := fmt.Sprintf("select ID,FirstName,LastName,EmailAddress,VisitDate from visitors where EmailAddress = '%s'", emailAddress)
-		getuserResults, err := db.Query(getuser)
+	for ids.Next() {
+		err = ids.Scan(&id)
 		if err != nil {
 			panic(err.Error())
 		}
-		for getuserResults.Next() {
-			err = getuserResults.Scan(&u.ID,&u.FirstName,&u.LastName,&u.EmailAddress,&u.VisitDate)
+		gid = append(gid, GreetID{id} )
+	}
+
+	randomIndex := rand.Intn(len(gid))
+	pick := gid[randomIndex]
+
+	result, err := db.Query("select greeting from greetings where ID = ?", pick.ID)
+	fmt.Println("result:",result)
+	if err != nil {
+		panic(err.Error())
+	}
+	for result.Next() {
+		err = result.Scan(&greeting)
+		if err != nil {
+			panic(err.Error())
 		}
-		exists = true
 	}
-	if count == 0 {
-		exists = false
-	}
-	return u, exists
+	fmt.Println("greeting:",greeting)
+	defer db.Close()
+	return greeting
 }
+
+
+
+
+
+//// AddWOD - Write new daily WOD to database
+//func AddWOD1(wo Workout,w http.ResponseWriter, r *http.Request) (Workout, error) {
+//	pace := wo.Pace
+//	conditioning := wo.Conditioning
+//	date := wo.Date //need to convert this to a date time somewhere
+//	fmt.Println(wo.Name, wo.Strength, pace, conditioning, date)
+//	// Open DB connection
+//	db, err := sql.Open("mysql", DataSource)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//	defer db.Close()
+//	insertQry := fmt.Sprintf("insert into workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date) values ('%s', '%s', '%s', '%s', %t)", wo.Name, wo.Strength, pace, conditioning, date)
+//	fmt.Println(insertQry)
+//	insert, err := db.Query(insertQry)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//	insert.Close()
+//	return wo, nil
+//}
+//
+//
+//
+//// CheckIfWorkoutExists check if uset exist by their email
+//// if they don't we return false and then we can add them
+//// If they do then we return true and a fresh pull
+//// of their info from the database to do more work
+//// ID is not known to the user and emails are unique
+//func CheckIfWorkoutExists(u User) (User, bool) {
+//	emailAddress := u.EmailAddress
+//	var count int
+//	var exists bool
+//	fmt.Println(emailAddress)
+//	// Open DB connection
+//	db, err := sql.Open("mysql", DataSource)
+//	if err != nil {
+//		panic(err.Error())
+//	}
+//	defer db.Close()
+//	checkQry := fmt.Sprintf("select count(EmailAddress) from visitors where EmailAddress = '%s'", emailAddress)
+//	check, err := db.Query(checkQry)
+//	for check.Next() {
+//		err = check.Scan(&count)
+//	}
+//	fmt.Println(count)
+//	if count != 0 {
+//		getuser := fmt.Sprintf("select ID,FirstName,LastName,EmailAddress,VisitDate from visitors where EmailAddress = '%s'", emailAddress)
+//		getuserResults, err := db.Query(getuser)
+//		if err != nil {
+//			panic(err.Error())
+//		}
+//		for getuserResults.Next() {
+//			err = getuserResults.Scan(&u.ID,&u.FirstName,&u.LastName,&u.EmailAddress,&u.VisitDate)
+//		}
+//		exists = true
+//	}
+//	if count == 0 {
+//		exists = false
+//	}
+//	return u, exists
+//}
 
 // AddWorkout Adds new user to visitors table
 // first checks if user exists based on email

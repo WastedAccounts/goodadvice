@@ -2,8 +2,8 @@ package controllers
 
 import (
 	"fmt"
-	"html/template"
 	"goodadvice/v1/models"
+	"html/template"
 	"net/http"
 	"regexp"
 )
@@ -59,6 +59,7 @@ func loginFailed(w http.ResponseWriter, r *http.Request) {
 func loginSuccess() {
 	// do work to finish logging in user and setting up a session
 }
+
 //func (lc *loginController) postLogin(user string, c http.Cookie, r *http.Request, w http.ResponseWriter,) {
 //	http.Redirect(w,r, "/", 302)
 //}

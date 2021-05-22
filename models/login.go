@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Credentials struct {
@@ -29,7 +31,7 @@ type Authenticated struct {
 	Active bool
 }
 
-
+var i int
 // https://www.sohamkamani.com/blog/2018/02/25/golang-password-authentication-and-storage/#implementing-user-login
 func Login(w http.ResponseWriter, r *http.Request) bool {
 	var success bool
@@ -40,16 +42,15 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 		Username: r.FormValue("username"),
 		Password: r.FormValue("password"),
 	}
-	//err := json.NewDecoder(r.Body).Decode(creds)
-	//if err != nil {
-	//	// If there is something wrong with the request body, return a 400 status
-	//	w.WriteHeader(http.StatusBadRequest)
-	//	return
-	//}
+
 	// Get the existing entry present in the database for the given username
 	db, err := sql.Open("mysql", DataSource)
-	qs := fmt.Sprintf("select password,isactive from users where username='%s'", creds.Username)
-	GetCreds, err := db.Query(qs)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	//qs := fmt.Sprintf("select password,isactive from users where username='%s'", creds.Username)
+	GetCreds, err := db.Query("select password,isactive from users where username = ?", creds.Username) //("select password,isactive from users where username='?'", creds.Username)
 	for GetCreds.Next() {
 		err := GetCreds.Scan(&password,&isactive)
 		if err != nil {
@@ -70,7 +71,8 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 		success = false
 		return success
 	}
-	fmt.Println("apparently the passwords are good")
+	fmt.Println("Passwords are good")
+	defer db.Close()
 	success = true
 	return success
 	// If we reach this point, that means the users password was correct, and that they are authorized
@@ -95,8 +97,6 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	getIDqs := fmt.Sprintf("select ID from users where username = '%s'", r.FormValue("username"))
 	fmt.Println(getIDqs)
 	checkID, err := db.Query(getIDqs)
-	fmt.Println("Print checkID results")
-	fmt.Println(checkID)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -106,12 +106,8 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	}
-	fmt.Println(uid)
 	checkSessionqs := fmt.Sprintf("select ID from user_session where userid = '%d'", uid)
-	fmt.Println(checkSessionqs)
 	checkSessionID, err := db.Query(checkSessionqs)
-	fmt.Println("Print checkSessionID results")
-	fmt.Println(checkSessionID)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -122,22 +118,16 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if sessionID == 0 {
-		fmt.Println("sessionID is empty: ", sessionID)
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		fmt.Println(currentTime)
 		insertQry := fmt.Sprintf("insert into user_session (userid,sessionstart,sessionkey) value('%d', '%s', '%s')", uid, currentTime, id)
-		fmt.Println(insertQry)
 		insert, err := db.Query(insertQry)
 		if err != nil {
 			panic(err.Error())
 		}
 		insert.Close()
 	} else {
-		fmt.Println("checkValue is NOT empty")
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		fmt.Println(currentTime)
 		updateQry := fmt.Sprintf("update user_session set sessionstart = '%s', sessionkey = '%s' where userid = '%d'", currentTime, id, uid)
-		fmt.Println(updateQry)
 		update, err := db.Query(updateQry)
 		if err != nil {
 			panic(err.Error())
@@ -163,6 +153,9 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 	var isAdmin string
 	//var c Cookie
 	c := validateCookie(w, r)
+	if c.Exists == false {
+		return c
+	}
 	// Generate unique session value
 	suid := ksuid.New()
 	// write to DB
@@ -181,7 +174,6 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 	}
 
 	expires := time.Now().Local().Add(-360 * time.Minute)//.Unix()
-	fmt.Println(expires)
 	sessionAge, expires = sessionAge.UTC(), expires.UTC()
 	//var exp bool
 	if expires.After(sessionAge) {
@@ -249,3 +241,4 @@ func validateCookie (w http.ResponseWriter, r *http.Request) Cookie {
 	}
 	return c
 }
+

@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -35,7 +36,6 @@ func GetUsers() []User {
 	}
 	for results.Next() {
 		err = results.Scan(&userId,&firstName,&lastName,&emailAddress,&visitDate)
-		fmt.Println(results)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -53,7 +53,6 @@ func CheckIfUserExists(u User) (User, bool) {
 	emailAddress := u.EmailAddress
 	var count int
 	var exists bool
-	fmt.Println(emailAddress)
 	// Open DB connection
 	db, err := sql.Open("mysql", DataSource)
 	if err != nil {
@@ -90,7 +89,6 @@ func AddUser(u User) (User, error) {
 	firstName := u.FirstName
 	lastName := u.LastName
 	emailAddress := u.EmailAddress
-	fmt.Println(firstName, lastName, emailAddress)
 	// Open DB connection
 	db, err := sql.Open("mysql", DataSource)
 	if err != nil {
@@ -98,7 +96,6 @@ func AddUser(u User) (User, error) {
 	}
 	defer db.Close()
 	insertQry := fmt.Sprintf("insert into visitors (FirstName,LastName,EmailAddress,VisitDate) values ('%s', '%s', '%s',NOW())", firstName, lastName, emailAddress)
-	fmt.Println(insertQry)
 	insert, err := db.Query(insertQry)
 	if err != nil {
 		panic(err.Error())
