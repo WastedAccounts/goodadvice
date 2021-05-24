@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movements</title>
+</head>
+<form name="adminmovements" action="/admin" >
+    <label id="amid" name="am">Add Movement</label>
+    <br />
+    <textarea id="movementid" name="movement" ></textarea>
+    <br />
+    <select name="movementtypes" id="movementtypesid">
+        <option value="weightlifting">Weightlifting</option>
+        <option value="gymnastics">Gymnastics</option>
+        <option value="the girls">The Girls</option>
+        <option value="hero">Hero</option>
+        <option value="running">Running</option>
+        <option value="biking">Biking</option>
+        <option value="rowing">Rowing</option>
+
+        <!--{{ .DDLoptions}} -->
+    </select>
+    <input type="submit" name="addmovement" id="movementsid" value="addmovement" formmethod="post">
+</form>
+
+</html>

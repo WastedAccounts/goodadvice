@@ -14,11 +14,32 @@
 
 <h2>Manage users</h2>
 
+
+
 <ul>
-    <li>Coffee</li>
-    <li>Tea</li>
-    <li>Milk</li>
+    <li>User1</li>
+    <li>User2</li>
+    <li>User3</li>
 </ul>
+<main>
+<header>
+</header>
+<form action="/admin">
+    <input type="submit" name="submit" id="users" value="users" formmethod="get">
+    <input type="submit" name="submit" id="movements" value="movements" formmethod="get">
+    <input type="submit" name="submit" id="workouts" value="workouts" formmethod="get">
+    <br /><br />
+    <a class="logo" href="/wod">Workout of the Day</a>
+    <br /><br />
+    <a class="logo" href="/addwod">Add Workout</a>
+    <br /><br />
+    <a class="logo" href="/logout">Logout =(</a>
+</form>
+</main>
+
+
+<br /><br />
+<footer><label id="msg" name="msg" >Version: {{.Version}}  Installed: {{.VersionDate}}</b></label></footer>
 
 </body>
 </html>

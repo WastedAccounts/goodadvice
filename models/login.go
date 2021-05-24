@@ -94,9 +94,9 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	// write to DB
 	// First check if the user exists in the session table
 	db, err := sql.Open("mysql", DataSource)
-	getIDqs := fmt.Sprintf("select ID from users where username = '%s'", r.FormValue("username"))
-	fmt.Println(getIDqs)
-	checkID, err := db.Query(getIDqs)
+	//getIDqs := fmt.Sprintf("select ID from users where username = '%s'", r.FormValue("username"))
+	//fmt.Println(getIDqs)
+	checkID, err := db.Query("select ID from users where username = ?", r.FormValue("username"))//(getIDqs)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -119,16 +119,16 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	}
 	if sessionID == 0 {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		insertQry := fmt.Sprintf("insert into user_session (userid,sessionstart,sessionkey) value('%d', '%s', '%s')", uid, currentTime, id)
-		insert, err := db.Query(insertQry)
+		//insertQry := fmt.Sprintf("insert into user_session (userid,sessionstart,sessionkey) value('%d', '%s', '%s')", uid, currentTime, id)
+		insert, err := db.Query("insert into user_session (userid,sessionstart,sessionkey) value(?, ?, ?)", uid, currentTime, id)//(insertQry)
 		if err != nil {
 			panic(err.Error())
 		}
 		insert.Close()
 	} else {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		updateQry := fmt.Sprintf("update user_session set sessionstart = '%s', sessionkey = '%s' where userid = '%d'", currentTime, id, uid)
-		update, err := db.Query(updateQry)
+		//updateQry := fmt.Sprintf("update user_session set sessionstart = '%s', sessionkey = '%s' where userid = '%d'", currentTime, id, uid)
+		update, err := db.Query("update user_session set sessionstart = ?, sessionkey = ? where userid = ?", currentTime, id, uid)//(updateQry)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -161,8 +161,8 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 	// write to DB
 	db, err := sql.Open("mysql", DataSource)
 	// validate session is LESS then 2 hours old
-	checkSessionAgeqs := fmt.Sprintf("select ID,sessionstart from user_session where userid = '%s' and sessionkey = '%s'", c.Uid, c.Sessionkey)
-	checkSessionAge, err := db.Query(checkSessionAgeqs)
+	//checkSessionAgeqs := fmt.Sprintf("select ID,sessionstart from user_session where userid = '%s' and sessionkey = '%s'", c.Uid, c.Sessionkey)
+	checkSessionAge, err := db.Query("select ID,sessionstart from user_session where userid = ? and sessionkey = ?", c.Uid, c.Sessionkey)//(checkSessionAgeqs)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -183,8 +183,8 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 		c.Sessionkey = ""
 	} else {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		updateQry := fmt.Sprintf("update user_session set sessionstart = '%s', sessionkey = '%s' where ID = '%d'", currentTime, suid, sessionID)
-		update, err := db.Query(updateQry)
+		//updateQry := fmt.Sprintf("update user_session set sessionstart = '%s', sessionkey = '%s' where ID = '%d'", currentTime, suid, sessionID)
+		update, err := db.Query("update user_session set sessionstart = ?, sessionkey = ? where ID = ?", currentTime, suid, sessionID)//(updateQry)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -197,8 +197,8 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 		c.Exists = true
 	}
 	// Check if user is Admin
-	checkAdminqs := fmt.Sprintf("select isadmin from users where ID = '%s'", c.Uid)// and sessionkey = '%s', sessionkey)
-	checkAdmin, err := db.Query(checkAdminqs)
+	//checkAdminqs := fmt.Sprintf("select isadmin from users where ID = '%s'", c.Uid)// and sessionkey = '%s', sessionkey)
+	checkAdmin, err := db.Query("select isadmin from users where ID = ?", c.Uid)//(checkAdminqs)
 	if err != nil {
 		panic(err.Error())
 	}

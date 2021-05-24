@@ -19,6 +19,7 @@ Random workout shows up if no workout assigned to the day.
 random workout button.
 search functionality.
 Admin page:
+    Shows Version DB and APP
     to activate users,
     to deactivate users,
     Change roles:
