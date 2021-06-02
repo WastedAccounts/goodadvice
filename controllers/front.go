@@ -10,8 +10,9 @@ import (
 )
 
 // html template
-var guesttpl = template.Must(template.ParseFiles("htmlpages/guestindex.html"))
-var tpl = template.Must(template.ParseFiles("htmlpages/index.html"))
+var guestindexttpl = template.Must(template.ParseFiles("htmlpages/guestindex.html"))
+var adminindextpl = template.Must(template.ParseFiles("htmlpages/adminindex.html"))
+var loggedinindextpl = template.Must(template.ParseFiles("htmlpages/index.html"))
 
 func RegisterControllers() {
 	//uc := newUserController()
@@ -21,9 +22,8 @@ func RegisterControllers() {
 	awc := newAddWorkoutController()
 	loc := newLogOutController()
 	adm := newAdminController()
+	upc := newUserProfileController()
 	http.HandleFunc("/", index)
-	//http.HandleFunc("/resume", resume)
-	//http.HandleFunc("/check", check)
 	//http.Handle("/users", *uc)
 	//http.Handle("/users/", *uc)
 	http.Handle("/admin", *adm)
@@ -38,6 +38,8 @@ func RegisterControllers() {
 	http.Handle("/addwod/", *awc)
 	http.Handle("/logout", *loc)
 	http.Handle("/logout/", *loc)
+	http.Handle("/userprofile", *upc)
+	http.Handle("/userprofile/", *upc)
 }
 
 func encodeResponseAsJSON(data interface{}, w io.Writer) {
@@ -49,12 +51,15 @@ func encodeResponseAsJSON(data interface{}, w io.Writer) {
 
 func index(w http.ResponseWriter, r *http.Request) {
 	c := models.ValidateSession(w,r)
-	if 	c.Exists == true {
+	if c.Exists == true && c.Isadmin == true {
 		fmt.Fprint(w, "<h1>Welcome, this is good advice</h1>")
-		tpl.Execute(w, nil)
+		adminindextpl.Execute(w, nil)
+	} else if c.Exists == true && c.Isadmin != true  {
+		fmt.Fprint(w, "<h1>Welcome, this is good advice</h1>")
+		loggedinindextpl.Execute(w, nil)
 	} else {
 		fmt.Fprint(w, "<h1>Welcome, this is good advice</h1>")
-		guesttpl.Execute(w, nil)
+		guestindexttpl.Execute(w, nil)
 	}
 
 }

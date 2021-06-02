@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <style>
+        ul.breadcrumb {
+            padding: 10px 16px;
+            list-style: none;
+            background-color: #eee;
+        }
+        ul.breadcrumb li {
+            display: inline;
+            font-size: 18px;
+        }
+        ul.breadcrumb li+li:before {
+            padding: 8px;
+            color: black;
+            content: "/\00a0";
+        }
+        ul.breadcrumb li a {
+            color: #0275d8;
+            text-decoration: none;
+        }
+        ul.breadcrumb li a:hover {
+            color: #01447e;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <!--li><a href="/login">Login</a></li>
+    <li><a href="/wod">WOD</a></li-->
+    <li>Profile</li>
+</ul>
+
+<form action="/userprofile">
+    <label id="prslabel" name="prslabel" >Personal Records</label>
+    <br>
+    <label id="prs" style="width:250px;height:150px;" id="prs" type="string" ><pre>{{ .Record}}</pre></label>
+    <br>
+    <textarea id="prnew" name="prnew" style="width:150px;height:20px;"></textarea>
+    <select id="prddl" name="prddl">
+        {{range $value := .Movements}}
+        <option value="{{ $value }}">{{ $value }}</option>
+        {{end}}
+    </select>
+    <br>
+    <input type="date" data-date-inline-picker="true" id="prdate" name="prdate" value="{{ .Date}}" />
+    <input type="submit" name="submit" id="addpr" value="Add Record" formmethod="get">
+</form>
+
+
+</body>
+</html>

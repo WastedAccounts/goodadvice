@@ -396,24 +396,24 @@ func GetWorkoutByDate (id int) (User, error) {
 }
 */
 
-// UpdateWorkout Not in use yet
-func UpdateWorkout(u User)	(User, error) {
-	for i, candidate := range users {
-		if candidate.ID == u.ID	{
-			users[i] = &u
-			return u, nil
-		}
-	}
-	return User{}, fmt.Errorf("User with ID '%v' not found", u.ID)
-}
-
-func RemoveWorkoutByID(id int) error {
-	//delete from visitors where ID = 8
-	for i, u := range users {
-		if u.ID == id {
-			users = append(users[:i], users[i+1:]...)
-			return nil
-		}
-	}
-	return fmt.Errorf("User with ID '%v' not  found", id)
-}
+//// UpdateWorkout Not in use yet
+//func UpdateWorkout(u User)	(User, error) {
+//	for i, candidate := range users {
+//		if candidate.ID == u.ID	{
+//			users[i] = &u
+//			return u, nil
+//		}
+//	}
+//	return User{}, fmt.Errorf("User with ID '%v' not found", u.ID)
+//}
+//
+//func RemoveWorkoutByID(id int) error {
+//	//delete from visitors where ID = 8
+//	for i, u := range users {
+//		if u.ID == id {
+//			users = append(users[:i], users[i+1:]...)
+//			return nil
+//		}
+//	}
+//	return fmt.Errorf("User with ID '%v' not  found", id)
+//}

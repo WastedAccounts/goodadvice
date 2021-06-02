@@ -3,24 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <title>Movements</title>
+    <style>
+        ul.breadcrumb {
+            padding: 10px 16px;
+            list-style: none;
+            background-color: #eee;
+        }
+        ul.breadcrumb li {
+            display: inline;
+            font-size: 18px;
+        }
+        ul.breadcrumb li+li:before {
+            padding: 8px;
+            color: black;
+            content: "/\00a0";
+        }
+        ul.breadcrumb li a {
+            color: #0275d8;
+            text-decoration: none;
+        }
+        ul.breadcrumb li a:hover {
+            color: #01447e;
+            text-decoration: underline;
+        }
+    </style>
 </head>
-<form name="adminmovements" action="/admin" >
-    <label id="amid" name="am">Add Movement</label>
-    <br />
-    <textarea id="movementid" name="movement" ></textarea>
-    <br />
-    <select name="movementtypes" id="movementtypesid">
-        <option value="weightlifting">Weightlifting</option>
-        <option value="gymnastics">Gymnastics</option>
-        <option value="the girls">The Girls</option>
-        <option value="hero">Hero</option>
-        <option value="running">Running</option>
-        <option value="biking">Biking</option>
-        <option value="rowing">Rowing</option>
+<body>
 
-        <!--{{ .DDLoptions}} -->
-    </select>
-    <input type="submit" name="addmovement" id="movementsid" value="addmovement" formmethod="post">
-</form>
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li><a href="/admin">Admin</a></li>
+    <!--li><a href="/wod">WOD</a></li-->
+    <li>Add Movement</li>
+</ul>
+    <form name="adminmovements" action="/admin" >
+        <label id="amid" name="am">Add Movement</label>
+        <br />
+        <textarea id="movementid" name="movement" ></textarea>
+        <br />
+        <select name="movementtypes" id="movementtypesid">
+            {{range $value := .MovementType}}
+            <option value="{{ $value }}">{{ $value }}</option>
+            {{end}}
+        </select>
 
+        <input type="submit" name="addmovement" id="movementsid" value="addmovement" formmethod="post">
+    </form>
+</body>
 </html>

@@ -11,12 +11,12 @@ type Version struct {
 }
 
 type MovementTypes struct {
-	MovementType string
+	MovementType []string
 }
 
-var (
-	movementtype []*MovementTypes
-)
+//var (
+//	movementtype []*MovementTypes
+//)
 
 func GetVersion() Version {
 	var v Version
@@ -43,8 +43,8 @@ func GetVersion() Version {
 	return v
 }
 
-func GetMovementTypes() []MovementTypes {
-	var mt []MovementTypes
+func GetMovementTypes() MovementTypes {
+	var mt MovementTypes
 	var movementtype string
 	db, err := sql.Open("mysql", DataSource)
 	if err != nil {
@@ -59,7 +59,7 @@ func GetMovementTypes() []MovementTypes {
 		if err != nil {
 			panic(err.Error())
 		}
-		mt = append(mt, MovementTypes{MovementType: movementtype})
+		mt.MovementType = append(mt.MovementType, movementtype)
 	}
 
 	defer db.Close()

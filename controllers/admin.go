@@ -96,9 +96,9 @@ func pageLoadUsers() {
 
 // pageLoadMovements - switch to Movements template - This doesn't dynamically populate the DDL yet so I hard coded the page.
 func pageLoadMovements(w http.ResponseWriter, r *http.Request) {
-	var lm LoadMovements
+	//var lm LoadMovements
 	//All of this is broken, well, not broken, just doesn't work as I expected
-	mt := models.GetMovementTypes()
+
 	//var DDLoptions string
 	//for _,x := range mt {
 	//	////i := strconv.Itoa(x)
@@ -107,11 +107,12 @@ func pageLoadMovements(w http.ResponseWriter, r *http.Request) {
 	//	//fmt.Println(x)
 	//	fmt.Println(DDLoptions)
 	//}
-	for _,x := range mt {
-		lm.DDLoptions = append(lm.DDLoptions, x.MovementType)
-	}
+	//for _,x := range mt {
+	//	lm.DDLoptions = append(lm.DDLoptions, x.MovementType)
+	//}
 	//adminmovementstpl.Execute(w, DDLoptions)
-	adminmovementstpl.Execute(w, nil)
+	mt := models.GetMovementTypes()
+	adminmovementstpl.Execute(w, mt)
 }
 
 // saveMovement - save new movement type from adminmovements.html
