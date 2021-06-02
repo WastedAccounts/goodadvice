@@ -1,3 +1,6 @@
+Welcome to the worst README.md. I'm working on it ..
+
+
 goodadvice is a fitness tracking app.
 Admins can create daily workouts that are accessible to users and guests.
 Those workouts are editable by admins as well.
