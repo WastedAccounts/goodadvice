@@ -41,11 +41,6 @@ func (upc userProfileController) ServeHTTP(w http.ResponseWriter, r *http.Reques
 			if submit == "" {
 				upc.pageLoad(w, r, c.Uid)
 			} else if submit == "Add Record" {
-				fmt.Println("add user selected")
-				fmt.Println("new",r.FormValue("prnew"))
-				fmt.Println("ddl",r.FormValue("prddl"))
-				fmt.Println("uid",c.Uid)
-				fmt.Println("date",r.FormValue("prdate"))
 				add := models.Addpr{
 					Uid:          c.Uid,
 					MovementName: r.FormValue("prddl"),
@@ -70,7 +65,6 @@ func (upc userProfileController) ServeHTTP(w http.ResponseWriter, r *http.Reques
 func (upc userProfileController) pageLoad(w http.ResponseWriter, r *http.Request, id string) {
 	// load PRs on page lade
 	record := models.PageLoadUserProfile(id)
-	fmt.Println("printdate:",record.Date)
 	userprofiletpl.Execute(w, record)
 }
 

@@ -42,13 +42,11 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 		Username: r.FormValue("username"),
 		Password: r.FormValue("password"),
 	}
-
 	// Get the existing entry present in the database for the given username
 	db, err := sql.Open("mysql", DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
-
 	//qs := fmt.Sprintf("select password,isactive from users where username='%s'", creds.Username)
 	GetCreds, err := db.Query("select password,isactive from users where username = ?", creds.Username) //("select password,isactive from users where username='?'", creds.Username)
 	for GetCreds.Next() {
@@ -57,7 +55,6 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 			log.Fatal(err)
 		}
 	}
-
 	// Check if user is active, if not fail login immediately
 	if isactive == "0"{
 		success = false
@@ -66,12 +63,10 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 	// Compare the stored hashed password, with the hashed version of the password that was received
 	if err = bcrypt.CompareHashAndPassword([]byte(password), []byte(creds.Password)); err != nil {
 		// If the two passwords don't match, return a 401 status
-		fmt.Println("passwords don't match")
 		w.WriteHeader(http.StatusUnauthorized)
 		success = false
 		return success
 	}
-	fmt.Println("Passwords are good")
 	defer db.Close()
 	success = true
 	return success
@@ -80,9 +75,7 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 }
 
 func IsActive() {
-
 }
-
 
 func CreateSession(w http.ResponseWriter, r *http.Request) {
 	// create vars
@@ -135,12 +128,9 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 		update.Close()
 	}
 	checkID.Close()
-
 	//create cookie on client
-	//user := r.FormValue("user")
 	cookieID = strconv.Itoa(uid) + "/" + id.String()
 	expiration := time.Now().Add(365 * 24 * time.Hour)
-	//expiration := time.Now().Add(20 * time.Second) //time.Now().Add(5 * time.Minute) //
 	cookie := http.Cookie{Name: "goodadvice", Value: cookieID , Expires: expiration}
 	http.SetCookie(w, &cookie)
 }
@@ -197,7 +187,6 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 		c.Exists = true
 	}
 	// Check if user is Admin
-	//checkAdminqs := fmt.Sprintf("select isadmin from users where ID = '%s'", c.Uid)// and sessionkey = '%s', sessionkey)
 	checkAdmin, err := db.Query("select isadmin from users where ID = ?", c.Uid)//(checkAdminqs)
 	if err != nil {
 		panic(err.Error())
@@ -213,7 +202,6 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 	} else {
 		c.Isadmin = false
 	}
-	// I think tis is the superfluous call is happening AND here ... WTF
 	return c
 }
 
@@ -225,19 +213,12 @@ func validateCookie (w http.ResponseWriter, r *http.Request) Cookie {
 	if err != nil {
 		// if not exist redirect to login page
 		c.Exists = false
-		//c.Uid = splitcookie[0]
-		//c.Sessionkey = "splitcookie[1]"
-		//splitcookie[0] == userid
-		//splitcookie[1] == sessionkey
-		//return c
 	} else if err == nil {
 		cookievalue := cookie.Value
 		splitcookie := strings.Split(cookievalue, "/")
 		c.Exists = true
 		c.Uid = splitcookie[0]
 		c.Sessionkey = splitcookie[1]
-		//splitcookie[0] == userid
-		//splitcookie[1] == sessionkey
 	}
 	return c
 }

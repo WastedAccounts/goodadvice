@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Movements</title>
-    <style>
+    <link rel="stylesheet" href="../assets/css/style.css" >
+    <!--style>
         ul.breadcrumb {
             padding: 10px 16px;
             list-style: none;
@@ -26,10 +27,10 @@
             color: #01447e;
             text-decoration: underline;
         }
-    </style>
+    </style-->
 </head>
 <body>
-
+<h1 class="header">good advice</h1>
 <ul class="breadcrumb">
     <li><a href="/">Home</a></li>
     <li><a href="/admin">Admin</a></li>
@@ -37,6 +38,8 @@
     <li>Add Movement</li>
 </ul>
     <form name="adminmovements" action="/admin" >
+        <label id="descript1" name="am">Add Movement is for adding workout for a specific discipline: 5K Run, Deadlift, Ring muscle ups </label>
+        <label id="descript2" name="am">Users can then add PRs for this in their user profile</label>
         <label id="amid" name="am">Add Movement</label>
         <br />
         <textarea id="movementid" name="movement" ></textarea>

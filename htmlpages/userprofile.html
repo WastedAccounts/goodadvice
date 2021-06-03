@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>User Profile</title>
-    <style>
+    <link rel="stylesheet" href="../assets/css/style.css" >
+    <!--style>
         ul.breadcrumb {
             padding: 10px 16px;
             list-style: none;
@@ -26,9 +27,10 @@
             color: #01447e;
             text-decoration: underline;
         }
-    </style>
+    </style-->
 </head>
 <body>
+<h1 class="header">good advice</h1>
 <ul class="breadcrumb">
     <li><a href="/">Home</a></li>
     <!--li><a href="/login">Login</a></li>
@@ -42,6 +44,7 @@
     <label id="prs" style="width:250px;height:150px;" id="prs" type="string" ><pre>{{ .Record}}</pre></label>
     <br>
     <textarea id="prnew" name="prnew" style="width:150px;height:20px;"></textarea>
+    <br>
     <select id="prddl" name="prddl">
         {{range $value := .Movements}}
         <option value="{{ $value }}">{{ $value }}</option>
@@ -49,6 +52,7 @@
     </select>
     <br>
     <input type="date" data-date-inline-picker="true" id="prdate" name="prdate" value="{{ .Date}}" />
+    <br>
     <input type="submit" name="submit" id="addpr" value="Add Record" formmethod="get">
 </form>
 

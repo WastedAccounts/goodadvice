@@ -14,6 +14,7 @@ func main()  {
 	//emailVerification()
 	appinit.Init()
 	controllers.RegisterControllers()
+	http.Handle("/assets/css/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("assets/css"))))
 	http.ListenAndServe(":3000", nil)
 	//fmt.Println("Server has started")
 }
