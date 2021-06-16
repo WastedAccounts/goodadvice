@@ -21,6 +21,7 @@ func newLoginController() *loginController {
 
 var	logintpl = template.Must(template.ParseFiles("htmlpages/login.html"))
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
+
 func (lc loginController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/login" {
 		switch r.Method  {
@@ -59,7 +60,3 @@ func loginFailed(w http.ResponseWriter, r *http.Request) {
 func loginSuccess() {
 	// do work to finish logging in user and setting up a session
 }
-
-//func (lc *loginController) postLogin(user string, c http.Cookie, r *http.Request, w http.ResponseWriter,) {
-//	http.Redirect(w,r, "/", 302)
-//}

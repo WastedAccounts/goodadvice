@@ -15,6 +15,7 @@ import (
 )
 
 type Credentials struct {
+	Id string
 	Username string
 	Password string
 }
@@ -31,12 +32,10 @@ type Authenticated struct {
 	Active bool
 }
 
-var i int
 // https://www.sohamkamani.com/blog/2018/02/25/golang-password-authentication-and-storage/#implementing-user-login
 func Login(w http.ResponseWriter, r *http.Request) bool {
 	var success bool
-	var isactive string
-	var password string
+	var isactive, password, id string
 	// Parse and decode the request body into a new `Credentials` instance
 	creds := Credentials{
 		Username: r.FormValue("username"),
@@ -47,10 +46,9 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 	if err != nil {
 		panic(err.Error())
 	}
-	//qs := fmt.Sprintf("select password,isactive from users where username='%s'", creds.Username)
-	GetCreds, err := db.Query("select password,isactive from users where username = ?", creds.Username) //("select password,isactive from users where username='?'", creds.Username)
+	GetCreds, err := db.Query("select ID, password,isactive from users where username = ?", creds.Username) //("select password,isactive from users where username='?'", creds.Username)
 	for GetCreds.Next() {
-		err := GetCreds.Scan(&password,&isactive)
+		err := GetCreds.Scan(&id,&password,&isactive)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -67,14 +65,20 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 		success = false
 		return success
 	}
+	// Capture login date and IP to login_history table
+	currentTime := time.Now().Format("2006-01-02 15:04:05")
+	insert, err := db.Exec("INSERT INTO login_history (user_id, login_date, user_ip) VALUES (?, ?, ?)", id,currentTime,r.RemoteAddr )
+	if err != nil {
+		panic(err.Error())
+	}
+	insert.RowsAffected()
+	//close DB connection
 	defer db.Close()
+	// return success
 	success = true
 	return success
 	// If we reach this point, that means the users password was correct, and that they are authorized
 	// The default 200 status is sent
-}
-
-func IsActive() {
 }
 
 func CreateSession(w http.ResponseWriter, r *http.Request) {

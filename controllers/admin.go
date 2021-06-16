@@ -27,6 +27,7 @@ type LoadMovements struct {
 // html templates
 var admintpl = template.Must(template.ParseFiles("htmlpages/admin.html"))
 var adminmovementstpl = template.Must(template.ParseFiles("htmlpages/adminmovements.html"))
+var adminuserstpl = template.Must(template.ParseFiles("htmlpages/adminusers.html"))
 
 // entry point from front.go
 func newAdminController() *adminController {
@@ -49,7 +50,7 @@ func (ac adminController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			case http.MethodGet:
 				submit := r.FormValue("submit")
 				if submit == "users" {
-					pageLoadUsers()
+					pageLoadUsers(w)
 				} else if submit == "movements" {
 					pageLoadMovements(w,r)
 				} else if submit == "workouts" {
@@ -82,35 +83,24 @@ func (ac adminController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // pageLoadAdmin
 func pageLoadAdmin(w http.ResponseWriter) {
 	// default load todays wod if there is one for quick edits
-	//wo := models.GetWODGuest()
-	//Edit = false -- used on addworkout to control edit vs new templates
 	v := models.GetVersion()
 	admintpl.Execute(w, v)
 }
 
-// pageLoadUsers - switch to users template do work there
-func pageLoadUsers() {
-
+// pageLoadWorkouts - switch to workouts template do work there
+func pageLoadWorkouts() {
 }
 
+// pageLoadUsers - switch to users template do work there
+func pageLoadUsers(w http.ResponseWriter) {
+	u := models.GetUsers()
+	fmt.Println(u)
+	adminuserstpl.Execute(w, u)
+}
 
 // pageLoadMovements - switch to Movements template - This doesn't dynamically populate the DDL yet so I hard coded the page.
 func pageLoadMovements(w http.ResponseWriter, r *http.Request) {
 	//var lm LoadMovements
-	//All of this is broken, well, not broken, just doesn't work as I expected
-
-	//var DDLoptions string
-	//for _,x := range mt {
-	//	////i := strconv.Itoa(x)
-	//	//i := x.MovementType
-	//	DDLoptions += fmt.Sprintf("<option value=\"" + strings.ToLower(x.MovementType) + "\">" + x.MovementType + "</option>\r")
-	//	//fmt.Println(x)
-	//	fmt.Println(DDLoptions)
-	//}
-	//for _,x := range mt {
-	//	lm.DDLoptions = append(lm.DDLoptions, x.MovementType)
-	//}
-	//adminmovementstpl.Execute(w, DDLoptions)
 	mt := models.GetMovementTypes()
 	adminmovementstpl.Execute(w, mt)
 }
@@ -122,7 +112,4 @@ func saveMovement(w http.ResponseWriter, r *http.Request) {
 	models.SaveMovement(m,mt)
 }
 
-// pageLoadWorkouts - switch to workouts template do work there
-func pageLoadWorkouts() {
 
-}
