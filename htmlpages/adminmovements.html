@@ -23,12 +23,17 @@
         <textarea id="movementid" name="movement" ></textarea>
         <br>
         <select name="movementtypes" id="movementtypesid">
-            {{range $value := .MovementType}}
-            <option value="{{ $value }}">{{ $value }}</option>
+            {{range $value := .Ddloptions}}
+            <option value="{{$value}}">{{$value}}</option>
             {{end}}
         </select>
+        <input type="submit" name="submit" id="movementsid" value="addmovement" formmethod="post">
 
-        <input type="submit" name="addmovement" id="movementsid" value="addmovement" formmethod="post">
+        <div>
+        {{range .MovementList}}
+        <label id="{{.Movement}}" name="{{.MovementType}}">{{.Movement}} - {{.MovementType}}</label><br>
+        {{end}}
+        </div>
     </form>
 </body>
 </html>

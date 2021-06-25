@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Manage users</title>    <link rel="stylesheet" href="../assets/css/style.css" >
+    <title>Manage users</title>
+  <link rel="stylesheet" href="../assets/css/style.css" >
 
 </head>
 <body>
@@ -12,21 +13,26 @@
   <li><a href="/admin">Admin</a></li>
   <li>Users</li>
 </ul>
+
 <h2>Manage users</h2>
+
 <div class="row">
   {{range $key, $value := .}}
+  <form action="/admin" id="user{{.ID}}" name="user{{.ID}}" method="get" class="inline">
+
   <div class="column" style="background-color:#bbb;">
-    <script>
-      document.getElementById("admincb{{ .ID}}").checked = true;
-    </script>
-      <h3>{{ .Username}}</h3>
+    <input type="hidden" name="userID" value="{{.ID}}">
+    <button type="submit" name="submit" value="user" class="link-button"><h3>{{ .Username}}</h3></button>
       <p>{{ .Firstname}} | {{ .Emailaddress}} | Active: {{ .Isactive}} | Role: {{ .Isadmin}}</p>
   </div>
-  {{end}}
-  <div class="column" style="background-color:#bbb;">
+  </form>
+    {{end}}
+
+  <!--div class="column" style="background-color:#bbb;">
     <h2>Column 2</h2>
     <p>Some text..</p>
-  </div>
+  </div-->
 </div>
+</form>
 </body>
 </html>

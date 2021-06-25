@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Admin</title>
+    <link rel="stylesheet" href="../assets/css/style.css" >
+
+</head>
+<body>
+<h1 class="header">good advice</h1>
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li><a href="/admin">Admin</a></li>
+    <li>User Admin</li>
+</ul>
+<form method="post">
+<input type="hidden" name="userID" value="{{.ID}}">
+<h3>{{ .Username}}</h3>
+<div>
+    {{ .Firstname}}
+    <br>
+    {{ .Emailaddress}}
+    <br>
+    Active: {{ .Isactive}} <input type="submit" name="submit" value="{{.Active}}">
+    <br>
+    Role: {{ .Isadmin}} <input type="submit" name="submit" value="{{.Role1}}"><input type="submit" name="submit" value="{{.Role2}}">
+    <br>
+
+</div>
+</form>
+
+</body>
+</html>
