@@ -16,6 +16,7 @@ None Currently
 
 
 Future plans/ideas:
+Link user to a Coach
 Rename comments table to something more accurate
     Added workout time value to table will need to update all the code for this
 Left side menu in framework

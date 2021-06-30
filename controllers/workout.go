@@ -40,6 +40,8 @@ type Cookie struct {
 // html templates
 var	wodtpl = template.Must(template.ParseFiles("htmlpages/wod.html"))
 var	wodguesttpl = template.Must(template.ParseFiles("htmlpages/guestwod.html"))
+var	wodguesttpl2 = template.Must(template.ParseFiles("htmlpages/guestwod2.html"))
+var guestfwtpl = template.Must(template.ParseFiles("htmlpages/guestframework.html"))
 
 // entry point from front.go
 func newWorkoutController() *workoutController {
