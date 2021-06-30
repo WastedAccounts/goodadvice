@@ -6,26 +6,29 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"math/rand"
+	"net/http"
 	"strconv"
 	"strings"
 )
 
 type Workout struct {
-	ID int `json:"ID"`
-	Name string `json:"Name"`
-	Strength string `json:"Strength"`
-	Pace string `json:"Pace"`
-	Conditioning string `json:"Conditioning"`
-	Date string`json:"Date"`
+	ID int //`json:"ID"`
+	Name string //`json:"Name"`
+	Strength string //`json:"Strength"`
+	Pace string //`json:"Pace"`
+	Conditioning string //`json:"Conditioning"`
+	Date string //`json:"Date"`
 	//DOW string `json:"DOW"`
 }
 
 type WorkoutNotes struct {
-	ID    int    `json:"ID"`
-	WoId  int    `json:"WoId"`
-	UserName string `json:"UserName"`
-	UserId string 	 `json:"UserId"`
-	Notes string `json:"Notes"`
+	ID    int   // `json:"ID"`
+	WoId  int    //`json:"WoId"`
+	UserName string //`json:"UserName"`
+	UserId string 	 //`json:"UserId"`
+	Notes string //`json:"Notes"`
+	Minutes string
+	Seconds string
 }
 
 type WodUser struct {
@@ -142,7 +145,7 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 func GetWODNotes(woid int, userid string) WorkoutNotes {
 	var won WorkoutNotes
 	var id int
-	var notes string
+	var notes,time,min,sec string
 	uid := userid
 	wid := strconv.Itoa(woid)
 	db, err := sql.Open("mysql", DataSource)
@@ -150,25 +153,40 @@ func GetWODNotes(woid int, userid string) WorkoutNotes {
 		panic(err.Error())
 	}
 	defer db.Close()
-	qs := "SELECT ID,user_id, workout_id, comment FROM comments where user_id = " + uid + " and workout_id = " + wid
-	results, err := db.Query(qs)
+	results, err := db.Query("SELECT ID,user_id,workout_id,comment,time FROM comments where user_id = ? and workout_id = ?",uid, wid)
 	if err != nil {
 		panic(err.Error())
 	}
 	for results.Next() {
-		err = results.Scan(&id,&userid,&woid,&notes)
+		err = results.Scan(&id,&userid,&woid,&notes,&time)
 		if err != nil {
 			panic(err.Error())
 		}
-		won = WorkoutNotes{ID: id, UserId: userid, WoId: woid, Notes: notes}  //u = append(results)   //u, results)
+		if time != "" {
+			t := strings.Split(time, ":")
+			min = t[0]
+			sec = t[1]
+		} else {
+			min = ""
+			sec = ""
+		}
+		won = WorkoutNotes{ID: id, UserId: userid, WoId: woid, Notes: notes,Minutes: min,Seconds:sec }  //u = append(results)   //u, results)
 	}
 	return won
 }
 
-func PostWODNotes (n string, uid string, woid string){
-	// Open DB connection
+func PostWODNotes (r *http.Request) { // string, uid string, woid string){
+	// setup values from page
+	min := r.PostFormValue("minutes")
+	sec := r.PostFormValue("seconds")
+	time := min+":"+sec
+	woid := r.PostFormValue("woid")
+	uid := r.PostFormValue("uid")
+	n := r.PostFormValue("notes")
 	uidint, err := strconv.Atoi(uid)
 	woidint, err := strconv.Atoi(woid)
+
+	// Open DB connection
 	n = strings.Replace(n, "'", "\\'", -1)
 	db, err := sql.Open("mysql", DataSource)
 	if err != nil {
@@ -177,8 +195,7 @@ func PostWODNotes (n string, uid string, woid string){
 	defer db.Close()
 	//check if notes exist
 	var checkValue int
-	qs := "select id from comments where user_id = '" + uid + "' and workout_id = '" + woid + "'"
-	checkID, err := db.Query(qs)
+	checkID, err := db.Query("select ID from comments where user_id = ? and workout_id = ?",uid,woid)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -189,19 +206,17 @@ func PostWODNotes (n string, uid string, woid string){
 		}
 	}
 	if checkValue == 0 {
-		insertQry := fmt.Sprintf("insert into comments (user_id,workout_id,comment) values ('%d', '%d', '%s')",uidint,woidint,n)
-		insert, err := db.Query(insertQry)
+		insert, err := db.Exec("insert into comments (user_id,workout_id,comment,time) values (?,?,?,?)",uidint,woidint,n,time)
 		if err != nil {
 			panic(err.Error())
 		}
-		insert.Close()
+		insert.RowsAffected()
 	} else {
-		updateQry := fmt.Sprintf("update comments set comment = '%s' where ID = '%d' and user_id = '%d' and workout_id = '%d'",n,checkValue, uidint,woidint)
-		update, err := db.Query(updateQry)
+		update, err := db.Exec("update comments set comment = ?, time = ? where ID = ? and user_id = ? and workout_id = ?",n,time,checkValue,uidint,woidint)
 		if err != nil {
 			panic(err.Error())
 		}
-		update.Close()
+		update.RowsAffected()
 	}
 	checkID.Close()
 
