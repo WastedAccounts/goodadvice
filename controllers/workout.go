@@ -78,7 +78,7 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					log.Fatalf("Failed to decode postFormByteSlice: %v", err)
 				}
-				woc.postWODnotes(w,r)
+				woc.SaveWODResults(w,r)
 				woc.getWOD(w, uid)
 				//// If a date is selected load workout from that date
 				//if r.FormValue("date") != "" {
@@ -139,7 +139,6 @@ func (woc *workoutController) GetWODGuest(w http.ResponseWriter, r *http.Request
 		"",
 		"",
 	}
-	//fmt.Println(wpl)
 	wodguesttpl.Execute(w, wpl)
 }
 
@@ -169,7 +168,7 @@ func (woc *workoutController) getWODbydate(w http.ResponseWriter, d string, uid 
 }
 
 // postWODnotes - get notes for user for WOD being loaded
-func (woc *workoutController) postWODnotes(w http.ResponseWriter, r *http.Request) {
-	models.PostWODNotes(r)
+func (woc *workoutController) SaveWODResults(w http.ResponseWriter, r *http.Request) {
+	models.SaveWODResults(r)
 	http.Redirect(w, r, r.Header.Get("Referer"), 302)
 }

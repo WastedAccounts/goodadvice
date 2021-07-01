@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"math/rand"
@@ -175,7 +174,8 @@ func GetWODNotes(woid int, userid string) WorkoutNotes {
 	return won
 }
 
-func PostWODNotes (r *http.Request) { // string, uid string, woid string){
+func SaveWODResults (r *http.Request) {
+	// string, uid string, woid string){
 	// setup values from page
 	min := r.PostFormValue("minutes")
 	sec := r.PostFormValue("seconds")
@@ -183,9 +183,10 @@ func PostWODNotes (r *http.Request) { // string, uid string, woid string){
 	woid := r.PostFormValue("woid")
 	uid := r.PostFormValue("uid")
 	n := r.PostFormValue("notes")
+	loved := r.PostFormValue("loved")
+	hated := r.PostFormValue("hated")
 	uidint, err := strconv.Atoi(uid)
 	woidint, err := strconv.Atoi(woid)
-
 	// Open DB connection
 	n = strings.Replace(n, "'", "\\'", -1)
 	db, err := sql.Open("mysql", DataSource)
@@ -219,6 +220,20 @@ func PostWODNotes (r *http.Request) { // string, uid string, woid string){
 		update.RowsAffected()
 	}
 	checkID.Close()
+	if loved == "on" || hated == "on" {
+		var rating int
+		if loved == "on" {
+			rating = 1
+		}
+		if hated == "on" {
+			rating = 2
+		}
+		insert, err := db.Exec("INSERT INTO user_workout_rating (userid,workoutid,userrating) VALUE (?,?,?)",uidint,woidint,rating)
+		if err != nil {
+			panic(err.Error())
+		}
+		insert.RowsAffected()
+	}
 
 }
 
@@ -262,7 +277,7 @@ func getRandomGreeting() string {
 		panic(err.Error())
 	}
 	ids, err := db.Query("select ID from greetings")
-	fmt.Println("ids:",ids)
+	//fmt.Println("ids:",ids)
 	if err != nil {
 		panic(err.Error())
 	}

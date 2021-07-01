@@ -135,7 +135,7 @@ func pageLoadMovements(w http.ResponseWriter, r *http.Request) {
 		MovementList: m,
 		Ddloptions: mt,
 	}
-	fmt.Printf("%v",data)
+	//fmt.Printf("%v",data)
 	adminmovementstpl.Execute(w,data)
 }
 

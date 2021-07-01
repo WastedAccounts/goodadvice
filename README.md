@@ -22,9 +22,15 @@ Rename comments table to something more accurate
 Left side menu in framework
     Global setting based on user role
 Loved/hated user ratings for workouts on daily workout page for logged in users
-    Will need two new tables for this
-        One for Loved
-        One for Hated
+    COMPLETED - Created a Single table for this 
+                    loved and hated check boxes work and store value to user_workout_rating table
+    Usage (future features)
+        Loved or hated workouts get extra chances to show up in random workout assignments
+        These DON'T turn on the checkboxes on the workout page 
+            This enables the athlete to boost their love to hate for a workout
+        They can also be seen by coaches to throw happy or sad workout at client
+        User can review loved or hated in profile
+            Sorted by most hated or like
 Test/benchmark admin ratings for workouts on Edit workout Page
     Can add column to current table for this
 Weekly leaderboard display on daily workout page
