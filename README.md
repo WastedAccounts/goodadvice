@@ -45,7 +45,9 @@ User Profiles:
     COMPLETED - Personal Records attached to User accounts
     Set Goals.
 Random workout shows up if no workout assigned to the day.
-Random workout button.
+COMPLETE - Random workout button.
+        Needs to be tweeked. Doesn't show up if not logged in. Not sure if it should yet
+        Doesn't add Loved workout 2x yet 
 Search functionality.
 Admin page:
     More Roles:

@@ -32,7 +32,10 @@ ul.breadcrumb li a:hover {
     color: #2f2f2f;
     text-decoration: underline;
 }
-/* Side nave bar CSS */
+/*
+Side nave bar CSS
+https://www.w3schools.com/howto/howto_js_sidenav.asp
+*/
 .sidenav {
     height: 100%;
     width: 0;

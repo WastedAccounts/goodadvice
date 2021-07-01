@@ -66,8 +66,11 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/wod" {
 			switch r.Method {
 			case http.MethodGet:
+				//submit := r.FormValue("submit")
 				// If a date is selected load workout from that date
-				if r.FormValue("date") != "" {
+				if r.FormValue("submit") == "Random"{
+					woc.randomWorkout(w, uid)
+				} else if r.FormValue("date") != "" {
 					woc.getWODbydate(w, r.FormValue("date"), uid)
 				} else {
 					// if no date is selected load today's workout
@@ -78,7 +81,7 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if err != nil {
 					log.Fatalf("Failed to decode postFormByteSlice: %v", err)
 				}
-				woc.SaveWODResults(w,r)
+				woc.saveWODResults(w,r)
 				woc.getWOD(w, uid)
 				//// If a date is selected load workout from that date
 				//if r.FormValue("date") != "" {
@@ -167,8 +170,15 @@ func (woc *workoutController) getWODbydate(w http.ResponseWriter, d string, uid 
 	wodtpl.Execute(w, wpl)
 }
 
-// postWODnotes - get notes for user for WOD being loaded
-func (woc *workoutController) SaveWODResults(w http.ResponseWriter, r *http.Request) {
+// saveWODResults - get notes for user for WOD being loaded
+func (woc *workoutController) saveWODResults(w http.ResponseWriter, r *http.Request) {
 	models.SaveWODResults(r)
 	http.Redirect(w, r, r.Header.Get("Referer"), 302)
+}
+
+// randomWorkout = gets random workout from all workouts with weighted values for loved(2x times loved)/hated(1x times hated) rating
+func (woc *workoutController) randomWorkout(w http.ResponseWriter, uid string) {
+	//var date string
+	date := models.GetRandomWorkout(uid)
+	woc.getWODbydate(w,date,uid)
 }

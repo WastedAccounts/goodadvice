@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"math/rand"
@@ -42,6 +43,11 @@ type WodUser struct {
 type GreetID struct {
 	ID int
 }
+
+type WorkoutID struct {
+	WOID int
+}
+
 
 
 func (w Workout) Write(bytes []byte) (int, error) {
@@ -177,9 +183,14 @@ func GetWODNotes(woid int, userid string) WorkoutNotes {
 func SaveWODResults (r *http.Request) {
 	// string, uid string, woid string){
 	// setup values from page
+	var time string
 	min := r.PostFormValue("minutes")
 	sec := r.PostFormValue("seconds")
-	time := min+":"+sec
+	if min == "" && sec == ""{
+		time = ""
+	} else {
+		time = min+":"+fmt.Sprintf("%02s", sec) //fmt.Sprintf("%02s", min)+
+	}
 	woid := r.PostFormValue("woid")
 	uid := r.PostFormValue("uid")
 	n := r.PostFormValue("notes")
@@ -304,4 +315,80 @@ func getRandomGreeting() string {
 	}
 	defer db.Close()
 	return greeting
+}
+
+func GetRandomWorkout(uid string) string {
+	var woid []WorkoutID
+	var wodate string
+	var id int
+	db, err := sql.Open("mysql", DataSource)
+	if err != nil {
+		panic(err.Error())
+	}
+	// get list of ALL workout IDs from workouts table
+	ids, err := db.Query("SELECT ID FROM mjs.workout;")
+	if err != nil {
+		panic(err.Error())
+	}
+	for ids.Next() {
+		err = ids.Scan(&id)
+		if err != nil {
+			panic(err.Error())
+		}
+		woid = append(woid, WorkoutID{id} )
+	}
+	// Check if user is logged in
+	if uid != "" {
+		// get list of ALL Loved workout IDs from user_workout_rating table
+		lids, err := db.Query("SELECT workoutid FROM user_workout_rating WHERE userid = ? AND userrating = 1;",uid)
+		if err != nil {
+			panic(err.Error())
+		}
+		// add Loved IDs to list
+		for lids.Next() {
+			err = lids.Scan(&id)
+			if err != nil {
+				panic(err.Error())
+			}
+			woid = append(woid, WorkoutID{id})
+		}
+		// add them a second time to
+		for lids.Next() {
+			err = lids.Scan(&id)
+			if err != nil {
+				panic(err.Error())
+			}
+			woid = append(woid, WorkoutID{id} )
+		}
+		// get all Hated IDs
+		hids, err := db.Query("SELECT workoutid FROM user_workout_rating WHERE userid = ? AND userrating = 2;",uid)
+		if err != nil {
+			panic(err.Error())
+		}
+		// add Loved IDs to list
+		for hids.Next() {
+			err = hids.Scan(&id)
+			if err != nil {
+				panic(err.Error())
+			}
+			woid = append(woid, WorkoutID{id})
+		}
+	}
+	// Pick random workout ID
+	randomIndex := rand.Intn(len(woid))
+	pick := woid[randomIndex]
+	// Now get workout date from database
+	date, err := db.Query("SELECT wo_date FROM workout where ID = ?;",pick.WOID)
+	if err != nil {
+		panic(err.Error())
+	}
+	for date.Next() {
+		err = date.Scan(&wodate)
+		if err != nil {
+			panic(err.Error())
+		}
+	}
+	defer db.Close()
+	// return date back to controller to call getWODbydate
+	return wodate
 }
