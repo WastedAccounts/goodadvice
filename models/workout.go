@@ -205,7 +205,7 @@ func SaveWODResults (r *http.Request) {
 		panic(err.Error())
 	}
 	defer db.Close()
-	//check if notes exist
+	//check if notes for this work out exist already
 	var checkValue int
 	checkID, err := db.Query("select ID from comments where user_id = ? and workout_id = ?",uid,woid)
 	if err != nil {
@@ -218,12 +218,15 @@ func SaveWODResults (r *http.Request) {
 		}
 	}
 	if checkValue == 0 {
+		// if no notes exist the insert a new record
 		insert, err := db.Exec("insert into comments (user_id,workout_id,comment,time) values (?,?,?,?)",uidint,woidint,n,time)
 		if err != nil {
 			panic(err.Error())
 		}
 		insert.RowsAffected()
 	} else {
+		// if notes do exist, update them with the current values
+		// This shouldn't overwrite but make a new note I think
 		update, err := db.Exec("update comments set comment = ?, time = ? where ID = ? and user_id = ? and workout_id = ?",n,time,checkValue,uidint,woidint)
 		if err != nil {
 			panic(err.Error())
@@ -231,21 +234,58 @@ func SaveWODResults (r *http.Request) {
 		update.RowsAffected()
 	}
 	checkID.Close()
-	if loved == "on" || hated == "on" {
-		var rating int
-		if loved == "on" {
-			rating = 1
-		}
-		if hated == "on" {
-			rating = 2
-		}
-		insert, err := db.Exec("INSERT INTO user_workout_rating (userid,workoutid,userrating) VALUE (?,?,?)",uidint,woidint,rating)
+	// check if user selected a work out rating
+	// save if they did
+	// If both are check just ignore as it cancels itself
+	if (loved == "on" || hated == "on") && !(loved == "on" && hated == "on") {
+		// Set up var for function
+		var rateID,lovedval,hatedval int
+		// check if this has been rating previously
+		ratechk, err := db.Query("SELECT ID FROM user_workout_rating WHERE userid = ? AND workoutid = ?;",uid,woid)
 		if err != nil {
 			panic(err.Error())
 		}
-		insert.RowsAffected()
+		for ratechk.Next() {
+			err := ratechk.Scan(&rateID)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+		fmt.Println("ratechk:", ratechk)
+		fmt.Println("rateID:", rateID)
+		// check which value is checked
+		if loved == "on" {
+			lovedval = 1
+		}
+		if hated == "on" {
+			hatedval = 1
+		}
+		if rateID == 0{
+			// if no previous rating then insert a new record
+			insert, err := db.Exec("INSERT INTO user_workout_rating (userid,workoutid,loved,hated) VALUE (?,?,?,?)",uidint,woidint,lovedval,hatedval)
+			if err != nil {
+				panic(err.Error())
+			}
+			insert.RowsAffected()
+		} else {
+			// if a rating already exists then increment the existing record
+			if loved == "on" {
+				// increment loved value by 1
+				update, err := db.Exec("UPDATE user_workout_rating SET loved = loved+1 WHERE ID = ?;",rateID)
+				if err != nil {
+					panic(err.Error())
+				}
+				update.RowsAffected()
+			} else if hated == "on" {
+				// increment hated value by 1
+				update, err := db.Exec("UPDATE user_workout_rating SET hated = hated+1 WHERE ID = ?;",rateID)
+				if err != nil {
+					panic(err.Error())
+				}
+				update.RowsAffected()
+			}
+		}
 	}
-
 }
 
 func GetUser(uid string) WodUser{
