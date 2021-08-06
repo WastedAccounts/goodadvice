@@ -68,7 +68,7 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			case http.MethodGet:
 				//submit := r.FormValue("submit")
 				// If a date is selected load workout from that date
-				if r.FormValue("submit") == "Random"{
+				if r.FormValue("submitrandom") == "Random"{
 					woc.randomWorkout(w, uid)
 				} else if r.FormValue("date") != "" {
 					woc.getWODbydate(w, r.FormValue("date"), uid)
