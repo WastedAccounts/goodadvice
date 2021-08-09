@@ -1,6 +1,6 @@
 Welcome to the worst README in the world. I'm working on it ...
 
-0.0.8 Change log
+0.0.7y Change log
 Changed session time out to be 48 instead of 2
 Pick Another Day calender on WOD page now loads that data on selection instead of requiring an additional button click
 Reformated WOD page to make it a little more compact
