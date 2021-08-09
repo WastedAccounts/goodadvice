@@ -1,10 +1,13 @@
-Welcome to the worst README.md. I'm working on it ..
+Welcome to the worst README in the world. I'm working on it ...
 
-goodadvice is a fitness tracking app.
+0.0.8 Change log
+Changed session time out to be 48 instead of 2
+Pick Another Day calender on WOD page now loads that data on selection instead of requiring an additional button click
+Reformated WOD page to make it a little more compact
 
-UX is still at MVP level cause I hate UX design
 
 
+goodadvice is a fitness tracking app
 
 Admins can create daily workouts that are accessible to users and guests.
 Those workouts are editable by admins as well.
@@ -52,7 +55,7 @@ Search functionality.
 Admin page:
     More Roles:
         Coach
-User submitted workou
+User submitted workouts
 
 Completed fixes/updates:
 V0.0.2

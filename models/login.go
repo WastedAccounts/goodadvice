@@ -154,7 +154,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 	suid := ksuid.New()
 	// write to DB
 	db, err := sql.Open("mysql", DataSource)
-	// validate session is LESS then 2 hours old
+	// validate session is LESS then 48 hours old
 	//checkSessionAgeqs := fmt.Sprintf("select ID,sessionstart from user_session where userid = '%s' and sessionkey = '%s'", c.Uid, c.Sessionkey)
 	checkSessionAge, err := db.Query("select ID,sessionstart from user_session where userid = ? and sessionkey = ?", c.Uid, c.Sessionkey)//(checkSessionAgeqs)
 	if err != nil {
@@ -167,8 +167,8 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 		}
 	}
 
-	expires := time.Now().Local().Add(-360 * time.Minute)//.Unix()
-	sessionAge, expires = sessionAge.UTC(), expires.UTC()
+	expires := time.Now().Local().Add(-48 * time.Hour)//.Unix
+	sessionAge,	expires = sessionAge.UTC(), expires.UTC()
 	//var exp bool
 	if expires.After(sessionAge) {
 		//user will be redirected to login

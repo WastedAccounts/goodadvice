@@ -67,34 +67,3 @@ func (upc userProfileController) pageLoad(w http.ResponseWriter, r *http.Request
 	record := models.PageLoadUserProfile(id)
 	userprofiletpl.Execute(w, record)
 }
-
-//func Dropdown(w http.ResponseWriter, r *http.Request) {
-//
-//	html := `<!DOCTYPE html>
-//<html>
-//<body>
-//
-//<select> // for loop in html template example
-//  {{range $key, $value := .}}
-//    <option value="{{ $value }}">{{ $key }}</option>
-//  {{end}}
-//
-//</select>
-//
-//</body>
-//</html>`
-//
-//	dropdownTemplate, err := template.New("dropdownexample").Parse(string(html))
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	// populate dropdown with fruits
-//	dropdownTemplate.Execute(w, fruits)
-//
-//	// populate dropdown with capital cities
-//	dropdownTemplate.Execute(w, capitals)
-//
-//	// no need for this...
-//	//w.Write([]byte(html))
-//}
