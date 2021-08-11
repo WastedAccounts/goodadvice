@@ -69,20 +69,3 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 }
 
-
-//// addwod broken - trying to figure out how to display data
-//func addwod(w http.ResponseWriter, r *http.Request) {
-//	//template.ParseFiles("addworkout.html")
-//	//fmt.Fprint(w, "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>Add WOD</title>\n</head>\n<body>\n  <form action=\"/login\" method=\"post\">\n    Name:<input type=\"text\" name=\"username\">\n    <br />\n    Strength work:<input type=\"textbox\" aria-multiline=\"true\" name=\"username\">\n    <br />\n    Conditioning work:<input type=\"textbox\" aria-multiline=\"true\" name=\"password\">\n    <br />\n    testbox: <textarea name=\"textarea\" style=\"width:250px;height:150px;\"></textarea>\n    <br />\n    Pace:<input type=\"text\" name=\"username\">\n    <br />\n    Date:<input type=\"date\" data-date-inline-picker=\"true\" />\n    <input type=\"submit\" value=\"Login\">\n  </form>\n</body>\n</html>")
-//	addwodtpl.Execute(w, nil)
-//	//*woc
-//}
-//
-//func check(w http.ResponseWriter, r *http.Request) {
-//	fmt.Fprint(w, "<h1>Health Check</h1>")
-//}
-//
-//func resume(w http.ResponseWriter, r *http.Request) {
-//	fmt.Fprint(w, "<h1>Resume</h1>")
-	//restpl.Execute(w, nil)
-//}

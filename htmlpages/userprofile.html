@@ -5,30 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Profile</title>
     <link rel="stylesheet" href="../assets/css/style.css" >
-    <!--style>
-        ul.breadcrumb {
-            padding: 10px 16px;
-            list-style: none;
-            background-color: #eee;
-        }
-        ul.breadcrumb li {
-            display: inline;
-            font-size: 18px;
-        }
-        ul.breadcrumb li+li:before {
-            padding: 8px;
-            color: black;
-            content: "/\00a0";
-        }
-        ul.breadcrumb li a {
-            color: #0275d8;
-            text-decoration: none;
-        }
-        ul.breadcrumb li a:hover {
-            color: #01447e;
-            text-decoration: underline;
-        }
-    </style-->
 </head>
 <body>
 <h1 class="header">good advice</h1>
@@ -40,10 +16,32 @@
 </ul>
 
 <form action="/userprofile">
-    <label id="prslabel" name="prslabel" >Personal Records</label>
+    <h1> Links to see or edit you data</h1>
     <br>
-    <label id="prs" style="width:250px;height:150px;" id="prs" type="string" ><pre>{{ .Record}}</pre></label>
+    <a class="logo" href="/profile/goals">Goals</a>
     <br>
+    <a class="logo" href="/profile/personalrecords">Personrecords</a><br><br>
+
+    <b>About Me: </b> <a href="/profile/aboutme">Edit</a><br>
+    Name: <label id="namelbl">{{ .Name}}</label><br>
+    Birthday: <label id="agelbl">{{ .Birthday}}</label><br>
+    Weight: <label id="weightlbl">{{ .Weight}}</label><br>
+    Sex: <label id="sexlbl">{{ .Sex}}</label><br>
+    About Me: <label id="abmelbl">{{ .About}}</label><br><br>
+
+    <b>Personal Records: </b> <a href="/profile/personalrecords">Edit</a><br>
+    <label id="prslbl" name="prslbl" >Personal Records</label>
+    <br>
+    <label id="prs" style="width:250px;height:150px;" id="prs" type="string" ><pre>{{ .Record}}</pre></label><br><br>
+
+    <b>Goals: </b> <a href="/profile/goals">Edit</a><br>
+    <label id="goalslbl" name="goalslbl" >Personal Records</label>
+    <br>
+    <label id="goals" style="width:250px;height:150px;" id="goals" type="string" ><pre>{{ .Record}}</pre></label>
+    <br>
+
+
+
     <label id="addprslabel" name="addprslabel" >Add a new Record</label>
     <br>
     <textarea id="prnew" name="prnew" style="width:150px;height:20px;"></textarea>

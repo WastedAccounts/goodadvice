@@ -64,6 +64,6 @@ func (upc userProfileController) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 func (upc userProfileController) pageLoad(w http.ResponseWriter, r *http.Request, id string) {
 	// load PRs on page lade
-	record := models.PageLoadUserProfile(id)
-	userprofiletpl.Execute(w, record)
+	_, userprofile := models.PageLoadUserProfile(id)
+	userprofiletpl.Execute(w, userprofile)
 }

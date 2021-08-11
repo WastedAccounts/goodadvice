@@ -147,7 +147,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 	var isAdmin string
 	//var c Cookie
 	c := validateCookie(w, r)
-	if c.Exists == false {
+	if !c.Exists {
 		return c
 	}
 	// Generate unique session value
