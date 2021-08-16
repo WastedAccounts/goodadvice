@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"goodadvice/v1/controllers/profile"
 	"goodadvice/v1/models"
 	"html/template"
 	"io"
@@ -22,6 +23,7 @@ func RegisterControllers() {
 	loc := newLogOutController()
 	adm := newAdminController()
 	upc := newUserProfileController()
+	pc := profile.NewProfileController()
 	http.HandleFunc("/", index)
 	//http.Handle("/assets/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("/assets/css/"))))
 	//http.Handle("/assets", http.FileServer(http.Dir("assets/css/style.css")))
@@ -41,11 +43,14 @@ func RegisterControllers() {
 	http.Handle("/logout/", *loc)
 	http.Handle("/userprofile", *upc)
 	http.Handle("/userprofile/", *upc)
+	http.Handle("/profile/", *pc)
 	//fs := http.FileServer(http.Dir("/assets/css/"))
 	//http.Handle("/assets/css/", http.StripPrefix("/assets/css/", fs))
 	// Handle client's requests for CSS
 	//http.Handle("./css/", http.FileServer(http.Dir("./css/")))
 }
+
+
 
 func encodeResponseAsJSON(data interface{}, w io.Writer) {
 	enc := json.NewEncoder(w)

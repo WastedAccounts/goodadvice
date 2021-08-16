@@ -23,6 +23,7 @@ type Credentials struct {
 type Cookie struct {
 	Exists bool
 	Uid string
+	Path string
 	Sessionkey string
 	Isadmin bool
 }
@@ -83,8 +84,7 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 
 func CreateSession(w http.ResponseWriter, r *http.Request) {
 	// create vars
-	var uid int
-	var sessionID int
+	var uid, sessionID int
 	var cookieID string
 	// Generate unique session value
 	id := ksuid.New()
@@ -135,7 +135,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	//create cookie on client
 	cookieID = strconv.Itoa(uid) + "/" + id.String()
 	expiration := time.Now().Add(365 * 24 * time.Hour)
-	cookie := http.Cookie{Name: "goodadvice", Value: cookieID , Expires: expiration}
+	cookie := http.Cookie{Name: "goodadvice", Value: cookieID, Path: "/", Expires: expiration,}
 	http.SetCookie(w, &cookie)
 }
 
@@ -186,7 +186,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 		// update cookie on client
 		cookieID = c.Uid + "/" + suid.String()
 		expiration := time.Now().Add(365 * 24 * time.Hour)
-		cookie := http.Cookie{Name: "goodadvice", Value: cookieID , Expires: expiration}
+		cookie := http.Cookie{Name: "goodadvice", Value: cookieID, Path: "/", Expires: expiration}
 		http.SetCookie(w, &cookie)
 		c.Exists = true
 	}

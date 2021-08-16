@@ -1,10 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>About Me</title>
-</head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>About Me</title>
+        <link rel="stylesheet" href="../assets/css/style.css" >
+    </head>
 <body>
-About Me
+<h1 class="header">good advice</h1>
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <!--li><a href="/login">Login</a></li-->
+    <li><a href="/userprofile">Profile</a></li>
+</ul>
+
+    <form action="/profile/aboutme">
+    <h1> Review and Edit yous Personal Details</h1>
+    <br>
+    <a class="logo" href="/profile/goals">Goals</a>
+    <br>
+    <a class="logo" href="/profile/personalrecords">Personal Records</a><br><br>
+
+    <b>About Me: </b><br>
+    Name: <input type="text" name="nametxt" value="{{ .Name}}"></input> <label id="namelbl"></label><br>
+    Age: <label id="agelbl">{{ .Age}}</label><br>
+    Birthday: <input type="text" name="bdaytxt" value="{{.Birthday}}"></textarea> <br>
+    Weight: <input type="text" name="wgttxt" value="{{ .Weight}}"></textarea> <br>
+    Sex: <input type="text" name="sextxt" value="{{ .Sex}}"></textarea> <br>
+    About Me: <textarea name="abmetxt" style="width:250px;height:150px;">{{ .About}}</textarea>
+</form>
 </body>
 </html>
