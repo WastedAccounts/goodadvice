@@ -55,9 +55,9 @@ func newWorkoutController() *workoutController {
 // Comes in from front.go
 func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check for a cookie first
-	c := models.ValidateSession(w, r)
+	active,c := models.ValidateSession(w, r)
 	// If there is no cookie found redirect to guest view
-	if c.Exists == false {
+	if c.Exists == false || active == false {
 		woc.GetWODGuest(w, r)
 	} else {
 		// At this point the user should be validated within two hour session time out

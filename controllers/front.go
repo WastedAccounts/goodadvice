@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"goodadvice/v1/controllers/auth"
 	"goodadvice/v1/controllers/profile"
 	"goodadvice/v1/models"
 	"html/template"
@@ -24,6 +25,7 @@ func RegisterControllers() {
 	adm := newAdminController()
 	upc := newUserProfileController()
 	pc := profile.NewProfileController()
+	authc := auth.NewAuthController()
 	http.HandleFunc("/", index)
 	//http.Handle("/assets/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("/assets/css/"))))
 	//http.Handle("/assets", http.FileServer(http.Dir("assets/css/style.css")))
@@ -44,6 +46,7 @@ func RegisterControllers() {
 	http.Handle("/userprofile", *upc)
 	http.Handle("/userprofile/", *upc)
 	http.Handle("/profile/", *pc)
+	http.Handle("/auth/", *authc)
 	//fs := http.FileServer(http.Dir("/assets/css/"))
 	//http.Handle("/assets/css/", http.StripPrefix("/assets/css/", fs))
 	// Handle client's requests for CSS
@@ -60,11 +63,11 @@ func encodeResponseAsJSON(data interface{}, w io.Writer) {
 
 
 func index(w http.ResponseWriter, r *http.Request) {
-	c := models.ValidateSession(w,r)
-	if c.Exists == true && c.Isadmin == true {
+	active,c := models.ValidateSession(w,r)
+	if c.Exists == true && c.Isadmin == true && active == true {
 		//fmt.Fprint(w, "<h1 class='header'>Welcome, this is good advice</h1>")
 		adminindextpl.Execute(w, nil)
-	} else if c.Exists == true && c.Isadmin != true  {
+	} else if c.Exists == true && c.Isadmin != true && active == true  {
 		//fmt.Fprint(w, "<h1 class='header'>Welcome, this is good advice</h1>")
 		loggedinindextpl.Execute(w, nil)
 	} else {

@@ -25,7 +25,10 @@ var	userprofiletpl = template.Must(template.ParseFiles("htmlpages/userprofile.ht
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 func (upc userProfileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Validate session
-	c := models.ValidateSession(w, r)
+	active,c := models.ValidateSession(w, r)
+	if active == false {
+		http.Redirect(w, r, "/login", 401)
+	}
 	if c.Exists == false {
 		http.Redirect(w, r, "/login", 401)
 	//} else if c.Isadmin != false {
@@ -64,6 +67,6 @@ func (upc userProfileController) ServeHTTP(w http.ResponseWriter, r *http.Reques
 
 func (upc userProfileController) pageLoad(w http.ResponseWriter, r *http.Request, id string) {
 	// load PRs on page lade
-	_, userprofile := models.PageLoadUserProfile(id)
+	userprofile := models.PageLoadUserProfile(id)
 	userprofiletpl.Execute(w, userprofile)
 }

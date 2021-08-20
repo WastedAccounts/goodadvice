@@ -27,7 +27,10 @@ var	personalrecordstpl = template.Must(template.ParseFiles("htmlpages/profile/pe
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Validate session
-	c := models.ValidateSession(w, r)
+	active,c := models.ValidateSession(w, r)
+	if active == false {
+		http.Redirect(w, r, "/login", 401)
+	}
 	if c.Exists == false {
 		http.Redirect(w, r, "/login", 401)
 		//} else if c.Isadmin != false {

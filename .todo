@@ -1,0 +1,15 @@
+
+
+Messaging
+Create page to CRUD messages to message table
+
+Registry
+Create page to CRUD values to the registry table
+
+Validation email
+create code to send this
+
+Name value
+Fix registration AND profile page to update the users name in both or remove it from one
+Rebuild user_profile table into users table
+add birthdate to registration

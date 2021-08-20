@@ -44,11 +44,14 @@ func newAdminController() *adminController {
 // ServeHTTP - Entry point from front.go
 func (ac adminController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Validate session
-	c := models.ValidateSession(w, r)
+	active,c := models.ValidateSession(w, r)
+	if active == false {
+		http.Redirect(w, r, "/login", 401)
+	}
 	if c.Exists == false {
 		http.Redirect(w, r, "/login", 401)
 	} else if c.Isadmin == false {
-		http.Redirect(w, r, "/login", 401)
+		http.Redirect(w, r, "/index", 401)
 	} else {
 		if r.URL.Path == "/admin" {
 			switch r.Method {

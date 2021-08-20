@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"strings"
 	"time"
 )
 
@@ -28,15 +27,15 @@ type Addpr struct {
 	Date string
 }
 
-func PageLoadUserProfile(uid string) (Records,Userprofile){
+func PageLoadUserProfile(uid string) Userprofile{
 	var up Userprofile
-	var r Records
+	//var r Records
 	// Userprofile Struct vars
 	var name, weight, sex, about string //, birthday string
 	var birthday time.Time
-	// Records struct var
-	var movement, pr, display, movementname string
-	var date time.Time
+	//// Records struct var
+	//var movement, pr, display, movementname string
+	//var date time.Time
 	db, err := sql.Open("mysql", DataSource)
 	if err != nil {
 		panic(err.Error())
@@ -56,34 +55,35 @@ func PageLoadUserProfile(uid string) (Records,Userprofile){
 		up = Userprofile{Name: name,Age: age,Birthday: birthday.Format("01/02/2006"),Weight: weight,Sex: sex,About: about}
 	}
 
-	// THis code will fill the Records struct
-	movementresults, err := db.Query("select m.movementname, u.prvalue, u.prdate From user_pr u join movements m ON m.ID = u.movementid where u.userid = ?", uid)
-	if err != nil {
-		panic(err.Error())
-	}
-	for movementresults.Next() {
-		err = movementresults.Scan(&movement,&pr,&date)
-		if err != nil {
-			panic(err.Error())
-		}
-		d := strings.Split(date.String(), " ")
-		display += movement + ": " + pr + " set on: " + d[0] + "\r"
-	}
-	r.Record = display
-	movements, err := db.Query("SELECT movementname FROM mjs.movements;")
-	if err != nil {
-		panic(err.Error())
-	}
-	for movements.Next() {
-		err = movements.Scan(&movementname)
-		if err != nil {
-			panic(err.Error())
-		}
-		r.Movements = append(r.Movements ,movementname)
-	}
-	currentTime := time.Now()
-	r.Date = currentTime.Format("01/02/2006")
-	return r,up
+	//// THis code will fill the Records struct
+	//movementresults, err := db.Query("select m.movementname, u.prvalue, u.prdate From user_pr u join movements m ON m.ID = u.movementid where u.userid = ?", uid)
+	//if err != nil {
+	//	panic(err.Error())
+	//}
+	//for movementresults.Next() {
+	//	err = movementresults.Scan(&movement,&pr,&date)
+	//	if err != nil {
+	//		panic(err.Error())
+	//	}
+	//	d := strings.Split(date.String(), " ")
+	//	display += movement + ": " + pr + " set on: " + d[0] + "\r"
+	//}
+	//r.Record = display
+	//movements, err := db.Query("SELECT movementname FROM mjs.movements;")
+	//if err != nil {
+	//	panic(err.Error())
+	//}
+	//for movements.Next() {
+	//	err = movements.Scan(&movementname)
+	//	if err != nil {
+	//		panic(err.Error())
+	//	}
+	//	r.Movements = append(r.Movements ,movementname)
+	//}
+	//currentTime := time.Now()
+	//r.Date = currentTime.Format("01/02/2006")
+	//return r,up
+	return up
 }
 
 func AddRecord (addpr Addpr) {

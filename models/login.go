@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -88,11 +87,12 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	var cookieID string
 	// Generate unique session value
 	id := ksuid.New()
-	// write to DB
-	// First check if the user exists in the session table
+
+	// Open DB connection
 	db, err := sql.Open("mysql", DataSource)
-	//getIDqs := fmt.Sprintf("select ID from users where username = '%s'", r.FormValue("username"))
-	//fmt.Println(getIDqs)
+	defer db.Close()
+
+	// Get user ID from users table by searching for username
 	checkID, err := db.Query("select ID from users where username = ?", r.FormValue("username"))//(getIDqs)
 	if err != nil {
 		panic(err.Error())
@@ -103,8 +103,8 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	}
-	checkSessionqs := fmt.Sprintf("select ID from user_session where userid = '%d'", uid)
-	checkSessionID, err := db.Query(checkSessionqs)
+
+	checkSessionID, err := db.Query("select ID from user_session where userid = ?", uid)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -116,7 +116,6 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	}
 	if sessionID == 0 {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		//insertQry := fmt.Sprintf("insert into user_session (userid,sessionstart,sessionkey) value('%d', '%s', '%s')", uid, currentTime, id)
 		insert, err := db.Query("insert into user_session (userid,sessionstart,sessionkey) value(?, ?, ?)", uid, currentTime, id)//(insertQry)
 		if err != nil {
 			panic(err.Error())
@@ -124,7 +123,6 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 		insert.Close()
 	} else {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		//updateQry := fmt.Sprintf("update user_session set sessionstart = '%s', sessionkey = '%s' where userid = '%d'", currentTime, id, uid)
 		update, err := db.Query("update user_session set sessionstart = ?, sessionkey = ? where userid = ?", currentTime, id, uid)//(updateQry)
 		if err != nil {
 			panic(err.Error())
@@ -135,25 +133,54 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	//create cookie on client
 	cookieID = strconv.Itoa(uid) + "/" + id.String()
 	expiration := time.Now().Add(365 * 24 * time.Hour)
-	cookie := http.Cookie{Name: "goodadvice", Value: cookieID, Path: "/", Expires: expiration,}
+	cookie := http.Cookie{
+		Name: "goodadvice",
+		Value: cookieID,
+		Path: "/",
+		Expires: expiration,
+	}
 	http.SetCookie(w, &cookie)
 }
 
-func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
+func ValidateSession(w http.ResponseWriter, r *http.Request) (bool,Cookie) {
 	// create vars
-	var cookieID string
+	var cookieID,isAdmin,isActive string
 	var sessionID int
 	var sessionAge time.Time
-	var isAdmin string
+	var active bool
 	//var c Cookie
-	c := validateCookie(w, r)
+	c := ValidateCookie(w, r)
 	if !c.Exists {
-		return c
+		active = false
+		return active,c
+	}
+	// write to DB
+	db, err := sql.Open("mysql", DataSource)
+	// Check if user is Active and their role
+	checkAdmin, err := db.Query("select isactive,isadmin from users where ID = ?", c.Uid)//(checkAdminqs)
+	if err != nil {
+		panic(err.Error())
+	}
+	for checkAdmin.Next() {
+		err := checkAdmin.Scan(&isActive,&isAdmin)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	if isActive == "0" {
+		active = false
+		return active,c
+	} else if isActive == "1"{
+		active = true
+	}
+	if isAdmin == "5" {
+		c.Isadmin = true
+	} else {
+		c.Isadmin = false
 	}
 	// Generate unique session value
 	suid := ksuid.New()
-	// write to DB
-	db, err := sql.Open("mysql", DataSource)
+
 	// validate session is LESS then 48 hours old
 	//checkSessionAgeqs := fmt.Sprintf("select ID,sessionstart from user_session where userid = '%s' and sessionkey = '%s'", c.Uid, c.Sessionkey)
 	checkSessionAge, err := db.Query("select ID,sessionstart from user_session where userid = ? and sessionkey = ?", c.Uid, c.Sessionkey)//(checkSessionAgeqs)
@@ -186,31 +213,20 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) Cookie {
 		// update cookie on client
 		cookieID = c.Uid + "/" + suid.String()
 		expiration := time.Now().Add(365 * 24 * time.Hour)
-		cookie := http.Cookie{Name: "goodadvice", Value: cookieID, Path: "/", Expires: expiration}
+		cookie := http.Cookie{
+			Name: "goodadvice",
+			Value: cookieID,
+			Path: "/",
+			Expires: expiration,
+		}
 		http.SetCookie(w, &cookie)
 		c.Exists = true
 	}
-	// Check if user is Admin
-	checkAdmin, err := db.Query("select isadmin from users where ID = ?", c.Uid)//(checkAdminqs)
-	if err != nil {
-		panic(err.Error())
-	}
-	for checkAdmin.Next() {
-		err := checkAdmin.Scan(&isAdmin)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	if isAdmin == "5" {
-		c.Isadmin = true
-	} else {
-		c.Isadmin = false
-	}
-	return c
+	return active,c
 }
 
 
-func validateCookie (w http.ResponseWriter, r *http.Request) Cookie {
+func ValidateCookie (w http.ResponseWriter, r *http.Request) Cookie {
 	var c Cookie
 	cookie, err := r.Cookie("goodadvice")
 	// No cookie then get guest WOD page

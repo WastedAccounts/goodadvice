@@ -2,13 +2,12 @@ package controllers
 
 import (
 	"fmt"
-	"html/template"
 	"goodadvice/v1/models"
+	"html/template"
 	"net/http"
 	"regexp"
 )
 
-var	signuptpl = template.Must(template.ParseFiles("htmlpages/signup.html"))
 
 type signupController struct {
 	signupIDPattern *regexp.Regexp
@@ -22,6 +21,10 @@ type Webvals struct {
 	Msg string
 }
 
+// html templates
+var	signuptpl = template.Must(template.ParseFiles("htmlpages/signup.html"))
+
+// newSignupController
 func newSignupController() *signupController {
 	return &signupController{
 		signupIDPattern: regexp.MustCompile(`^/signup/(\d+)/?`),
@@ -56,10 +59,13 @@ func (sc signupController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					sc.pageReload(w, r, e)
 				} else {
 					models.Signup(w, r)
-					http.Redirect(w, r, r.Header.Get("/login"), 302)
+					// now we issue a cookie to the client and activate a session -- client account is still inactive here
+					models.CreateSession(w, r)
+					//http.Redirect(w, r, r.Header.Get("/login"), 302)
+					//sc.confirmemailLoad(w, r)
+					http.Redirect(w, r, r.Header.Get("/auth/confirmemail"), 302)
 				}
 			}
-
 		default:
 			fmt.Println("status not implemented")
 			w.WriteHeader(http.StatusNotImplemented)
@@ -69,7 +75,6 @@ func (sc signupController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // pageLoad - load sign up template
 func (sc *signupController) pageLoad(w http.ResponseWriter, r *http.Request) {
-	//models.signup("yes")
 	signuptpl.Execute(w, nil)
 }
 

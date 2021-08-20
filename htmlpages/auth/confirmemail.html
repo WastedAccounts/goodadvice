@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirm Email</title>
+    <link rel="stylesheet" href="../../assets/css/style.css" >
+
+</head>
+<body>
+<h1 class="header">good advice</h1>
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li><a href="/login">Login</a></li>
+    <!--li><a href="/wod">WOD</a></li-->
+    <li>Confirm Email</li>
+</ul>
+<h1>Confirm Email</h1>
+<form action="/auth/confirmemail" method="post">
+
+    <label for="code">Enter 6 digit code from email: </label><br>
+    <input type="text" id="code" name="code" value=""><br>
+    <label type="text" id="notmatch" name="notmatch"><b style="color:red ">     {{.Msg}}</b></label><br>
+    <input type="submit" value="Submit" formmethod="post">
+</form>
+</body>
+</html>

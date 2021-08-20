@@ -3,12 +3,12 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/bcrypt"
+	"goodadvice/v1/models/messaging"
 	"log"
 	"net/http"
 	"time"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 type NewUser struct{
@@ -19,8 +19,7 @@ type NewUser struct{
 	Date time.Time
 }
 
-
-func Signup(w http.ResponseWriter, r *http.Request){
+func Signup(w http.ResponseWriter, r *http.Request) {
 	var nu NewUser
 	nu.Firstname = r.FormValue("firstname")
 	nu.Password = r.FormValue("password")
@@ -30,23 +29,30 @@ func Signup(w http.ResponseWriter, r *http.Request){
 	// Salt and hash the password using the bcrypt algorithm
 	// The second argument is the cost of hashing, which we arbitrarily set as 8 (this value can be more or less, depending on the computing power you wish to utilize)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(nu.Password), 8)
-	// Next, insert the username, along with the hashed password into the database
+	// Next, insert the user values and hashed password into the database
 	db, err := sql.Open("mysql", DataSource)
-	iq := fmt.Sprintf("insert into users (username, firstname,lastlogindate,emailaddress,password,createdate) values ('%s','%s',CURDATE(),'%s','%s',CURDATE())",nu.User,nu.Firstname,nu.Email,string(hashedPassword))
-	insert, err := db.Query(iq) //"insert into users values ($1, $2)", creds.User, string(hashedPassword)); err != nil {
+	insert, err := db.Exec("insert into users (username, firstname,lastlogindate,emailaddress,password,createdate) values (?,?,CURDATE(),?,?,CURDATE())",nu.User,nu.Firstname,nu.Email,string(hashedPassword))
+	if err != nil {
+		panic(err.Error())
+	}
+	// get new user id value so we can store it in a cookie
+	newuid, err := insert.LastInsertId()
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
 	}
-	insert.Close()
 	// We reach this point if the credentials we correctly stored in the database, and the default status of 200 is sent back
+
+	// now we send off a confirmation email and redirect to the confirmation page
+	messaging.VerificationEmail(newuid,DataSource)
+
 }
 
 func CheckEmail(r *http.Request) bool {
 	ef := false
 	db, err := sql.Open("mysql", DataSource)
-	esq := fmt.Sprintf("select ID from users where emailaddress = '%s'", r.FormValue("email"))
-	chkemail, err := db.Query(esq)
+	//esq := fmt.Sprintf("select ID from users where emailaddress = '%s'", r.FormValue("email"))
+	chkemail, err := db.Query("select ID from users where emailaddress = ?", r.FormValue("email"))
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
@@ -89,3 +95,6 @@ func CheckUsername(r *http.Request) bool {
 	}
 	return uf
 }
+
+
+
