@@ -89,6 +89,8 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			case http.MethodGet:
 				pc.pageLoadAboutMe(w, r, c.Uid)
 			case http.MethodPost:
+				pc.pageSaveAboutMe(w, r, c.Uid)
+				pc.pageLoadAboutMe(w, r, c.Uid)
 			default:
 				fmt.Println("status not implemented")
 				w.WriteHeader(http.StatusNotImplemented)
@@ -160,6 +162,10 @@ func (pc profileController) pageLoadAboutMe(w http.ResponseWriter, r *http.Reque
 	aboutmetpl.Execute(w,am) //(w, userprofile)
 }
 
+func (pc profileController) pageSaveAboutMe(w http.ResponseWriter, r *http.Request, id string){
+	profile.UpdateAboutMe(r,id)
+}
+
 func (pc profileController) pageLoadGoals(w http.ResponseWriter, r *http.Request, id string) {
 	// get goals for page lade
 	rec := profile.LoadPersonalRecords(id)
@@ -179,8 +185,11 @@ func (pc profileController) pageLoadPersonalRecords(w http.ResponseWriter, r *ht
 
 func (pc profileController) pageLoadEditpr(w http.ResponseWriter, r *http.Request, id string, prid string) {
 	//load a single PR value for editing
-	pr := profile.LoadSinglePR(id, prid)
-	editprtpl.Execute(w,pr)
+	pr,prhist := profile.LoadSinglePR(id, prid)
+	editprtpl.Execute(w,M{
+		"pr": pr,
+		"prhist": prhist,
+	})
 }
 
 func (pc profileController) pageSaveEditpr(w http.ResponseWriter, r *http.Request, id string) {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Edit {{ .Movement }} PR </title>
+    <title>Edit {{ .pr.Movement }} PR </title>
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
@@ -14,36 +14,45 @@
     <li><a href="/profile/personalrecords">Personal Records</a></li>
     <!--li><a href="/login">Login</a></li>
     <li><a href="/wod">WOD</a></li-->
-    <li>Edit {{ .Movement }} PR</li>
+    <li>Edit {{ .pr.Movement }} PR</li>
 </ul>
 <form action="/profile/editpr">
-    <b>Name: {{ .Movement }}</b>
+    <b>Name: {{ .pr.Movement }}</b>
     <br>
-    <textarea id="prid"  name="prid" type="string" hidden="true" >{{.ID}}</textarea>
+    <textarea id="prid"  name="prid" type="string" hidden="true" >{{.pr.ID}}</textarea>
     <b>Date:</b>
     <br>
-    <input type="date" data-date-inline-picker="true" id="date" name="date" value="{{ .Date }}"/>
-    <br><br>
-    <b>OLD Record and notes PLEASE UPDATE SO I can remove this:</b>
-    <br>
-    <label>{{ .Weight }}"</label>
+    <input type="date" data-date-inline-picker="true" id="date" name="date" value="{{ .pr.Date }}"/>
     <br><br>
     <b>Weight(lbs):</b>
     <br>
-    <input type="number" min="0" max="999" name="weight" value="{{ .Weight }}">
+    <input type="number" min="0" max="999" name="weight" value="{{ .pr.Weight }}">
     <br><br>
     <b>Time:</b>
     <br>
-    Minutes:<input type="number" min="0" max="99" name="minutes" value="{{ .Minutes}}">
+    Minutes:<input type="number" min="0" max="99" name="minutes" value="{{ .pr.Minutes}}">
     <br>
-    Seconds: <input type="number" min="0" max="59" name="seconds" value="{{ .Seconds }}">
+    Seconds: <input type="number" min="0" max="59" name="seconds" value="{{ .pr.Seconds }}">
     <br><br>
     <b>Notes:</b>
     <br>
-    <textarea name="notes" id="notes" style="width:250px;height:150px;" id="Notes">{{ .Notes }}</textarea>
+    <textarea name="notes" id="notes" style="width:250px;height:150px;" id="Notes">{{ .pr.Notes }}</textarea>
     <br>
     <br>
     <input type="submit" value="Save PR" name="savepr" formaction="/profile/editpr" formmethod="post" />
+
+
 </form>
+<br><br>
+<div>
+    <b>{{ .pr.Movement }} History: </b>
+    {{range $key, $value := .prhist}}
+    <div class="row">
+        <label id="prs{{ .ID}}" style="width:250px;height:150px;" id="prs{{ .ID}}" type="string">{{ .Movement }}
+            : {{ .Weight }} {{ .Time }} set on: {{ .Date }} <a href="/profile/editpr?prid={{ .ID }}">
+                edit</a></label>
+        {{ end }}
+    </div>
+</div>
 </body>
 </html>

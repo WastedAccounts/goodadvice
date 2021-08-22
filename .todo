@@ -2,14 +2,13 @@
 Remove username from user_profile table
 
 ===================PRIORITY===================
-Name value
-Fix registration AND profile page to update the users name in both or remove it from one
-**Rebuild user_profile table into users table
-add birthdate to registration <-- Maybe
+
 
 
 ===================WANTS===================
-
+UserProfile
+Add height
+Figure out how to handle the rec in user_pr table (at sign up or at first save in Profile?)
 
 Messaging WIP
 Create page to CRUD messages to message table

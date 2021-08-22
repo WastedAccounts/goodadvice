@@ -27,7 +27,7 @@
         <form action="/profile/personalrecords" id="user{{.ID }}" name="user{{.ID }}" method="get" class="inline">
             <!--div class="column" style="background-color:#bbb;"-->
             <label id="prs{{ .ID }}" style="width:250px;height:150px;" id="prs{{ .ID }}" type="string">{{ .Movement }} :
-                {{ .Weight }}{{ .Time }} set on: {{ .Date }}<a href="/profile/editpr?prid={{ .ID }}"> edit</a></label>
+                {{ .Weight }}{{ .Time }} set on: {{ .Date }} <a href="/profile/editpr?prid={{ .ID }}"> edit</a></label>
             <!--/div-->
         </form>
         {{end}}

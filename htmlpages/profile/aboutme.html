@@ -15,18 +15,19 @@
     <li>About Me</li>
 </ul>
 
-    <form action="/profile/aboutme">
+    <form action="/profile/aboutme" method="post">
     <h1> Review and Edit your personal details</h1>
     <br>
     <a class="logo" href="/profile/goals">My Goals</a> | <a class="logo" href="/profile/personalrecords">My PRs</a><br><br>
 
     <b>About Me: </b><br>
-    Name: <input type="text" name="nametxt" value="{{ .Name}}"></input> <label id="namelbl"></label><br>
+    Name: <input type="text" name="name" value="{{ .Name}}"></input> <label id="namelbl"></label><br>
     Age: <label id="agelbl">{{ .Age}}</label><br>
-    Birthday: <input type="text" name="bdaytxt" value="{{.Birthday}}"></textarea> <br>
-    Weight: <input type="text" name="wgttxt" value="{{ .Weight}}"></textarea> <br>
-    Sex: <input type="text" name="sextxt" value="{{ .Sex}}"></textarea> <br>
-    About Me: <textarea name="abmetxt" style="width:250px;height:150px;">{{ .About}}</textarea>
+    Birthday: <input type="text" name="bday" value="{{.Birthday}}"></textarea> <br>
+    Weight: <input type="text" name="wgt" value="{{ .Weight}}"></textarea> <br>
+    Sex: <input type="text" name="sex" value="{{ .Sex}}"></textarea> <br>
+    About Me: <textarea name="abme" style="width:250px;height:150px;">{{ .About}}</textarea> <br>
+        <input type="submit" value="Save" formmethod="post" />
 </form>
 </body>
 </html>
