@@ -2,6 +2,7 @@ package auth
 
 import (
 	"database/sql"
+	"goodadvice/v1/datasource"
 	"goodadvice/v1/models"
 	"log"
 	"net/http"
@@ -19,7 +20,7 @@ func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool,string) {
 	expiredby := time.Now().UTC()
 
 	// open db conn
-	db, err := sql.Open("mysql", models.DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	defer db.Close()
 	// pulls code and expire time from db to validate
 	checkCode, err := db.Query("SELECT verification_code,expires FROM email_verification WHERE userid = ?;", c.Uid)//(checkSessionAgeqs)
@@ -46,7 +47,7 @@ func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool,string) {
 		msg = "Success"
 		//activate user UPDATE users SET isactive = 1 WHERE ID = ?;
 		// Get the existing entry present in the database for the given username
-		db, err := sql.Open("mysql", models.DataSource)
+		db, err := sql.Open("mysql", datasource.DataSource)
 		activateUser, err := db.Exec("UPDATE users SET isactive = 1 WHERE ID = ?;",c.Uid)
 		if err != nil {
 			panic(err.Error())

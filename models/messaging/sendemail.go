@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"fmt"
+	"goodadvice/v1/datasource"
 	"io"
 	"log"
 	"net/mail"
@@ -66,14 +67,14 @@ func SendEmail(e Email) {
 	}
 }
 
-func VerificationEmail(newuid int64,ds string) {
+func VerificationEmail(newuid int64) {
 	// Vars
 	var e Email // Email struct
 	var regVal string // for each value is registry query result
 	var regValues []string // array of registry results to feed into Email struct
 
 	// Ope DB connection to query for values
-	db, err := sql.Open("mysql", ds)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	defer db.Close()
 	// Generate confirmation code
 	code := GenerateConfCode(6)

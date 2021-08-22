@@ -11,15 +11,14 @@
 <ul class="breadcrumb">
     <li><a href="/">Home</a></li>
     <!--li><a href="/login">Login</a></li-->
-    <li><a href="/userprofile">Profile</a></li>
+    <li><a href="/profile/userprofile">Profile</a></li>
+    <li>About Me</li>
 </ul>
 
     <form action="/profile/aboutme">
-    <h1> Review and Edit yous Personal Details</h1>
+    <h1> Review and Edit your personal details</h1>
     <br>
-    <a class="logo" href="/profile/goals">Goals</a>
-    <br>
-    <a class="logo" href="/profile/personalrecords">Personal Records</a><br><br>
+    <a class="logo" href="/profile/goals">My Goals</a> | <a class="logo" href="/profile/personalrecords">My PRs</a><br><br>
 
     <b>About Me: </b><br>
     Name: <input type="text" name="nametxt" value="{{ .Name}}"></input> <label id="namelbl"></label><br>

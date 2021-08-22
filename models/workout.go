@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"goodadvice/v1/datasource"
 	"log"
 	"math/rand"
 	"net/http"
@@ -72,7 +73,7 @@ func GetWOD(uid string) (Workout, WorkoutNotes, WodUser)  {
 	var id int
 	var name, strength, pace, conditioning string
 	var date string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -100,7 +101,7 @@ func GetWODGuest() Workout {
 	var id int
 	var name, strength, pace, conditioning string
 	var date string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -124,13 +125,13 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 	var wo Workout
 	var id int
 	var name, strength, pace, conditioning, date string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
 	defer db.Close()
-	qs := "select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = '" + d + "'"
-	results, err := db.Query(qs)
+	//qs := "select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = '" + d + "'"
+	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = ? and wo_createdby = 2",d)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -153,7 +154,7 @@ func GetWODNotes(woid int, userid string) WorkoutNotes {
 	var notes,time,min,sec string
 	uid := userid
 	wid := strconv.Itoa(woid)
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -200,7 +201,7 @@ func SaveWODResults (r *http.Request) {
 	woidint, err := strconv.Atoi(woid)
 	// Open DB connection
 	n = strings.Replace(n, "'", "\\'", -1)
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -293,7 +294,7 @@ func GetUser(uid string) WodUser{
 	var id int
 	var username,firstname,lastname,emailaddress string
 
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -323,7 +324,7 @@ func getRandomGreeting() string {
 	var gid []GreetID
 	var greeting string
 	var id int
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -361,7 +362,7 @@ func GetRandomWorkout(uid string) string {
 	var woid []WorkoutID
 	var wodate string
 	var id int
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}

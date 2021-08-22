@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"goodadvice/v1/datasource"
 	"net/http"
 	//"os"
 	"strings"
@@ -38,7 +39,7 @@ func AddWOD(r *http.Request,uid string) AddWorkout {
 		Date:         r.FormValue("date"),
 		Message:      "",
 	}
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -64,7 +65,7 @@ func GetAddWODbydate(d string) Workout {
 	var id int
 	var name, strength, pace, conditioning string
 	var date string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -93,7 +94,7 @@ func EditAddWOD (r *http.Request) {
 		Conditioning: r.FormValue("conditioning"),
 		Date:         r.FormValue("date"),
 	}
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}

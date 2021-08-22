@@ -19,7 +19,7 @@ func main()  {
 	http.Handle("/assets/css/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("assets/css"))))
 	fmt.Println("Serving asset files complete")
 	http.ListenAndServe(":3000", nil)
-	//fmt.Println("Server has started")
+	fmt.Println("Server has stopped")
 }
 
 

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
+	"goodadvice/v1/datasource"
 	"log"
 	"net/http"
 	"strconv"
@@ -42,7 +43,7 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 		Password: r.FormValue("password"),
 	}
 	// Get the existing entry present in the database for the given username
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -89,7 +90,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	id := ksuid.New()
 
 	// Open DB connection
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	defer db.Close()
 
 	// Get user ID from users table by searching for username
@@ -155,7 +156,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) (bool,Cookie) {
 		return active,c
 	}
 	// write to DB
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	// Check if user is Active and their role
 	checkAdmin, err := db.Query("select isactive,isadmin from users where ID = ?", c.Uid)//(checkAdminqs)
 	if err != nil {

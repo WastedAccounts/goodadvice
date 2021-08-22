@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/bcrypt"
+	"goodadvice/v1/datasource"
 	"goodadvice/v1/models/messaging"
 	"log"
 	"net/http"
@@ -30,7 +31,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	// The second argument is the cost of hashing, which we arbitrarily set as 8 (this value can be more or less, depending on the computing power you wish to utilize)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(nu.Password), 8)
 	// Next, insert the user values and hashed password into the database
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	insert, err := db.Exec("insert into users (username, firstname,lastlogindate,emailaddress,password,createdate) values (?,?,CURDATE(),?,?,CURDATE())",nu.User,nu.Firstname,nu.Email,string(hashedPassword))
 	if err != nil {
 		panic(err.Error())
@@ -44,13 +45,13 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	// We reach this point if the credentials we correctly stored in the database, and the default status of 200 is sent back
 
 	// now we send off a confirmation email and redirect to the confirmation page
-	messaging.VerificationEmail(newuid,DataSource)
+	messaging.VerificationEmail(newuid)
 
 }
 
 func CheckEmail(r *http.Request) bool {
 	ef := false
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	//esq := fmt.Sprintf("select ID from users where emailaddress = '%s'", r.FormValue("email"))
 	chkemail, err := db.Query("select ID from users where emailaddress = ?", r.FormValue("email"))
 	if err != nil {
@@ -74,7 +75,7 @@ func CheckEmail(r *http.Request) bool {
 
 func CheckUsername(r *http.Request) bool {
 	uf := false
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	usq := fmt.Sprintf("select ID from users where username = '%s'", r.FormValue("username"))
 	chkusername, err := db.Query(usq)
 	if err != nil {

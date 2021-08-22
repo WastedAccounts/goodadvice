@@ -1,15 +1,32 @@
+===================DB CHANGES WHEN RELEASING===================
+Remove username from user_profile table
+
+===================PRIORITY===================
+Name value
+Fix registration AND profile page to update the users name in both or remove it from one
+**Rebuild user_profile table into users table
+add birthdate to registration <-- Maybe
 
 
-Messaging
+===================WANTS===================
+
+
+Messaging WIP
 Create page to CRUD messages to message table
+    Send email exists now and works with email conf
+    It is reusable too.
 
-Registry
+Registry WIP
 Create page to CRUD values to the registry table
+    table exists and holds values for sending email now
+    Should add disclaimer value here so I can control it from within the app
+        make it load from here on page loads
+
+Disclaimer
+    only exists in email template for email conf right now
+
+
+===================DONE===================
 
 Validation email
 create code to send this
-
-Name value
-Fix registration AND profile page to update the users name in both or remove it from one
-Rebuild user_profile table into users table
-add birthdate to registration

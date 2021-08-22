@@ -8,11 +8,9 @@ import (
 	"regexp"
 )
 
-
 type signupController struct {
 	signupIDPattern *regexp.Regexp
 }
-
 
 type Webvals struct {
 	Userval string
@@ -61,9 +59,8 @@ func (sc signupController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					models.Signup(w, r)
 					// now we issue a cookie to the client and activate a session -- client account is still inactive here
 					models.CreateSession(w, r)
-					//http.Redirect(w, r, r.Header.Get("/login"), 302)
-					//sc.confirmemailLoad(w, r)
-					http.Redirect(w, r, r.Header.Get("/auth/confirmemail"), 302)
+					// and finally redirect the user to the confirm email page so they can enter their shiny new code
+					http.Redirect(w, r, "/auth/confirmemail", 302)
 				}
 			}
 		default:
@@ -78,6 +75,7 @@ func (sc *signupController) pageLoad(w http.ResponseWriter, r *http.Request) {
 	signuptpl.Execute(w, nil)
 }
 
+// pageReload - reloads page to display errors and info on what needs to be corrected when submitting
 func (sc *signupController) pageReload(w http.ResponseWriter, r *http.Request,e string) {
 	var webv = Webvals{
 		Userval:      r.FormValue("username"),

@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"goodadvice/v1/datasource"
 	"strings"
 )
 
@@ -43,7 +44,7 @@ type User struct {
 func GetVersion() Version {
 	var v Version
 	var ver, date string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -68,7 +69,7 @@ func GetVersion() Version {
 func GetMovements() []Movements {
 	var m []Movements
 	var movement,movementtype string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -90,7 +91,7 @@ func GetMovements() []Movements {
 func GetMovementTypes() []string {
 	var mt []string
 	var movementtype string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -111,7 +112,7 @@ func GetMovementTypes() []string {
 
 func SaveMovement(m string, mt string) {
 	var id int
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -134,7 +135,7 @@ func SaveMovement(m string, mt string) {
 func GetUsers() []Users {
 	var u []Users
 	var id,username,firstname,emailaddress,isactive,isadmin string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -168,7 +169,7 @@ func GetUsers() []Users {
 func AdminGetUser(id string) User {
 	var u User
 	var username,firstname,emailaddress,isactive,isadmin,active,role1,role2 string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -220,7 +221,7 @@ func AdminGetUser(id string) User {
 func UpdateUser(id string,v string) {
 	var role string
 	var active string
-	db, err := sql.Open("mysql", DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}

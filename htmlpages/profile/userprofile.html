@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>User Profile</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+<body>
+<h1 class="header">good advice</h1>
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <!--li><a href="/login">Login</a></li>
+    <li><a href="/wod">WOD</a></li-->
+    <li>Profile</li>
+</ul>
+<form action="/profile/userprofile">
+    <h1> See and Edit your personal info</h1>
+    <br>
+    <a class="logo" href="/profile/goals">My Goals</a> | <a class="logo" href="/profile/personalrecords">My
+    PRs</a><br><br>
+
+    <b>About Me: </b> <a href="/profile/aboutme">Edit</a><br>
+    <div></div>
+    {{ with .up }}
+    Name: <label id="namelbl">{{ .Name}}</label><br>
+    Age: <label id="agelbl">{{ .Age}}</label><br>
+    Birthday: <label id="bdaylbl">{{ .Birthday}}</label><br>
+    Weight: <label id="wghtlbl">{{ .Weight}}</label><br>
+    Sex: <label id="sexlbl">{{ .Sex}}</label><br>
+    About Me: <label id="abmelbl">{{ .About}}</label><br><br>
+    {{ end }}
+    </div>
+    <b>Personal Records: </b> <a href="/profile/personalrecords">Edit</a><br>
+    <div class="row">
+        {{range $key, $value := .rec}}
+        <form action="/profile/personalrecords" id="user{{.ID}}" name="user{{.ID}}" method="get" class="inline">
+            <!--div class="column" style="background-color:#bbb;"--><!--/div-->
+            <label id="prs{{ .ID}}" style="width:250px;height:150px;" id="prs{{ .ID}}" type="string">{{ .Movement }} :
+                {{ .Weight }} {{ .Time }} set on: {{ .Date }}</label>
+        </form>
+        {{ end }}
+    </div>
+    <br>
+    <b>Goals: </b> <a href="/profile/goals">Edit</a><br>
+    <div>
+        <label id="goalslbl" name="goalslbl">Goals</label>
+        <br>
+        <label id="goals" style="width:250px;height:150px;" id="goals" type="string">
+            <pre>{{ .Goals}}</pre>
+        </label>
+        <br>
+    </div>
+</form>
+</body>
+</html>

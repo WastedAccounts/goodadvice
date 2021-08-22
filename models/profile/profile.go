@@ -2,42 +2,179 @@ package profile
 
 import (
 	"database/sql"
-	"goodadvice/v1/models"
+	"fmt"
+	"goodadvice/v1/datasource"
+	"net/http"
 	"strings"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Records struct {
-	Record string
-	Movements []string
-	Date string
-}
-
-type Userprofile struct {
-	Name string
-	Birthday string //time.Time
+	Movement string
 	Weight string
-	Sex string
-	About string
-	Age int
+	Date string
+	ID string
+	Time string
+	Minutes string
+	Seconds string
+	Notes string
 }
 
-func PageLoadAboutMe(uid string) (Records,Userprofile){
-	var up Userprofile
-	var r Records
-	// Userprofile Struct vars
-	var name, weight, sex, about string //, birthday string
-	var birthday time.Time
+type Movements struct {
+	Movements []string
+	Currentdate string
+}
+
+type Userinfo struct {
+	Name string `json:"Name"`
+	Birthday string `json:"Birthday"`
+	Weight string `json:"Weight"`
+	Sex string `json:"Sex"`
+	About string `json:"About"`
+	Age int `json:"Age"`
+}
+
+type Addpr struct {
+	Uid string
+	MovementName string
+	Weight string
+	Date string
+	Time string
+	Notes string
+}
+
+// PageLoadAboutMe - loads user info and PR info for main profile page
+func PageLoadUserProfile(uid string) ([]Records,Userinfo){
+	var up Userinfo
+	var r []Records
+	// Load up for page load
+	up = LoadAboutMe(uid)
+	r = LoadPersonalRecords(uid)
+	// Need to add Goals to this call when I build it
+	//gls := LoadGoals()
+	return r,up
+}
+// PageLoadPersonalRecords - loads PR values to the Records Struct
+//currently loads all records for all time
+// After adding functions to edit PRs I can update this as I need to change the way I store the data so I can sort better
+func LoadPersonalRecords(uid string) []Records{
+	var rec []Records
 	// Records struct var
-	var movement, pr, display, movementname string
+	var movement, pr, prtime, id string //display,
 	var date time.Time
-	db, err := sql.Open("mysql", models.DataSource)
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
 
-	// THis code will fill the Userprofile struct
-	userresults, err := db.Query("SELECT username,userbirthday,usersex,userweight,userabout FROM mjs.user_profile where userid = ?", uid)
+	// THis code will fill the Records struct
+	prs, err := db.Query("select m.movementname,u.prvalue,u.prdate,u.prtime,u.ID From user_pr u join movements m ON m.ID = u.movementid where u.userid = ?", uid)
+	if err != nil {
+		panic(err.Error())
+	}
+	for prs.Next() {
+		err = prs.Scan(&movement,&pr,&date,&prtime,&id)
+		if err != nil {
+			panic(err.Error())
+		}
+		d := strings.Split(date.String(), " ")
+		rec = append(rec, Records{
+			Movement: movement,
+			Weight:pr,
+			Date: d[0],
+			Time: prtime,
+			ID: id},
+			)
+		//display += movement + ": " + pr + " set on: " + d[0] + " :: " + id +"\r"
+	}
+
+	return rec
+}
+
+// loadMovements - get all movements to load in DDL
+func LoadMovements() Movements {
+	var mov Movements
+	var movementname string
+	//rec.Record = display
+	db, err := sql.Open("mysql", datasource.DataSource)
+	if err != nil {
+		panic(err.Error())
+	}
+	movements, err := db.Query("SELECT movementname FROM mjs.movements;")
+	if err != nil {
+		panic(err.Error())
+	}
+	for movements.Next() {
+		err = movements.Scan(&movementname)
+		if err != nil {
+			panic(err.Error())
+		}
+		mov.Movements = append(mov.Movements ,movementname)
+	}
+	currentTime := time.Now()
+	mov.Currentdate = currentTime.Format("01/02/2006")
+	return mov
+}
+
+// LoadALLPersonalRecords - loads all history of PR values to the Records Struct
+func LoadALLPersonalRecords(uid string) Records {
+	var rec Records
+	// Records struct var
+	var movement, pr, display, movementname string
+	var date time.Time
+	db, err := sql.Open("mysql", datasource.DataSource)
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// THis code will fill the Records struct
+	movementresults, err := db.Query("select m.movementname, u.prvalue, u.prdate From user_pr u join movements m ON m.ID = u.movementid where u.userid = ?", uid)
+	if err != nil {
+		panic(err.Error())
+	}
+	for movementresults.Next() {
+		err = movementresults.Scan(&movement,&pr,&date)
+		if err != nil {
+			panic(err.Error())
+		}
+		d := strings.Split(date.String(), " ")
+		display += movement + ": " + pr + " set on: " + d[0] + "\r"
+	}
+	//rec.Record = display
+	movements, err := db.Query("SELECT movementname FROM mjs.movements;")
+	if err != nil {
+		panic(err.Error())
+	}
+	for movements.Next() {
+		err = movements.Scan(&movementname)
+		if err != nil {
+			panic(err.Error())
+		}
+		//rec.Movements = append(rec.Movements ,movementname)
+	}
+	//currentTime := time.Now()
+	//rec.Date = currentTime.Format("01/02/2006")
+	return rec
+}
+
+// LoadAboutMe - Load personal data to the Userprofile Struct (name,weight,sex,about,birthday,age)
+func LoadAboutMe(uid string) Userinfo {
+	var up Userinfo
+	// Userprofile Struct vars
+	var name, weight, sex, about string //, birthday string
+	var birthday time.Time
+
+	// open DB Conn
+	db, err := sql.Open("mysql", datasource.DataSource)
+	defer db.Close()
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Load the Userprofile struct from db
+	userresults, err := db.Query("SELECT u.firstname,up.userbirthday,up.usersex,up.userweight,up.userabout FROM user_profile up JOIN users u ON u.ID = up.userid where userid = ?;", uid)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -47,79 +184,37 @@ func PageLoadAboutMe(uid string) (Records,Userprofile){
 			panic(err.Error())
 		}
 		age := age(birthday,time.Now())
-		up = Userprofile{Name: name,Age: age,Birthday: birthday.Format("01/02/2006"),Weight: weight,Sex: sex,About: about}
+		up = Userinfo{Name: name,Age: age,Birthday: birthday.Format("01/02/2006"),Weight: weight,Sex: sex,About: about}
 	}
-
-	// THis code will fill the Records struct
-	movementresults, err := db.Query("select m.movementname, u.prvalue, u.prdate From user_pr u join movements m ON m.ID = u.movementid where u.userid = ?", uid)
-	if err != nil {
-		panic(err.Error())
-	}
-	for movementresults.Next() {
-		err = movementresults.Scan(&movement,&pr,&date)
-		if err != nil {
-			panic(err.Error())
-		}
-		d := strings.Split(date.String(), " ")
-		display += movement + ": " + pr + " set on: " + d[0] + "\r"
-	}
-	r.Record = display
-	movements, err := db.Query("SELECT movementname FROM mjs.movements;")
-	if err != nil {
-		panic(err.Error())
-	}
-	for movements.Next() {
-		err = movements.Scan(&movementname)
-		if err != nil {
-			panic(err.Error())
-		}
-		r.Movements = append(r.Movements ,movementname)
-	}
-	currentTime := time.Now()
-	r.Date = currentTime.Format("01/02/2006")
-	return r,up
+	return up
 }
 
-func PageLoadPersonalRecords(uid string) (Records){
-	var rec Records
-	// Records struct var
-	var movement, pr, display, movementname string
-	var date time.Time
-	db, err := sql.Open("mysql", models.DataSource)
+// AddRecord CHANGE to - SaveSinglePR - Write new PR value to database
+func SaveNewPR (addpr Addpr) {
+	var movementid string
+	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
-
-	// THis code will fill the Records struct
-	movementresults, err := db.Query("select m.movementname, u.prvalue, u.prdate From user_pr u join movements m ON m.ID = u.movementid where u.userid = ?", uid)
+	defer db.Close()
+	mid, err := db.Query("SELECT ID FROM movements WHERE movementname = ?;",addpr.MovementName)
 	if err != nil {
 		panic(err.Error())
 	}
-	for movementresults.Next() {
-		err = movementresults.Scan(&movement,&pr,&date)
+	for mid.Next() {
+		err = mid.Scan(&movementid)
 		if err != nil {
 			panic(err.Error())
 		}
-		d := strings.Split(date.String(), " ")
-		display += movement + ": " + pr + " set on: " + d[0] + "\r"
 	}
-	rec.Record = display
-	movements, err := db.Query("SELECT movementname FROM mjs.movements;")
+	insert, err := db.Exec("INSERT INTO user_pr (userid,movementid,prvalue,prdate,prtime,prnotes) VALUES (?,?,?,?,?,?)",addpr.Uid,movementid,addpr.Weight,addpr.Date,addpr.Time,addpr.Notes)
 	if err != nil {
 		panic(err.Error())
 	}
-	for movements.Next() {
-		err = movements.Scan(&movementname)
-		if err != nil {
-			panic(err.Error())
-		}
-		rec.Movements = append(rec.Movements ,movementname)
-	}
-	currentTime := time.Now()
-	rec.Date = currentTime.Format("01/02/2006")
-	return rec
+	insert.RowsAffected()
 }
 
+// age - function to calculate age from a date -- Not sure it's accurate though
 func age(birthdate, today time.Time) int {
 	//https://forum.golangbridge.org/t/how-to-calculate-the-exact-age-from-given-date-until-today/20530/3
 	today = today.In(birthdate.Location())
@@ -136,4 +231,64 @@ func age(birthdate, today time.Time) int {
 		age--
 	}
 	return age
+}
+
+// LoadSinglePR Load a pr to editpr page for editing
+func LoadSinglePR(uid string, prid string) Records {
+	var r Records
+	var movement,value,id,prtime,notes string
+	var date time.Time
+	db, err := sql.Open("mysql", datasource.DataSource)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+	rec, err := db.Query("SELECT m.movementname, u.prvalue, u.prdate,u.ID,u.prtime,u.prnotes FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? AND u.ID = ?;",uid,prid)
+	if err != nil {
+		panic(err.Error())
+	}
+	for rec.Next() {
+		err = rec.Scan(&movement, &value, &date, &id,&prtime,&notes)
+		if err != nil {
+			panic(err.Error())
+		}
+		d := strings.Split(date.String(), " ")
+		if prtime == "" {
+			prtime = ":"
+		}
+		prtimesplit := strings.Split(prtime, ":")
+		r = Records{
+			Movement: movement,
+			Weight:value,
+			Date: d[0],
+			ID: id,
+			Time: prtime,
+			Minutes: prtimesplit[0],
+			Seconds: prtimesplit[1],
+			Notes: notes,
+		}
+	}
+	return r
+}
+
+// UpdateSinglePR - Update a pr value after editing
+func UpdateSinglePR(r *http.Request,id string) {
+	fmt.Println("id",id,"prid",r.PostFormValue("prid"))
+	fmt.Println(r.PostFormValue("date"))
+	fmt.Println(r.PostFormValue("weight"))
+	time := r.PostFormValue("minutes") + ":" + r.PostFormValue("seconds")
+	fmt.Println(time)
+	fmt.Println(r.PostFormValue("notes"))
+
+	db, err := sql.Open("mysql", datasource.DataSource)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer db.Close()
+	updatepr, err := db.Exec("UPDATE user_pr SET prvalue = ?, prdate = ?, prtime = ?, prnotes = ? WHERE ID = ?",r.PostFormValue("weight"),r.PostFormValue("date"),time,r.PostFormValue("notes"),r.PostFormValue("prid"))
+	if err != nil {
+		panic(err.Error())
+	}
+	updatepr.RowsAffected()
+
 }
