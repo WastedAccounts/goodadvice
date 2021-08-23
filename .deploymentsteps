@@ -1,0 +1,17 @@
+On Dev machine
+Copy: C:\Users\matthews\Documents\__ULTIMATE_SOFTWARE\___CodingProjects\LearnGO\goodadvice
+To: \\cloudninja\matt\homelab\k8s\go
+Then from WLS
+cp /cloudninja/homelab/k8s/go/goodadvice -r mattscloud/go
+cd mattscloud/go/goodadvice
+docker build -t 192.168.10.50:5000/local/goodadvice:0.0.**VERSION** .
+docker push 192.168.10.50:5000/local/goodadvice:0.0.**VERSION**
+
+Then in K8s
+kubectl edit deploy goodadvice
+
+Change Image Version
+containers:
+- image: 192.168.10.50:5000/local/goodadvice:0.0.**VERSION**
+
+K8s will roll over to the new version

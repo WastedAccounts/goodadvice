@@ -37,7 +37,7 @@ func (authc authController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			i,msg := auth.ConfirmEmail(w, r)
 			if i == true {
 				//redirect to home page
-				http.Redirect(w, r, r.Header.Get("/index"), 302)
+				http.Redirect(w, r, "/profile/userprofile", 302)
 			} else if i == false {
 				authc.confirmEmailLoadFailed(w,r,msg)
 			}

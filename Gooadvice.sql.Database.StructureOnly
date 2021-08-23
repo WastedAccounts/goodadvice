@@ -1,3 +1,5 @@
+CREATE DATABASE  IF NOT EXISTS `mjs` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+USE `mjs`;
 -- MySQL dump 10.13  Distrib 8.0.24, for Win64 (x86_64)
 --
 -- Host: 192.168.10.201    Database: mjs
@@ -29,7 +31,7 @@ CREATE TABLE `comments` (
   `comment` varchar(500) DEFAULT NULL,
   `time` varchar(15) DEFAULT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,7 +49,7 @@ CREATE TABLE `email_verification` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `verification_code_UNIQUE` (`verification_code`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,7 +66,7 @@ CREATE TABLE `goodadvice_db_version` (
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ID_UNIQUE` (`ID`),
   UNIQUE KEY `db_version_UNIQUE` (`db_version`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -93,10 +95,10 @@ CREATE TABLE `login_history` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
   `login_date` datetime NOT NULL,
-  `user_ip` varchar(30) DEFAULT NULL,
+  `user_ip` varchar(30) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ID_UNIQUE` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=207 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=234 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -127,7 +129,7 @@ DROP TABLE IF EXISTS `movement_types`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `movement_types` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `movement_type` varchar(45) DEFAULT NULL,
+  `movement_type` varchar(45) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ID_UNIQUE` (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -142,8 +144,8 @@ DROP TABLE IF EXISTS `movements`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `movements` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `movementtype` int DEFAULT NULL,
-  `movementname` varchar(45) DEFAULT NULL,
+  `movementtype` int NOT NULL,
+  `movementname` varchar(45) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ID_UNIQUE` (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -158,9 +160,10 @@ DROP TABLE IF EXISTS `registry`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `registry` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL,
-  `value` varchar(250) DEFAULT 'CHANGE_ME',
   `parent_id` int NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `value` varchar(250) NOT NULL DEFAULT 'CHANGE_ME',
+  `description` varchar(500) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ID_UNIQUE` (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -175,13 +178,15 @@ DROP TABLE IF EXISTS `user_pr`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_pr` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `userid` int DEFAULT NULL,
-  `movementid` int DEFAULT NULL,
-  `prvalue` varchar(100) DEFAULT NULL,
-  `prdate` datetime DEFAULT NULL,
+  `userid` int NOT NULL,
+  `movementid` int NOT NULL,
+  `prvalue` varchar(100) NOT NULL,
+  `prdate` datetime NOT NULL,
+  `prtime` varchar(20) NOT NULL,
+  `prnotes` varchar(500) NOT NULL,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ID_UNIQUE` (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -194,11 +199,10 @@ DROP TABLE IF EXISTS `user_profile`;
 CREATE TABLE `user_profile` (
   `ID` int NOT NULL AUTO_INCREMENT,
   `userid` int NOT NULL,
-  `userbirthday` datetime DEFAULT NULL,
-  `usersex` varchar(1) DEFAULT NULL,
-  `userweight` int DEFAULT NULL,
-  `userabout` varchar(500) DEFAULT 'I''m awesome =)',
-  `username` varchar(45) DEFAULT NULL,
+  `userbirthday` datetime NOT NULL,
+  `usersex` varchar(1) NOT NULL DEFAULT 'Y',
+  `userweight` int NOT NULL,
+  `userabout` varchar(500) NOT NULL DEFAULT 'I''m awesome =)',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `ID_UNIQUE` (`ID`),
   UNIQUE KEY `userid_UNIQUE` (`userid`)
@@ -221,7 +225,7 @@ CREATE TABLE `user_session` (
   UNIQUE KEY `ID_UNIQUE` (`ID`),
   UNIQUE KEY `sessionkey_UNIQUE` (`sessionkey`),
   UNIQUE KEY `userid_UNIQUE` (`userid`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -292,24 +296,15 @@ DROP TABLE IF EXISTS `workout`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `workout` (
   `ID` int NOT NULL AUTO_INCREMENT,
-  `wo_name` varchar(45) DEFAULT NULL,
-  `wo_strength` varchar(750) DEFAULT NULL,
-  `wo_pace` varchar(45) DEFAULT NULL,
-  `wo_conditioning` varchar(750) DEFAULT NULL,
-  `wo_date` date DEFAULT NULL,
-  `wo_createdby` int DEFAULT NULL,
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `wo_date_UNIQUE` (`wo_date`)
-) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `wo_name` varchar(45) NOT NULL,
+  `wo_strength` varchar(750) NOT NULL,
+  `wo_pace` varchar(45) NOT NULL,
+  `wo_conditioning` varchar(750) NOT NULL,
+  `wo_date` date NOT NULL,
+  `wo_createdby` int NOT NULL,
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping events for database 'mjs'
---
-
---
--- Dumping routines for database 'mjs'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -320,4 +315,4 @@ CREATE TABLE `workout` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-08-19 20:56:50
+-- Dump completed on 2021-08-22 20:49:58

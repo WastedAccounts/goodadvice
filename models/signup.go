@@ -3,7 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	//_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/bcrypt"
 	"goodadvice/v1/datasource"
 	"goodadvice/v1/models/messaging"
@@ -32,21 +32,29 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(nu.Password), 8)
 	// Next, insert the user values and hashed password into the database
 	db, err := sql.Open("mysql", datasource.DataSource)
-	insert, err := db.Exec("insert into users (username, firstname,lastlogindate,emailaddress,password,createdate) values (?,?,CURDATE(),?,?,CURDATE())",nu.User,nu.Firstname,nu.Email,string(hashedPassword))
+	insertuser, err := db.Exec("insert into users (username, firstname,lastlogindate,emailaddress,password,createdate) values (?,?,CURDATE(),?,?,CURDATE())",nu.User,nu.Firstname,nu.Email,string(hashedPassword))
 	if err != nil {
 		panic(err.Error())
 	}
 	// get new user id value so we can store it in a cookie
-	newuid, err := insert.LastInsertId()
+	newuid, err := insertuser.LastInsertId()
+	if err != nil {
+		// If there is any issue with inserting into the database, return a 500 error
+		panic(err.Error())
+	}
+	//Create an empty profile record
+	insertprofile, err := db.Exec("INSERT INTO user_profile (userid,userbirthday,userweight) VALUES (?,NOW() - INTERVAL 21 YEAR,120);",newuid)
+	if err != nil {
+		panic(err.Error())
+	}
+	_,err = insertprofile.RowsAffected()
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
 	}
 	// We reach this point if the credentials we correctly stored in the database, and the default status of 200 is sent back
-
 	// now we send off a confirmation email and redirect to the confirmation page
 	messaging.VerificationEmail(newuid)
-
 }
 
 func CheckEmail(r *http.Request) bool {
