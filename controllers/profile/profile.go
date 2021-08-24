@@ -52,11 +52,11 @@ func NewProfileController() *profileController {
 	}
 }
 
-var	userprofiletpl = template.Must(template.ParseFiles("htmlpages/profile/userprofile.html"))
-var	aboutmetpl = template.Must(template.ParseFiles("htmlpages/profile/aboutme.html"))
-var	goalstpl = template.Must(template.ParseFiles("htmlpages/profile/goals.html"))
-var	personalrecordstpl = template.Must(template.ParseFiles("htmlpages/profile/personalrecords.html"))
-var	editprtpl = template.Must(template.ParseFiles("htmlpages/profile/editpr.html"))
+var	userprofiletpl = template.Must(template.ParseFiles("htmlpages/profile/userprofile.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var	aboutmetpl = template.Must(template.ParseFiles("htmlpages/profile/aboutme.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var	goalstpl = template.Must(template.ParseFiles("htmlpages/profile/goals.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var	personalrecordstpl = template.Must(template.ParseFiles("htmlpages/profile/personalrecords.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var	editprtpl = template.Must(template.ParseFiles("htmlpages/profile/editpr.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
 
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -143,12 +143,8 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (pc profileController) pageLoaduserProfile(w http.ResponseWriter, r *http.Request, id string) {
-	//var up userprofile
-
 	// get values for pages load
-	//https://stackoverflow.com/questions/50080640/how-to-pass-multiple-variables-to-go-html-template
 	rec,up := profile.PageLoadUserProfile(id)
-
 	userprofiletpl.Execute(w,M{
 		//"mov": mov,
 		"up": up,

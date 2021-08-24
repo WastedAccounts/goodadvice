@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Edit {{ .pr.Movement }} PR </title>
-    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
+{{template "header" .}}
 <body>
-<h1 class="header">good advice</h1>
 <ul class="breadcrumb">
     <li><a href="/">Home</a></li>
     <li><a href="/profile/userprofile">Profile</a></li>
@@ -19,7 +19,7 @@
 <form action="/profile/editpr">
     <b>Name: {{ .pr.Movement }}</b>
     <br>
-    <textarea id="prid"  name="prid" type="string" hidden="true" >{{.pr.ID}}</textarea>
+    <textarea id="prid" name="prid" type="string" hidden="true">{{.pr.ID}}</textarea>
     <b>Date:</b>
     <br>
     <input type="date" data-date-inline-picker="true" id="date" name="date" value="{{ .pr.Date }}"/>
@@ -39,11 +39,10 @@
     <textarea name="notes" id="notes" style="width:250px;height:150px;" id="Notes">{{ .pr.Notes }}</textarea>
     <br>
     <br>
-    <input type="submit" value="Save PR" name="savepr" formaction="/profile/editpr" formmethod="post" />
-
-
+    <input type="submit" value="Save PR" name="savepr" formaction="/profile/editpr" formmethod="post"/>
 </form>
-<br><br>
+<br>
+<br>
 <div>
     <b>{{ .pr.Movement }} History: </b>
     {{range $key, $value := .prhist}}
@@ -55,4 +54,5 @@
     </div>
 </div>
 </body>
+{{template "footer" .}}
 </html>

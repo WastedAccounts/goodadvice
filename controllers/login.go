@@ -19,7 +19,7 @@ func newLoginController() *loginController {
 	}
 }
 
-var	logintpl = template.Must(template.ParseFiles("htmlpages/login.html"))
+var	logintpl = template.Must(template.ParseFiles("htmlpages/login.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 
 func (lc loginController) ServeHTTP(w http.ResponseWriter, r *http.Request) {

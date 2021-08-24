@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	"goodadvice/v1/datasource"
 	"net/http"
 
@@ -11,11 +10,17 @@ import (
 
 func LogOut(w http.ResponseWriter, r *http.Request){
 	c := ValidateCookie(w, r)
+	// open DB conn
 	db, err := sql.Open("mysql", datasource.DataSource)
-	// validate session is LESS then 2 hours old
-	deleteqs := fmt.Sprintf("update user_session set sessionstart = '1900-01-01 00:00:00' where userid = '%s'",c.Uid)
-	delete, err := db.Query(deleteqs)
-	fmt.Println(delete)
+	defer db.Close()
+
+	// update session so it's invalid by setting start date to the turn of the 20th century
+	delete, err := db.Exec("update user_session set sessionstart = '1900-01-01 00:00:00' where userid = ?",c.Uid)
+	//fmt.Println(delete)
+	if err != nil {
+		panic(err.Error())
+	}
+	_,err = delete.LastInsertId()
 	if err != nil {
 		panic(err.Error())
 	}

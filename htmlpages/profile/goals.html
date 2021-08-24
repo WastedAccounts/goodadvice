@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Goals</title>
-    <link rel="stylesheet" href="../assets/css/style.css" >
+    <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
+{{template "header" .}}
 <body>
-<h1 class="header">good advice</h1>
 <ul class="breadcrumb">
     <li><a href="/">Home</a></li>
     <!--li><a href="/login">Login</a></li-->
@@ -17,13 +17,17 @@
 <form action="/profile/goals">
     <h1> Review and Edit your Goals</h1>
     <br>
-    <a class="logo" href="/profile/aboutme">About Me</a> | <a class="logo" href="/profile/personalrecords">My PRs</a><br><br>
+    <a class="logo" href="/profile/aboutme">About Me</a> | <a class="logo" href="/profile/personalrecords">My
+    PRs</a><br><br>
 
     <b>Personal Goals: </b> <a href="/profile/goals">Edit</a><br>
-    <label id="goalslbl" name="goalslbl" >Not working currently</label>
+    <label id="goalslbl" name="goalslbl">Not working currently</label>
     <br>
-    <label id="goals" style="width:250px;height:150px;" id="goals" type="string" ><pre>{{ .Goals}}</pre></label>
+    <label id="goals" style="width:250px;height:150px;" id="goals" type="string">
+        <pre>{{ .Goals}}</pre>
+    </label>
     <br>
 </form>
 </body>
+{{template "footer" .}}
 </html>

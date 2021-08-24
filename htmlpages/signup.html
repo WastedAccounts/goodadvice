@@ -2,22 +2,20 @@
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Signup</title>
-  <link rel="stylesheet" href="../assets/css/style.css" >
-
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+{{template "header" .}}
 <body>
-<h1 class="header">good advice</h1>
 <ul class="breadcrumb">
-  <li><a href="/">Home</a></li>
-  <li><a href="/login">Login</a></li>
-  <!--li><a href="/wod">WOD</a></li-->
-  <li>Signup</li>
+<li><a href="/">Home</a></li>
+<li><a href="/login">Login</a></li>
+<li>Signup</li>
 </ul>
-  <h1>Create your user account</h1>
-  <label type="text" id="notmatch" name="notmatch"><b style="color:red ">     {{.Msg}}</b></label>
-  <form action="/signup" method="get">
+<h1>Create your user account</h1>
+<label type="text" id="notmatch" name="notmatch"><b style="color:red "> {{.Msg}}</b></label>
+<form action="/signup" method="get">
     <label for="firstname">First name: </label>
     <input type="text" id="firstname" name="firstname" value="{{.Firstnameval}}"><br><br>
     <label for="email">Email: </label>
@@ -25,16 +23,11 @@
     <label for="username">Username: </label>
     <input type="text" id="username" name="username" value="{{.Userval}}"><br><br>
     <label for="password">Password: </label>
-    <input type="password" id="password" name="password" ><br><br>
+    <input type="password" id="password" name="password"><br><br>
     <label for="confirmpassword">Confirm Password: </label>
-    <input type="password" id="confirmpassword" name="confirmpassword" ><br><br>
+    <input type="password" id="confirmpassword" name="confirmpassword"><br><br>
     <input type="submit" value="Submit" formmethod="post">
-  </form>
+</form>
 </body>
-
-<br><br>
-<br><br>
-<footer>
-
-</footer>
+{{template "footer" .}}
 </html>

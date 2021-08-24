@@ -73,8 +73,12 @@ func VerificationEmail(newuid int64) {
 	var regVal string // for each value is registry query result
 	var regValues []string // array of registry results to feed into Email struct
 
-	// Ope DB connection to query for values
+	// Open DB connection to query for values
 	db, err := sql.Open("mysql", datasource.DataSource)
+	if err != nil {
+		// If there is any issue with inserting into the database, return a 500 error
+		panic(err.Error())
+	}
 	defer db.Close()
 	// Generate confirmation code
 	code := GenerateConfCode(6)
@@ -86,9 +90,11 @@ func VerificationEmail(newuid int64) {
 		panic(err.Error())
 	}
 	// Get code ID from verification table to use for verifying users code
-	codeId, err := writeCode.LastInsertId()
-	// just for storing you can delete this when it's working
-	fmt.Println(codeId)
+	_, err = writeCode.LastInsertId()
+	if err != nil {
+		// If there is any issue with inserting into the database, return a 500 error
+		panic(err.Error())
+	}
 	// Query user table for user info
 	getUserInfo, err := db.Query("select username,emailaddress from users where ID = ?", newuid)
 	if err != nil {

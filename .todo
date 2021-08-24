@@ -8,12 +8,19 @@ User Feed back page for users to submit feed back
 User workouts
     Should users be able to writ their own workouts
 
+Add About Page
+    to describe the site and put up the disclaimer
+
 
 ===================WANTS===================
+Workout Leader board
+    Show all as anon
+    Show your friends.
 UserProfile
-Add height
+    Add height
+    Friends list?
 
-Messaging WIP
+Email Messaging WIP
 Create page to CRUD messages to message table
     Send email exists now and works with email conf
     It is reusable too.

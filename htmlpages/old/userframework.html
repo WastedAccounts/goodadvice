@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="UTF-8">
+  <title>framework</title>
+  <link rel="stylesheet" href="../../assets/css/style.css" >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+<body>
+<h1 class="header">good advice</h1>
+<span style="font-size:20px;cursor:pointer" onclick="openNav()">&#9776; open menu</span>
+<ul class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li>Workout</li>
+</ul>
+<div id="mySidenav" class="sidenav">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+  <a href="/wod">Today's workout</a>
+  <a href="/userprofile">User Profile</a>
+  <a href="/logout">Logout =(</a>
+</div>
+<script>
+  function openNav() {
+    document.getElementById("mySidenav").style.width = "250px";
+  }
+  function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+  }
+</script>
+
+
+
+</body>
+</html>

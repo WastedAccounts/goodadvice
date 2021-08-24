@@ -1,11 +1,40 @@
 /* Header CSS */
 h1.header {
     padding: 10px 20px;
-    background-color: #eee;
+    /*background-color: #eee;*/
+    display: inline;
+}
+h2.header {
+    padding: 10px 20px;
+    /*background-color: #eee;*/
+    display: inline;
+    text-align: right;
+}
+h3.header {
+    padding: 10px 20px;
+    /*background-color: #eee;*/
+    display: inline;
 }
 header.header {
     padding: 10px 20px;
     background-color: #eee;
+    vert-align: middle;
+}
+/* Footer CSS */
+footer.footer {
+    padding: 10px 20px;
+    /*background-color: #eee;*/
+    display: inline;
+}
+/* Button CSS */
+button.btn {
+    border: none;
+    background-color: inherit;
+    padding: 14px 28px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-block;
+    color: black;
 }
 /* Bread crumb CSS */
 ul.breadcrumb {

@@ -18,7 +18,7 @@ type Webvals struct {
 }
 
 
-var	confirmtpl = template.Must(template.ParseFiles("htmlpages/auth/confirmemail.html"))
+var	confirmtpl = template.Must(template.ParseFiles("htmlpages/auth/confirmemail.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
 
 
 func NewAuthController() *authController {

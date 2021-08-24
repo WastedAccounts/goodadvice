@@ -39,8 +39,8 @@ type addWorkoutController struct {
 var Edit bool
 
 // html templates
-var addwodtpl = template.Must(template.ParseFiles("htmlpages/addworkout.html"))
-var editwodtpl = template.Must(template.ParseFiles("htmlpages/editworkout.html"))
+var addwodtpl = template.Must(template.ParseFiles("htmlpages/addworkout.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var editwodtpl = template.Must(template.ParseFiles("htmlpages/editworkout.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
 
 // entry point from front.go
 func newAddWorkoutController() *addWorkoutController {

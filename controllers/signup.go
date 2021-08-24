@@ -20,7 +20,7 @@ type Webvals struct {
 }
 
 // html templates
-var	signuptpl = template.Must(template.ParseFiles("htmlpages/signup.html"))
+var	signuptpl = template.Must(template.ParseFiles("htmlpages/signup.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
 
 // newSignupController
 func newSignupController() *signupController {

@@ -2,33 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Manage users</title>
-  <link rel="stylesheet" href="../assets/css/style.css" >
+    <link rel="stylesheet" href="../assets/css/style.css">
 
 </head>
+{{template "header" .}}
 <body>
-<h1 class="header">good advice</h1>
 <ul class="breadcrumb">
-  <li><a href="/">Home</a></li>
-  <li><a href="/admin">Admin</a></li>
-  <li>Users</li>
+    <li><a href="/">Home</a></li>
+    <li><a href="/admin">Admin</a></li>
+    <li>Users</li>
 </ul>
-
 <h2>Manage users</h2>
-
 <div class="row">
-  {{range $key, $value := .}}
-  <form action="/admin" id="user{{.ID}}" name="user{{.ID}}" method="get" class="inline">
-
-  <div class="column" style="background-color:#bbb;">
-    <input type="hidden" name="userID" value="{{.ID}}">
-    <button type="submit" name="submit" value="user" class="link-button"><h3>{{ .Username}}</h3></button>
-      <p>{{ .Firstname}} | {{ .Emailaddress}} | Active: {{ .Isactive}} | Role: {{ .Isadmin}}</p>
-  </div>
-  </form>
+    {{range $key, $value := .}}
+    <form action="/admin" id="user{{.ID}}" name="user{{.ID}}" method="get" class="inline">
+        <div class="column" style="background-color:#bbb;">
+            <input type="hidden" name="userID" value="{{.ID}}">
+            <button type="submit" name="submit" value="user" class="link-button"><h3>{{ .Username}}</h3></button>
+            <p>{{ .Firstname}} | {{ .Emailaddress}} | Active: {{ .Isactive}} | Role: {{ .Isadmin}}</p>
+        </div>
+    </form>
     {{end}}
 </div>
 </form>
 </body>
+{{template "footer" .}}
 </html>

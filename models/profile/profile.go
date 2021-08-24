@@ -2,7 +2,6 @@ package profile
 
 import (
 	"database/sql"
-	"fmt"
 	"goodadvice/v1/datasource"
 	"net/http"
 	"strings"
@@ -257,12 +256,8 @@ func LoadSinglePR(uid string, prid string) (Records,[]Records) {
 
 // UpdateSinglePR - Update a pr value after editing
 func UpdateSinglePR(r *http.Request,id string) {
-	fmt.Println("id",id,"prid",r.PostFormValue("prid"))
-	fmt.Println(r.PostFormValue("date"))
-	fmt.Println(r.PostFormValue("weight"))
+	// Format web values for storing in DB
 	time := r.PostFormValue("minutes") + ":" + r.PostFormValue("seconds")
-	fmt.Println(time)
-	fmt.Println(r.PostFormValue("notes"))
 
 	// Open DB Conn
 	db, err := sql.Open("mysql", datasource.DataSource)

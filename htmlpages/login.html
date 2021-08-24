@@ -2,13 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>login</title>
-    <link rel="stylesheet" href="../assets/css/style.css" >
-
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head>
+{{template "header" .}}
 <body>
-<h1 class="header">good advice</h1>
 <ul class="breadcrumb">
     <li><a href="/">Home</a></li>
     <li>Login</li>
@@ -16,8 +15,8 @@
 
 <form action="/login">
     <a class="logo" href="/signup">Not registered, click here</a>
-    <br />
-    <br />
+    <br/>
+    <br/>
     <label for="username">Username: </label>
     <input type="text" id="username" name="username"><br><br>
     <label for="password">Password: </label>
@@ -25,7 +24,6 @@
     <input type="submit" value="Submit" formmethod="post">
     <label type="text" id="errormsg" id="errormsg" name="errormsg" value="{{.Msg}}"></label>
 </form>
-
-
 </body>
+{{template "footer" .}}
 </html>

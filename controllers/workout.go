@@ -38,10 +38,10 @@ type Cookie struct {
 }
 
 // html templates
-var	wodtpl = template.Must(template.ParseFiles("htmlpages/wod.html"))
-var	wodguesttpl = template.Must(template.ParseFiles("htmlpages/guestwod.html"))
-var	wodguesttpl2 = template.Must(template.ParseFiles("htmlpages/guestwod2.html"))
-var guestfwtpl = template.Must(template.ParseFiles("htmlpages/guestframework.html"))
+var	wodtpl = template.Must(template.ParseFiles("htmlpages/wod.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var	wodguesttpl = template.Must(template.ParseFiles("htmlpages/guestwod.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
+//var	wodguesttpl2 = template.Must(template.ParseFiles("htmlpages/guestwod2.html"))
+//var guestfwtpl = template.Must(template.ParseFiles("htmlpages/guestframework.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
 
 // entry point from front.go
 func newWorkoutController() *workoutController {

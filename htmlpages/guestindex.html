@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="ie=edge" />
   <title>This is Good Advice</title>
-  <link rel="stylesheet" href="/assets/css/style.css" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
 </head>
-  <body>
-  <h1 class="header">good advice</h1>
+{{template "header" .}}
+<body>
   <h2>Welcome, this is good advice</h2>
     <main>
       <header>
@@ -22,4 +22,5 @@
       <label>Remember to get some exercise everyday. Go for a walk or check out today's <a class="logo" href="/wod">workout</a>!</label>
     </main>
   </body>
+{{template "footer" .}}
 </html>

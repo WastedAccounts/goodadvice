@@ -2,49 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>Administration</title>
-    <link rel="stylesheet" href="../assets/css/style.css" >
-    <!--style>
-        ul.breadcrumb {
-            padding: 10px 16px;
-            list-style: none;
-            background-color: #eee;
-        }
-        ul.breadcrumb li {
-            display: inline;
-            font-size: 18px;
-        }
-        ul.breadcrumb li+li:before {
-            padding: 8px;
-            color: black;
-            content: "/\00a0";
-        }
-        ul.breadcrumb li a {
-            color: #0275d8;
-            text-decoration: none;
-        }
-        ul.breadcrumb li a:hover {
-            color: #01447e;
-            text-decoration: underline;
-        }
-    </style-->
+    <link rel="stylesheet" href="../assets/css/style.css">
+
 </head>
+{{template "header" .}}
 <body>
-<h1 class="header">good advice</h1>
 <ul class="breadcrumb">
     <li><a href="/">Home</a></li>
-    <!--li><a href="/admin">Admin</a></li>
-    <li><a href="/wod">WOD</a></li-->
     <li>Admin</li>
 </ul>
-<!--
-// Search and list users
-// Enable and Disable users
-// Change users role
-// Create roles
--->
-
 <h2>Manage users</h2>
 <ul>
     <li>User1</li>
@@ -52,24 +21,22 @@
     <li>User3</li>
 </ul>
 <main>
-<header>
-</header>
-<form action="/admin">
-    <input type="submit" name="submit" id="users" value="users" formmethod="get">
-    <input type="submit" name="submit" id="movements" value="movements" formmethod="get">
-    <input type="submit" name="submit" id="workouts" value="workouts" formmethod="get">
-    <br /><br />
-    <a class="logo" href="/wod">Workout of the Day</a>
-    <br /><br />
-    <a class="logo" href="/addwod">Add Workout</a>
-    <br /><br />
-    <a class="logo" href="/logout">Logout =(</a>
-</form>
+    <form action="/admin">
+        <input type="submit" name="submit" id="users" value="users" formmethod="get">
+        <input type="submit" name="submit" id="movements" value="movements" formmethod="get">
+        <input type="submit" name="submit" id="workouts" value="workouts" formmethod="get">
+        <br/><br/>
+        <a class="logo" href="/wod">Workout of the Day</a>
+        <br/><br/>
+        <a class="logo" href="/addwod">Add Workout</a>
+        <br/><br/>
+        <a class="logo" href="/logout">Logout =(</a>
+    </form>
 </main>
 
 
-<br /><br />
-<footer><label id="msg" name="msg" >Version: {{.Version}}  Installed: {{.VersionDate}}</b></label></footer>
-
+<br/><br/>
+<label id="msg" name="msg"><b>Version: {{.Version}} Installed: {{.VersionDate}}</b></label>
 </body>
+{{template "footer" .}}
 </html>

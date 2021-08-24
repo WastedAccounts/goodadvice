@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"html/template"
 	"goodadvice/v1/models"
+	"html/template"
 	"net/http"
 	"regexp"
 )
@@ -18,7 +18,7 @@ func newLogOutController() *logoutController {
 	}
 }
 
-var	logouttpl = template.Must(template.ParseFiles("htmlpages/logout.html"))
+var	logouttpl = template.Must(template.ParseFiles("htmlpages/logout.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
 
 func (loc logoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	models.LogOut(w,r)

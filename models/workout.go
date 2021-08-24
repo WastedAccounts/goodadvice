@@ -252,8 +252,8 @@ func SaveWODResults (r *http.Request) {
 				log.Fatal(err)
 			}
 		}
-		fmt.Println("ratechk:", ratechk)
-		fmt.Println("rateID:", rateID)
+		//fmt.Println("ratechk:", ratechk)
+		//fmt.Println("rateID:", rateID)
 		// check which value is checked
 		if loved == "on" {
 			lovedval = 1

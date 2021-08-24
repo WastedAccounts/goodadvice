@@ -29,10 +29,10 @@ type LoadMovementsData struct {
 }
 
 // html templates
-var admintpl = template.Must(template.ParseFiles("htmlpages/admin.html"))
-var adminmovementstpl = template.Must(template.ParseFiles("htmlpages/adminmovements.html"))
-var adminuserstpl = template.Must(template.ParseFiles("htmlpages/adminusers.html"))
-var adminusertpl = template.Must(template.ParseFiles("htmlpages/adminuser.html"))
+var admintpl = template.Must(template.ParseFiles("htmlpages/admin.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var adminmovementstpl = template.Must(template.ParseFiles("htmlpages/adminmovements.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var adminuserstpl = template.Must(template.ParseFiles("htmlpages/adminusers.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var adminusertpl = template.Must(template.ParseFiles("htmlpages/adminuser.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
 
 // entry point from front.go
 func newAdminController() *adminController {

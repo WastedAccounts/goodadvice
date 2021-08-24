@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Suggestion Box</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+
+</head>
+{{template "header" .}}
+<body>
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <!--li><a href="/wod">WOD</a></li-->
+    <li>Suggestion Box</li>
+</ul>
+<h1>Suggestion Box</h1>
+<form action="/messaging/suggestionbox" method="post">
+
+    <label><p>Something around here you like, don't like, you want to see?<br>
+        Maybe you just to say hi or buy me a Monster Ultra Violet?<br>
+        Couple of check boxes below and a link to get to started.<br>
+        And a message box to put it your own words. </p></label>
+    <br>
+    <label><b>Got something to say: </b></label><br>
+    <label>Subject:</label>
+    <input type="text" name="subject" style="width:165px">
+    <br>
+    <textarea name="suggestions" style="width:225px;height:100px;" id="suggestions" type="string"></textarea>
+    <br>
+    <input type="submit" value="Submit" formmethod="post">
+</form>
+</body>
+{{template "footer" .}}
+</html>
