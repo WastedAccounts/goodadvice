@@ -1,84 +1,44 @@
-Welcome to the worst README in the world. I'm working on it ...
+Welcome to thisisgoodadvice.com - A README
 
-0.0.7y Change log
-Changed session time out to be 48 instead of 2
-Pick Another Day calender on WOD page now loads that data on selection instead of requiring an additional button click
-Reformated WOD page to make it a little more compact
+0.0.8x Change log
+Major Reorg of the UI
+    Streamlined header and footer menus
+Added more Profile functionality
+    You can now added, edit and review past PRs. 
+    Save some information about yourself
+Add Email confirmation on signup
+    You'll receive and email with a 6 digit code to verify yourself
+Sessions are now valid for 48 hours from your last action in the app. 
+    After that you'll need to log in again. 
+Suggestion Box
+    Users can submit ideas
 
 
+goodadvice is a fitness tracking app 
 
-goodadvice is a fitness tracking app
-
+What it does!
 Admins can create daily workouts that are accessible to users and guests.
 Those workouts are editable by admins as well.
-Users can leave notes about the workout and go back and review them later.
+Users Feature
+    Record times and notes and rate the daily workout
+    Store, add and edit PRs in profile
+    Store some information about themselves in Profile
+    Suggestion Box, send a message with what you'd like to see
 Guests can only view the daily workout. 
 
-Known bugs:
-None Currently
+Coming SOON! I hope ...
+Users can create their own workouts
+    Share then with friends and see who's wheelhouse that one was in. 
+    Review past workouts 
+Friends
+    See how they're doing
+    Send messages
+Leader Boards 
+    For specific workouts 
+    For the week
+    Amongst you friend group
+Coach Level Role 
+    Have a list of your own clients that you coach
+Search functionality
+    
 
-
-Future plans/ideas:
-Link user to a Coach
-Rename comments table to something more accurate
-    Added workout time value to table will need to update all the code for this
-Left side menu in framework
-    Global setting based on user role
-Loved/hated user ratings for workouts on daily workout page for logged in users
-    COMPLETED - Created a Single table for this 
-                    loved and hated check boxes work and store value to user_workout_rating table
-    Usage (future features)
-        Loved or hated workouts get extra chances to show up in random workout assignments
-        These DON'T turn on the checkboxes on the workout page 
-            This enables the athlete to boost their love to hate for a workout
-        They can also be seen by coaches to throw happy or sad workout at client
-        User can review loved or hated in profile
-            Sorted by most hated or like
-Test/benchmark admin ratings for workouts on Edit workout Page
-    Can add column to current table for this
-Weekly leaderboard display on daily workout page
-    Show name and link to users times for logged in users.
-    Only show position and time when not logged in
-All time score board link on left menu
-    Benchmark workouts
-    For each lift and named workout
-Addworkout page could autoset the date based on next available date from workout table
-Email verification for new users.
-User Profiles:
-    COMPLETED - Personal Records attached to User accounts
-    Set Goals.
-Random workout shows up if no workout assigned to the day.
-COMPLETE - Random workout button.
-        Needs to be tweeked. Doesn't show up if not logged in. Not sure if it should yet
-        Doesn't add Loved workout 2x yet 
-Search functionality.
-Admin page:
-    More Roles:
-        Coach
-User submitted workouts
-
-Completed fixes/updates:
-V0.0.2
-Added
-User Profiles
-Add and display PRs
-Admin functions
-Add Movements
-Changed Signup and Login display location on index
-DDLs are now populated from the Database instead of statically configured
-Admin page:
-    COMPLETE - Add movements is complete. Admins can now add movements based on sport.
-    COMPLETE - Shows Version DB and APP
-    COMPLETE - to activate users,
-    COMPLETE - to deactivate users,
-    COMPLETE - Change roles:
-            Admin,
-            Moderator, Can be set but doesn't change anything from user access
-            User.
-COMPLETE -- Saved time separate of user's notes
-Validate the input before saving, make sure it's a time stamp
-On Workout page display day of week instead of the date
-better error handling:
-I get kicked out each time it errs,
-Cleaning text data before running SQL,
-Validate a date on entered workout when saving and give option to fix.

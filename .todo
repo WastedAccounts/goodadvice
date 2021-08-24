@@ -40,3 +40,75 @@ Disclaimer
 Validation email
 create code to send this
 Figure out how to handle the record in user_pr table (at sign up or at first save in Profile?)
+
+
+
+===================OLD TO DO LIST NEED TO REORG IT===================
+Known bugs:
+None Currently
+
+
+Future plans/ideas:
+Link user to a Coach
+Rename comments table to something more accurate
+    Added workout time value to table will need to update all the code for this
+Left side menu in framework
+    Global setting based on user role
+Loved/hated user ratings for workouts on daily workout page for logged in users
+    COMPLETED - Created a Single table for this
+                    loved and hated check boxes work and store value to user_workout_rating table
+    Usage (future features)
+        Loved or hated workouts get extra chances to show up in random workout assignments
+        These DON'T turn on the checkboxes on the workout page
+            This enables the athlete to boost their love to hate for a workout
+        They can also be seen by coaches to throw happy or sad workout at client
+        User can review loved or hated in profile
+            Sorted by most hated or like
+Test/benchmark admin ratings for workouts on Edit workout Page
+    Can add column to current table for this
+Weekly leaderboard display on daily workout page
+    Show name and link to users times for logged in users.
+    Only show position and time when not logged in
+All time score board link on left menu
+    Benchmark workouts
+    For each lift and named workout
+Addworkout page could autoset the date based on next available date from workout table
+Email verification for new users.
+User Profiles:
+    COMPLETED - Personal Records attached to User accounts
+    Set Goals.
+Random workout shows up if no workout assigned to the day.
+COMPLETE - Random workout button.
+        Needs to be tweeked. Doesn't show up if not logged in. Not sure if it should yet
+        Doesn't add Loved workout 2x yet
+Search functionality.
+Admin page:
+    More Roles:
+        Coach
+User submitted workouts
+
+Completed fixes/updates:
+V0.0.2
+Added
+User Profiles
+Add and display PRs
+Admin functions
+Add Movements
+Changed Signup and Login display location on index
+DDLs are now populated from the Database instead of statically configured
+Admin page:
+    COMPLETE - Add movements is complete. Admins can now add movements based on sport.
+    COMPLETE - Shows Version DB and APP
+    COMPLETE - to activate users,
+    COMPLETE - to deactivate users,
+    COMPLETE - Change roles:
+            Admin,
+            Moderator, Can be set but doesn't change anything from user access
+            User.
+COMPLETE -- Saved time separate of user's notes
+Validate the input before saving, make sure it's a time stamp
+On Workout page display day of week instead of the date
+better error handling:
+I get kicked out each time it errs,
+Cleaning text data before running SQL,
+Validate a date on entered workout when saving and give option to fix.
