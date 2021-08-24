@@ -15,7 +15,7 @@
     <li>Personal Records</li>
 </ul>
 <form action="/profile/goals">
-    <h1> Review and Edit your PRs</h1>
+    <h1>Review and Edit your PRs</h1>
     <br>
     <a class="logo" href="/profile/aboutme">About Me</a> | <a class="logo" href="/profile/goals">My Goals</a><br><br>
 
@@ -47,9 +47,13 @@
                 {{end}}
             </select>
             <br>
+            <b>Weight(lbs):</b>
+            <br>
+            <input type="number" min="0" max="999" name="weight" value="{{ .pr.Weight }}">
+            <br>
             <b>Time:</b>
             <br>
-            Minutes:<input type="number" min="0" max="99" id="minutes" name="minutes" value="{{.UsrMinutes}}">
+            Minutes:<input type="number" min="0" max="999" id="minutes" name="minutes" value="{{.UsrMinutes}}">
             <br>
             Seconds: <input type="number" min="0" max="59" id="seconds" name="seconds" value="{{.UsrSeconds}}">
             <br>
@@ -59,7 +63,7 @@
             <br>
             <b>Notes:</b>
             <br>
-            <textarea id="prnotes" name="prnotes" style="width:150px;height:20px;"></textarea>
+            <textarea id="notes" name="notes" style="width:150px;height:20px;"></textarea>
             <br>
             <input type="submit" value="Add Record">
         </div>

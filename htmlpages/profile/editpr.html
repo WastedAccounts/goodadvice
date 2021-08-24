@@ -30,13 +30,13 @@
     <br><br>
     <b>Time:</b>
     <br>
-    Minutes:<input type="number" min="0" max="99" name="minutes" value="{{ .pr.Minutes}}">
+    Minutes:<input type="number" min="0" max="999" name="minutes" value="{{ .pr.Minutes}}">
     <br>
     Seconds: <input type="number" min="0" max="59" name="seconds" value="{{ .pr.Seconds }}">
     <br><br>
     <b>Notes:</b>
     <br>
-    <textarea name="notes" id="notes" style="width:250px;height:150px;" id="Notes">{{ .pr.Notes }}</textarea>
+    <textarea name="notes" id="notes" style="width:250px;height:150px;" id="notes">{{ .pr.Notes }}</textarea>
     <br>
     <br>
     <input type="submit" value="Save PR" name="savepr" formaction="/profile/editpr" formmethod="post"/>

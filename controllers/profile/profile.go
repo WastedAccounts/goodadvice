@@ -113,10 +113,10 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				add := profile.Addpr{
 					Uid:          c.Uid,
 					MovementName: r.FormValue("prddl"),
-					Weight:     r.FormValue("prnew"),
+					Weight:     r.FormValue("weight"),
 					Date:         r.FormValue("prdate"),
 					Time: time,
-					Notes: r.FormValue("prnotes"),
+					Notes: r.FormValue("notes"),
 				}
 				profile.SaveNewPR(add)
 				pc.pageLoadPersonalRecords(w, r, c.Uid)
@@ -132,7 +132,7 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				pc.pageLoadEditpr(w, r, c.Uid, prid.Get("prid"))
 
 			case http.MethodPost:
-				pc.pageSaveEditpr(w, r, c.Uid, )
+				pc.pageSaveEditpr(w, r, c.Uid )
 				pc.pageLoadEditpr(w, r, c.Uid, r.PostFormValue("prid"))
 			default:
 				fmt.Println("status not implemented")

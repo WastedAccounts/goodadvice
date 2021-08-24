@@ -1,7 +1,11 @@
-On Dev machine
+- On Dev machine
 Copy: C:\Users\matthews\Documents\__ULTIMATE_SOFTWARE\___CodingProjects\LearnGO\goodadvice
 To: \\cloudninja\matt\homelab\k8s\go
-Then from WLS
+- Then from WLS
+- Clear out old goodadvice folder
+cd mattscloud/go/
+rm -rf goodadvice/
+- copy in new version
 cp /cloudninja/homelab/k8s/go/goodadvice -r mattscloud/go
 cd mattscloud/go/goodadvice
 docker build -t 192.168.10.50:5000/local/goodadvice:0.0.**VERSION** .
