@@ -44,13 +44,13 @@ func newAdminController() *adminController {
 // ServeHTTP - Entry point from front.go
 func (ac adminController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Validate session
-	active,c := models.ValidateSession(w, r)
-	if active == false {
+	userauth := models.ValidateSession(w, r)
+	if userauth.IsActive == false {
 		http.Redirect(w, r, "/login", 401)
 	}
-	if c.Exists == false {
+	if userauth.Exists == false {
 		http.Redirect(w, r, "/login", 401)
-	} else if c.Isadmin == false {
+	} else if userauth.IsAdmin == false {
 		http.Redirect(w, r, "/index", 401)
 	} else {
 		if r.URL.Path == "/admin" {
@@ -98,14 +98,7 @@ func (ac adminController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func submitTrue(ss ...string) bool {
-	for _, s := range ss {
-		if s == "" {
-			return true
-		}
-	}
-	return false
-}
+
 
 func pageLoadUser(w http.ResponseWriter, r *http.Request ) {
 	u := models.AdminGetUser(r.FormValue("userID"))
@@ -149,4 +142,14 @@ func saveMovement(w http.ResponseWriter, r *http.Request) {
 	models.SaveMovement(m,mt)
 }
 
+
+/// ?????????????
+//func submitTrue(ss ...string) bool {
+//	for _, s := range ss {
+//		if s == "" {
+//			return true
+//		}
+//	}
+//	return false
+//}
 

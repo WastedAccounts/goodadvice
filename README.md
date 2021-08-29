@@ -1,6 +1,6 @@
 Welcome to thisisgoodadvice.com - A README
 
-0.0.8x Change log
+0.0.8y Change log
 Major Reorg of the UI
     Streamlined header and footer menus
 Added more Profile functionality
@@ -19,7 +19,7 @@ goodadvice is a fitness tracking app
 What it does!
 Admins can create daily workouts that are accessible to users and guests.
 Those workouts are editable by admins as well.
-Users Feature
+Users Features
     Record times and notes and rate the daily workout
     Store, add and edit PRs in profile
     Store some information about themselves in Profile

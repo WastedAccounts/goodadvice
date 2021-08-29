@@ -1,18 +1,20 @@
 ===================DB CHANGES WHEN RELEASING===================
-Remove username from user_profile table
+
 
 ===================PRIORITY===================
-User Feed back page for users to submit feed back
-    A place under admin to review and mark feedback
+User Create/Edit Load isn't loading a workout.
+
+Automate DB back up
+    https://www.linode.com/docs/guides/use-mysqldump-to-back-up-mysql-or-mariadb/
+
 
 User workouts
-    Should users be able to writ their own workouts
-
-Add About Page
-    to describe the site and put up the disclaimer
+    Should users be able to write their own workouts
 
 
 ===================WANTS===================
+A place under admin to review and mark read suggestions
+
 Workout Leader board
     Show all as anon
     Show your friends.
@@ -31,8 +33,11 @@ Create page to CRUD values to the registry table
     Should add disclaimer value here so I can control it from within the app
         make it load from here on page loads
 
-Disclaimer
+Disclaimer in Registry
     only exists in email template for email conf right now
+    and in Footer template
+
+
 
 
 ===================DONE===================
@@ -41,6 +46,10 @@ Validation email
 create code to send this
 Figure out how to handle the record in user_pr table (at sign up or at first save in Profile?)
 
+Add About Page
+    to describe the site and put up the disclaimer
+
+User Feed back page for users to submit feed back
 
 
 ===================OLD TO DO LIST NEED TO REORG IT===================

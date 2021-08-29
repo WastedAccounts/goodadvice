@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Edit Workout</title>
+    <link rel="stylesheet" href="../../assets/css/style.css" >
+</head>
+{{template "header" .}}
+<body>
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <!--li><a href="/login">Login</a></li>
+    <li><a href="/wod">WOD</a></li-->
+    <li>User Edit Workout</li>
+</ul>
+<form action="/workouts/createwod">
+    <a class="logo" href="/workouts/createwod">Add Workout</a>
+    <br />
+    <br />
+    <textarea name="id" id="id" hidden="true">{{ .ID }}</textarea>
+    <label id="edit" name="edit" hidden="true">edit</label>
+    <b>Name:</b>
+    <br />
+    <textarea name="name" id="name" style="width:250px;" id="name">{{.Name}}</textarea>
+    <br />
+    <b>Strength:</b>
+    <br />
+    <textarea name="strength" id="strength" style="width:250px;height:150px;" >{{.Strength}}</textarea>
+    <br />
+    <b>MetCon:</b>
+    <br />
+    <textarea name="conditioning" id="conditioning" style="width:250px;height:150px;">{{.Conditioning}}</textarea>
+    <br />
+    <b>Pace:</b><select name="pace" id="pace" value="{{.Pace}}">
+    <option value="fast">Fast</option>
+    <option value="moderate">Moderate</option>
+    <option value="steady">Steady</option>
+    <option value="slow">Slow</option>
+</select>
+    <br />
+    <b>Date of workout:</b><input type="date" data-date-inline-picker="true" id="date" name="date" value="{{.Date}}" />
+    <br />
+    <input type="submit" name="save" id="save" value="save WOD" formmethod="post">
+    <input type="submit" name="load" id="load" value="load WOD" formmethod="get">
+</form>
+</body>
+{{template "footer" .}}
+</html>

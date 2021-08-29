@@ -24,20 +24,20 @@ func NewMsgController() *msgController {
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 func (msgc msgController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Validate session
-	active, c := models.ValidateSession(w, r)
-	if active == false {
-		http.Redirect(w, r, "/login", 401)
+	userauth := models.ValidateSession(w,r)
+	if userauth.IsActive == false {
+		http.Redirect(w,r, "/login", 401)
 	}
-	if c.Exists == false {
-		http.Redirect(w, r, "/login", 401)
+	if userauth.Exists == false {
+		http.Redirect(w,r, "/login", 401)
 		//} else if c.Isadmin != false {
 		//	http.Redirect(w, r, "/login", 401)
 	} else if r.URL.Path == "/messaging/suggestionbox" {
 		switch r.Method {
 		case http.MethodGet:
-			msgc.pageLoadSuggestionbox(w, r)
+			msgc.pageLoadSuggestionbox(w,r)
 		case http.MethodPost:
-			messaging.SaveSuggestion(w,r,c.Uid)
+			messaging.SaveSuggestion(w,r,userauth.Uid)
 		default:
 			fmt.Println("status not implemented")
 			w.WriteHeader(http.StatusNotImplemented)

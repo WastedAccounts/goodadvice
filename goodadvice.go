@@ -15,6 +15,8 @@ func main()  {
 	appinit.Init()
 	fmt.Println("App initialization complete")
 	controllers.RegisterControllers()
+	//// For testing
+	//controllers.RegisterControllersTest()
 	fmt.Println("Controllers registered")
 	http.Handle("/assets/css/", http.StripPrefix("/assets/css/", http.FileServer(http.Dir("assets/css"))))
 	fmt.Println("Serving asset files complete")

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>WOD</title>
+    <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+{{ template "header" . }}
+<body>
+<ul class="breadcrumb">
+    <li><a href="/">Home</a></li>
+    <li>Workout</li>
+</ul>
+<script>
+    function submitform() {
+        document.form1.submit();
+    }
+</script>
+<form name="form1" id="form1" action="/workouts/wod" method="get">
+    <button type="submit" name="random" class="btn" value="Random" >Random</button>
+    <button type="button" class="btn" onclick="location.href='/workouts/createwod?woid={{ .wo.ID }}';">Create</button>
+    <br>
+
+    <b><label id="hello">{{ .usr.Greeting }}, {{ .usr.FirstName }}! </label>
+        <br>
+        <script type="text/javascript">
+            var myDate = new Date();
+            var myDay = myDate.getDay();
+            // Array of days.
+            var weekday = ['Sunday', 'Monday', 'Tuesday',
+                'Wednesday', 'Thursday', 'Friday!!', 'Saturday'
+            ];
+            // get hour value.
+            var hours = myDate.getHours();
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            var minutes = myDate.getMinutes();
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            var myTime = hours + " :" + minutes + " " + ampm;
+            document.write("It's " + myTime + " on " + weekday[myDay]);
+
+        </script>
+        <br>
+        <label id="hello2">Let's get to work. </label></b>
+    <br>
+    <br>
+    <b>Pick another day</b>:
+    <br>
+    <input type="date" data-date-inline-picker="true" id="date" name="date" value="{{.wo.Date}}"
+           onchange="submitform()"/>
+    <br>
+    <textarea id="woid" name="woid" type="string" hidden="true">{{ .wo.ID }}</textarea>
+    <textarea id="uid" name="uid" type="string" hidden="true">{{ .usr.ID }}</textarea>
+    <br>
+    </label>
+    <b>Name:</b>
+    <label name="name" id="name" type="string">
+        <pre>{{ .wo.Name }}</pre>
+    </label>
+    <b>Strength:</b>
+    <label id="strength" style="width:250px;height:150px;" id="strength" type="string">
+        <pre>{{ .wo.Strength }}</pre>
+    </label>
+    <b>MetCon:</b>
+    <label style="width:250px;height:150px;" id="conditioning" name="conditioning" type="string">
+        <pre>{{ .wo.Conditioning }}</pre>
+    </label>
+    <b>Pace:</b>
+    <label id="pace" name="pace" type="string">
+        <pre>{{ .wo.Pace }}</pre>
+    </label>
+    <b>MetCon Time:</b>
+    <br>
+    Minutes:<input type="number" min="0" max="99" name="minutes" value="{{ .won.Minutes }}">
+    <br>
+    Seconds: <input type="number" min="0" max="59" name="seconds" value="{{ .won.Seconds }}">
+    <br>
+    <br>
+    <b>Check a box if you want</b>
+    <br>
+    Loved:<input type="checkbox" name="loved" {{ .won.Loved }}>
+    Hated:<input type="checkbox" name="hated" {{ .won.Hated }}>
+    <br>
+    <br>
+    <b>Notes:</b>
+    <br>
+    <textarea name="notes" style="width:225px;height:100px;" id="notes" type="string">{{ .won.Notes }}</textarea>
+    <br>
+    <input type="submit" value="Save Workout" name="savenotes" formaction="/workouts/wod" formmethod="post"/>
+</form>
+</body>
+{{ template "footer" . }}
+</html>

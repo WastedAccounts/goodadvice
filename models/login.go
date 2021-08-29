@@ -14,24 +14,28 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+// Credentials - Used for logging in a useer
 type Credentials struct {
 	Id string
 	Username string
 	Password string
 }
 
-type Cookie struct {
+// UserAuth - Stores values for authenticating users around the app
+type UserAuth struct {
 	Exists bool
+	IsActive bool
+	IsAdmin bool
+	IsCoach bool
 	Uid string
 	Path string
 	Sessionkey string
-	Isadmin bool
 }
 
-type Authenticated struct {
-	Authenticated bool
-	Active bool
-}
+//type Authenticated struct {
+//	Authenticated bool
+//	Active bool
+//}
 
 // https://www.sohamkamani.com/blog/2018/02/25/golang-password-authentication-and-storage/#implementing-user-login
 func Login(w http.ResponseWriter, r *http.Request) bool {
@@ -143,22 +147,22 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &cookie)
 }
 
-func ValidateSession(w http.ResponseWriter, r *http.Request) (bool,Cookie) {
+func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 	// create vars
+	//var userauth UserAuth
 	var cookieID,isAdmin,isActive string
 	var sessionID int
 	var sessionAge time.Time
-	var active bool
 	//var c Cookie
-	c := ValidateCookie(w, r)
-	if !c.Exists {
-		active = false
-		return active,c
+	userauth := ValidateCookie(w, r)
+	if !userauth.Exists {
+		userauth.IsActive = false
+		return userauth
 	}
 	// write to DB
 	db, err := sql.Open("mysql", datasource.DataSource)
 	// Check if user is Active and their role
-	checkAdmin, err := db.Query("select isactive,isadmin from users where ID = ?", c.Uid)//(checkAdminqs)
+	checkAdmin, err := db.Query("select isactive,isadmin from users where ID = ?", userauth.Uid)//(checkAdminqs)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -169,22 +173,22 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) (bool,Cookie) {
 		}
 	}
 	if isActive == "0" {
-		active = false
-		return active,c
+		userauth.IsActive = false
+		return userauth
 	} else if isActive == "1"{
-		active = true
+		userauth.IsActive = true
 	}
 	if isAdmin == "5" {
-		c.Isadmin = true
+		userauth.IsAdmin = true
 	} else {
-		c.Isadmin = false
+		userauth.IsAdmin = false
 	}
 	// Generate unique session value
 	suid := ksuid.New()
 
 	// validate session is LESS then 48 hours old
 	//checkSessionAgeqs := fmt.Sprintf("select ID,sessionstart from user_session where userid = '%s' and sessionkey = '%s'", c.Uid, c.Sessionkey)
-	checkSessionAge, err := db.Query("select ID,sessionstart from user_session where userid = ? and sessionkey = ?", c.Uid, c.Sessionkey)//(checkSessionAgeqs)
+	checkSessionAge, err := db.Query("select ID,sessionstart from user_session where userid = ? and sessionkey = ?", userauth.Uid, userauth.Sessionkey)//(checkSessionAgeqs)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -200,9 +204,9 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) (bool,Cookie) {
 	//var exp bool
 	if expires.After(sessionAge) {
 		//user will be redirected to login
-		c.Exists = false
-		c.Uid = ""
-		c.Sessionkey = ""
+		userauth.Exists = false
+		userauth.Uid = ""
+		userauth.Sessionkey = ""
 	} else {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
 		//updateQry := fmt.Sprintf("update user_session set sessionstart = '%s', sessionkey = '%s' where ID = '%d'", currentTime, suid, sessionID)
@@ -212,7 +216,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) (bool,Cookie) {
 		}
 		update.Close()
 		// update cookie on client
-		cookieID = c.Uid + "/" + suid.String()
+		cookieID = userauth.Uid + "/" + suid.String()
 		expiration := time.Now().Add(365 * 24 * time.Hour)
 		cookie := http.Cookie{
 			Name: "goodadvice",
@@ -221,26 +225,26 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) (bool,Cookie) {
 			Expires: expiration,
 		}
 		http.SetCookie(w, &cookie)
-		c.Exists = true
+		userauth.Exists = true
 	}
-	return active,c
+	return userauth
 }
 
 
-func ValidateCookie (w http.ResponseWriter, r *http.Request) Cookie {
-	var c Cookie
+func ValidateCookie (w http.ResponseWriter, r *http.Request) UserAuth {
+	var userauth UserAuth
 	cookie, err := r.Cookie("goodadvice")
 	// No cookie then get guest WOD page
 	if err != nil {
 		// if not exist redirect to login page
-		c.Exists = false
+		userauth.Exists = false
 	} else if err == nil {
 		cookievalue := cookie.Value
 		splitcookie := strings.Split(cookievalue, "/")
-		c.Exists = true
-		c.Uid = splitcookie[0]
-		c.Sessionkey = splitcookie[1]
+		userauth.Exists = true
+		userauth.Uid = splitcookie[0]
+		userauth.Sessionkey = splitcookie[1]
 	}
-	return c
+	return userauth
 }
 

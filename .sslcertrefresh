@@ -1,0 +1,15 @@
+copy cert to cloudninja NAS (unneeded)
+sudo cp /etc/letsencrypt/live/thisisgoodadvice.com/* /cloudninja/homelab/letsencrypt/backup/
+
+
+One k8s box
+Step 1: Copy certs to location K8s will create them from
+sudo cp /etc/letsencrypt/live/thisisgoodadvice.com/* mattscloud/letsencrypt/
+
+
+Step 2: Delete old secret
+??? or recreate if an option
+
+Step 3: create key from new certs
+kubectl create -n istio-system secret tls istio-ingressgateway-certs --key mattscloud/letsencrypt/privkey.pem --cert mattscloud/letsencrypt/fullchain.pem
+

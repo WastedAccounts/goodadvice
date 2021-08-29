@@ -1,17 +1,30 @@
-- On Dev machine
+-- On Dev machine
+- Update README to include latest release info
+
+- Create new back up of DB in MySQL
+Add it to back up folder in project
+mysqldump -u root -pToolbox24 -h mysql --databases mjs --single-transaction --quick --lock-tables=false > /data/goodadvicebk/mysqlbk/goodadvice_full_bkup.$(date +"%Y%m%d.%H%M%S").sql
+
+- Create new DB Structure file in MySQL
+mysqldump -u root -pPassword -h mysql --opt mjs -d --single-transaction | sed 's/ AUTO_INCREMENT=[0-9]*//g' > //cloudninja/mysqltest/teststructureonly.$(date +%F%T).sql
+
+
+- Push to github
+git push
+
 Copy: C:\Users\matthews\Documents\__ULTIMATE_SOFTWARE\___CodingProjects\LearnGO\goodadvice
 To: \\cloudninja\matt\homelab\k8s\go
-- Then from WLS
+
+-- From WLS
 - Clear out old goodadvice folder
-cd mattscloud/go/
-rm -rf goodadvice/
+rm -rf mattscloud/go/goodadvice
 - copy in new version
 cp /cloudninja/homelab/k8s/go/goodadvice -r mattscloud/go
-cd mattscloud/go/goodadvice
-docker build -t 192.168.10.50:5000/local/goodadvice:0.0.**VERSION** .
+- build and push the docker image
+docker build -t 192.168.10.50:5000/local/goodadvice:0.0.**VERSION** mattscloud/go/goodadvice/.
 docker push 192.168.10.50:5000/local/goodadvice:0.0.**VERSION**
 
-Then in K8s
+Then in K8s edit deploy with the new version and let k8s roll the pods
 kubectl edit deploy goodadvice
 
 Change Image Version

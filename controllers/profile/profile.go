@@ -15,32 +15,6 @@ type profileController struct {
 	profileIDPattern *regexp.Regexp // Not sure if I need this now that I can parse URLs better.
 	prIDPattern *regexp.Regexp //not being used
 }
-
-// Userprofile - not in use - a struct to combine structs from model.profile
-type userprofile struct {
-	//Userinfo struct data
-	Name string
-	Birthday string
-	Weight string
-	Sex string
-	About string
-	Age int
-	// Records struct data
-	Movement []string
-	PrId []string
-	Record []string
-	Movements []string
-	Date []string
-	Currentdate string
-}
-
-// LoadUserProfileDate - not in use
-type LoadUserProfileDate struct {
-	Movements profile.Movements
-	Record []profile.Records
-	UserProfile profile.Userinfo
-}
-
 // M - a map for passing multiple structs to htmltmpl
 type M map[string]interface{}
 
@@ -61,11 +35,11 @@ var	editprtpl = template.Must(template.ParseFiles("htmlpages/profile/editpr.html
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Validate session
-	active,c := models.ValidateSession(w, r)
-	if active == false {
+	userauth := models.ValidateSession(w, r)
+	if userauth.IsActive == false {
 		http.Redirect(w, r, "/login", 401)
 	}
-	if c.Exists == false {
+	if userauth.Exists == false {
 		http.Redirect(w, r, "/login", 401)
 		//} else if c.Isadmin != false {
 		//	http.Redirect(w, r, "/login", 401)
@@ -74,7 +48,7 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			switch r.Method {
 			case http.MethodGet:
 				// initial page load of userprofile.html
-				pc.pageLoaduserProfile(w,r,c.Uid)
+				pc.pageLoaduserProfile(w,r,userauth.Uid)
 			case http.MethodPost:
 				//if models.Login(w, r) == false {
 				//} else {
@@ -87,10 +61,10 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if r.RequestURI == "/profile/aboutme" {
 			switch r.Method {
 			case http.MethodGet:
-				pc.pageLoadAboutMe(w, r, c.Uid)
+				pc.pageLoadAboutMe(w, r, userauth.Uid)
 			case http.MethodPost:
-				pc.pageSaveAboutMe(w, r, c.Uid)
-				pc.pageLoadAboutMe(w, r, c.Uid)
+				pc.pageSaveAboutMe(w, r, userauth.Uid)
+				pc.pageLoadAboutMe(w, r, userauth.Uid)
 			default:
 				fmt.Println("status not implemented")
 				w.WriteHeader(http.StatusNotImplemented)
@@ -98,7 +72,7 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if r.RequestURI == "/profile/goals" {
 			switch r.Method {
 			case http.MethodGet:
-				pc.pageLoadGoals(w, r, c.Uid)
+				pc.pageLoadGoals(w, r, userauth.Uid)
 			case http.MethodPost:
 			default:
 				fmt.Println("status not implemented")
@@ -107,11 +81,11 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if r.URL.Path == "/profile/personalrecords" {
 			switch r.Method {
 			case http.MethodGet:
-				pc.pageLoadPersonalRecords(w, r, c.Uid)
+				pc.pageLoadPersonalRecords(w, r, userauth.Uid)
 			case http.MethodPost:
 				time := r.FormValue("minutes") + ":" + r.FormValue("seconds")
 				add := profile.Addpr{
-					Uid:          c.Uid,
+					Uid:          userauth.Uid,
 					MovementName: r.FormValue("prddl"),
 					Weight:     r.FormValue("weight"),
 					Date:         r.FormValue("prdate"),
@@ -119,7 +93,7 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					Notes: r.FormValue("notes"),
 				}
 				profile.SaveNewPR(add)
-				pc.pageLoadPersonalRecords(w, r, c.Uid)
+				pc.pageLoadPersonalRecords(w,r,userauth.Uid)
 			default:
 				fmt.Println("status not implemented")
 				w.WriteHeader(http.StatusNotImplemented)
@@ -129,11 +103,11 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			case http.MethodGet:
 				u,_ := url.Parse(r.RequestURI)
 				prid,_ :=  url.ParseQuery(u.RawQuery)
-				pc.pageLoadEditpr(w, r, c.Uid, prid.Get("prid"))
+				pc.pageLoadEditpr(w,r,userauth.Uid,prid.Get("prid"))
 
 			case http.MethodPost:
-				pc.pageSaveEditpr(w, r, c.Uid )
-				pc.pageLoadEditpr(w, r, c.Uid, r.PostFormValue("prid"))
+				pc.pageSaveEditpr(w,r,userauth.Uid)
+				pc.pageLoadEditpr(w,r,userauth.Uid,r.PostFormValue("prid"))
 			default:
 				fmt.Println("status not implemented")
 				w.WriteHeader(http.StatusNotImplemented)
