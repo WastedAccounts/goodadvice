@@ -12,14 +12,11 @@ type authController struct {
 	authIDPattern *regexp.Regexp
 }
 
-
 type Webvals struct {
 	Msg string
 }
 
-
-var	confirmtpl = template.Must(template.ParseFiles("htmlpages/auth/confirmemail.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
-
+var confirmtpl = template.Must(template.ParseFiles("htmlpages/auth/confirmemail.html", "htmlpages/templates/headerguest.html", "htmlpages/templates/footerguest.html"))
 
 func NewAuthController() *authController {
 	return &authController{
@@ -30,16 +27,16 @@ func NewAuthController() *authController {
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 func (authc authController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.RequestURI == "/auth/confirmemail" {
-		switch r.Method  {
+		switch r.Method {
 		case http.MethodGet:
 			authc.confirmEmailLoad(w, r)
 		case http.MethodPost:
-			i,msg := auth.ConfirmEmail(w, r)
+			i, msg := auth.ConfirmEmail(w, r)
 			if i == true {
 				//redirect to home page
 				http.Redirect(w, r, "/profile/userprofile", 302)
 			} else if i == false {
-				authc.confirmEmailLoadFailed(w,r,msg)
+				authc.confirmEmailLoadFailed(w, r, msg)
 			}
 		default:
 			fmt.Println("status not implemented")
@@ -54,7 +51,7 @@ func (authc *authController) confirmEmailLoad(w http.ResponseWriter, r *http.Req
 
 func (authc *authController) confirmEmailLoadFailed(w http.ResponseWriter, r *http.Request, m string) {
 	var webv = Webvals{
-		Msg: 		  m,
+		Msg: m,
 	}
 	confirmtpl.Execute(w, webv)
 }

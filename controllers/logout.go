@@ -18,10 +18,10 @@ func newLogOutController() *logoutController {
 	}
 }
 
-var	logouttpl = template.Must(template.ParseFiles("htmlpages/logout.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
+var logouttpl = template.Must(template.ParseFiles("htmlpages/logout.html", "htmlpages/templates/headerguest.html", "htmlpages/templates/footerguest.html"))
 
 func (loc logoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	models.LogOut(w,r)
+	models.LogOut(w, r)
 	//fmt.Fprint(w, "<h1>Thanks for visiting!</h1>")
 	logouttpl.Execute(w, nil)
 }

@@ -60,8 +60,6 @@ package old
 //	return up
 //}
 
-
-
 //func AddRecord (addpr Addpr) {
 //	var movementid string
 //	db, err := sql.Open("mysql", datasource.DataSource)
@@ -85,4 +83,3 @@ package old
 //	}
 //	insert.RowsAffected()
 //}
-

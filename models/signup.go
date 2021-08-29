@@ -12,12 +12,12 @@ import (
 	"time"
 )
 
-type NewUser struct{
-	User string
-	Password string
+type NewUser struct {
+	User      string
+	Password  string
 	Firstname string
-	Email string
-	Date time.Time
+	Email     string
+	Date      time.Time
 }
 
 func Signup(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(nu.Password), 8)
 	// Next, insert the user values and hashed password into the database
 	db, err := sql.Open("mysql", datasource.DataSource)
-	insertuser, err := db.Exec("insert into users (username, firstname,lastlogindate,emailaddress,password,createdate) values (?,?,CURDATE(),?,?,CURDATE())",nu.User,nu.Firstname,nu.Email,string(hashedPassword))
+	insertuser, err := db.Exec("insert into users (username, firstname,lastlogindate,emailaddress,password,createdate) values (?,?,CURDATE(),?,?,CURDATE())", nu.User, nu.Firstname, nu.Email, string(hashedPassword))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -43,11 +43,11 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 	//Create an empty profile record
-	insertprofile, err := db.Exec("INSERT INTO user_profile (userid,userbirthday,userweight) VALUES (?,NOW() - INTERVAL 21 YEAR,120);",newuid)
+	insertprofile, err := db.Exec("INSERT INTO user_profile (userid,userbirthday,userweight) VALUES (?,NOW() - INTERVAL 21 YEAR,120);", newuid)
 	if err != nil {
 		panic(err.Error())
 	}
-	_,err = insertprofile.RowsAffected()
+	_, err = insertprofile.RowsAffected()
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
@@ -104,6 +104,3 @@ func CheckUsername(r *http.Request) bool {
 	}
 	return uf
 }
-
-
-

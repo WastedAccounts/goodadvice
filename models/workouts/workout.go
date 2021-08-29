@@ -53,6 +53,7 @@ type AddWorkout struct {
 	Conditioning string //`json:"Conditioning"`
 	Date         string //`json:"Date"`
 	Message      string
+	CreatedBy    string
 	WODworkout   string
 }
 
@@ -198,7 +199,7 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 func GetWODbyID(woid string) AddWorkout {
 	var wo AddWorkout
 	var id int
-	var name, strength, pace, conditioning, date string
+	var name, strength, pace, conditioning, date, createdby, wodworkout string
 	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
@@ -209,7 +210,7 @@ func GetWODbyID(woid string) AddWorkout {
 	//
 
 	// Get default WOD if user does not have their own workout.
-	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where ID = ?", woid)
+	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby, wo_workoutoftheday from workout where ID = ?", woid)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -218,11 +219,11 @@ func GetWODbyID(woid string) AddWorkout {
 
 	// load results into Workout struct
 	for results.Next() {
-		err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date)
+		err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &createdby, &wodworkout)
 		if err != nil {
 			panic(err.Error())
 		}
-		wo = AddWorkout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date} //u = append(results)   //u, results)
+		wo = AddWorkout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date, CreatedBy: createdby, WODworkout: wodworkout} //u = append(results)   //u, results)
 	}
 
 	// Data Ops
@@ -659,7 +660,7 @@ func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 	defer db.Close()
 
 	// Check adn make sure WOD is valid and not a dub
-	awo.Message = checkWODValues(awo.Date,awo.WODworkout,uid,edit)
+	awo.Message = checkWODValues(awo.Date, awo.WODworkout, uid, edit)
 
 	if awo.Message != "" { // If not valid retun to user
 		// Data Ops
@@ -670,7 +671,7 @@ func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 		// Return struct to report issues to users
 		return awo
 	} else { // If value write to DB
-		insert, err := db.Exec("insert into workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) values (?,?,?,?,?,?,?)", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid,wodworkout)
+		insert, err := db.Exec("insert into workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) values (?,?,?,?,?,?,?)", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid, wodworkout)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -688,7 +689,7 @@ func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 }
 
 // GetAddWODbydate - Get's WOD by Date in Datepicker
-func GetAddWODbydate(d string) Workout {
+func GetAddWODbydate(d string, uid string) Workout {
 	// Setup Vars
 	var wo Workout
 	var id int
@@ -702,25 +703,46 @@ func GetAddWODbydate(d string) Workout {
 	}
 	defer db.Close()
 
-	// today's WOD workout from db
-	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date,wo_workoutoftheday from workout where wo_date = ? AND wo_workoutoftheday = 'Y'", d)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	// Load results of query into struct
-	for results.Next() {
-		err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &wodworkout)
+	if uid == "" {
+		// today's WOD workout from db
+		results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date,wo_workoutoftheday from workout where wo_date = ? AND wo_workoutoftheday = 'Y'", d)
 		if err != nil {
 			panic(err.Error())
 		}
-		if wodworkout == "Y" {
-			// set value so we can set the checked state of the check box
-			wodworkout = "checked"
-		} else {
-			wodworkout = ""
+		// Load results of query into struct
+		for results.Next() {
+			err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &wodworkout)
+			if err != nil {
+				panic(err.Error())
+			}
+			if wodworkout == "Y" {
+				// set value so we can set the checked state of the check box
+				wodworkout = "checked"
+			} else {
+				wodworkout = ""
+			}
+			wo = Workout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date, WODworkout: wodworkout} //u = append(results)   //u, results)
 		}
-		wo = Workout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date, WODworkout: wodworkout} //u = append(results)   //u, results)
+	} else {
+		// today's WOD workout from db
+		results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date,wo_workoutoftheday from workout where wo_date = ? AND wo_createdby = ? AND wo_workoutoftheday = 'N'", d, uid)
+		if err != nil {
+			panic(err.Error())
+		}
+		// Load results of query into struct
+		for results.Next() {
+			err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &wodworkout)
+			if err != nil {
+				panic(err.Error())
+			}
+			if wodworkout == "Y" {
+				// set value so we can set the checked state of the check box
+				wodworkout = "checked"
+			} else {
+				wodworkout = ""
+			}
+			wo = Workout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date, WODworkout: wodworkout} //u = append(results)   //u, results)
+		}
 	}
 
 	// Manage data so we display what we want
@@ -778,7 +800,7 @@ func GetAddWODbyID(woid string) AddWorkout {
 }
 
 // EditAddWOD - Saves changes to WOD by ID tag hidden on page
-func EditAddWOD(r *http.Request, uid string,edit bool) string {
+func EditAddWOD(r *http.Request, uid string, edit bool) string {
 	// vars
 	var wodworkout string
 	// Set wodworkout based on checkbox
@@ -801,7 +823,7 @@ func EditAddWOD(r *http.Request, uid string,edit bool) string {
 	}
 
 	// Check workout values
-	msg := checkWODValues(ew.Date,ew.WODworkout,uid,edit)
+	msg := checkWODValues(ew.Date, ew.WODworkout, uid, edit)
 
 	if msg == "" { // If we're good write to db
 		// Open DB Conn
@@ -870,9 +892,9 @@ func checkWODValues(date string, wodworkout string, uid string, edit bool) strin
 		}
 	}
 
+	// Return values
 	return msg
 }
-
 
 // END - Daily WOD functions
 

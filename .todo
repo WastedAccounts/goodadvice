@@ -2,15 +2,14 @@
 
 
 ===================PRIORITY===================
-User Create/Edit Load isn't loading a workout.
+Shareable link for workouts
+    link on workout page "Share this work"
+    Show users time if there is one.
 
-Automate DB back up
-    https://www.linode.com/docs/guides/use-mysqldump-to-back-up-mysql-or-mariadb/
+A way to get back to the WOD if a user has created or been assigned a workout
 
-
-User workouts
-    Should users be able to write their own workouts
-
+Show app version in footer
+Display app and DB version in Admin
 
 ===================WANTS===================
 A place under admin to review and mark read suggestions
@@ -41,6 +40,13 @@ Disclaimer in Registry
 
 
 ===================DONE===================
+User Create/Edit Load isn't loading a workout.
+
+User workouts
+    Should users be able to write their own workouts
+
+Automate DB back up
+    https://www.linode.com/docs/guides/use-mysqldump-to-back-up-mysql-or-mariadb/
 
 Validation email
 create code to send this

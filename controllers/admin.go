@@ -29,10 +29,10 @@ type LoadMovementsData struct {
 }
 
 // html templates
-var admintpl = template.Must(template.ParseFiles("htmlpages/admin.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var adminmovementstpl = template.Must(template.ParseFiles("htmlpages/adminmovements.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var adminuserstpl = template.Must(template.ParseFiles("htmlpages/adminusers.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var adminusertpl = template.Must(template.ParseFiles("htmlpages/adminuser.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var admintpl = template.Must(template.ParseFiles("htmlpages/admin.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var adminmovementstpl = template.Must(template.ParseFiles("htmlpages/adminmovements.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var adminuserstpl = template.Must(template.ParseFiles("htmlpages/adminusers.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var adminusertpl = template.Must(template.ParseFiles("htmlpages/adminuser.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 
 // entry point from front.go
 func newAdminController() *adminController {
@@ -60,34 +60,34 @@ func (ac adminController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if submit == "users" {
 					pageLoadUsers(w)
 				} else if submit == "movements" {
-					pageLoadMovements(w,r)
+					pageLoadMovements(w, r)
 				} else if submit == "workouts" {
 					pageLoadWorkouts()
 				} else if submit == "user" {
-					pageLoadUser(w,r)
+					pageLoadUser(w, r)
 				} else {
 					pageLoadAdmin(w)
 				}
 			case http.MethodPost:
 				submit := r.FormValue("submit")
 				err := r.ParseForm()
-				changeValue := map[string]bool {
-					"Activate": true,
+				changeValue := map[string]bool{
+					"Activate":   true,
 					"Deactivate": true,
-					"User": true,
-					"Moderator": true,
-					"Admin": true,
+					"User":       true,
+					"Moderator":  true,
+					"Admin":      true,
 				}
 				if err != nil {
 					log.Fatalf("Failed to decode postFormByteSlice: %v", err)
 				}
 				//movements := r.FormValue("movements")
 				if submit == "addmovement" {
-					saveMovement(w,r)
-					pageLoadMovements(w,r)
+					saveMovement(w, r)
+					pageLoadMovements(w, r)
 				} else if changeValue[submit] {
-					models.UpdateUser(r.FormValue("userID"),submit)
-					pageLoadUser(w,r)
+					models.UpdateUser(r.FormValue("userID"), submit)
+					pageLoadUser(w, r)
 				} else {
 					fmt.Println("notmovements lol")
 				}
@@ -98,9 +98,7 @@ func (ac adminController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
-
-func pageLoadUser(w http.ResponseWriter, r *http.Request ) {
+func pageLoadUser(w http.ResponseWriter, r *http.Request) {
 	u := models.AdminGetUser(r.FormValue("userID"))
 	adminusertpl.Execute(w, u)
 }
@@ -129,19 +127,18 @@ func pageLoadMovements(w http.ResponseWriter, r *http.Request) {
 	mt := models.GetMovementTypes()
 	data := LoadMovementsData{
 		MovementList: m,
-		Ddloptions: mt,
+		Ddloptions:   mt,
 	}
 	//fmt.Printf("%v",data)
-	adminmovementstpl.Execute(w,data)
+	adminmovementstpl.Execute(w, data)
 }
 
 // saveMovement - save new movement type from adminmovements.html
 func saveMovement(w http.ResponseWriter, r *http.Request) {
 	m := r.FormValue("movement")
 	mt := r.FormValue("movementtypes")
-	models.SaveMovement(m,mt)
+	models.SaveMovement(m, mt)
 }
-
 
 /// ?????????????
 //func submitTrue(ss ...string) bool {
@@ -152,4 +149,3 @@ func saveMovement(w http.ResponseWriter, r *http.Request) {
 //	}
 //	return false
 //}
-

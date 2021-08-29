@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-func main()  {
+func main() {
 	fmt.Println("Server is starting")
 	//
 	//fmt.Println("Email sent????")
@@ -23,9 +23,6 @@ func main()  {
 	http.ListenAndServe(":3000", nil)
 	fmt.Println("Server has stopped")
 }
-
-
-
 
 //func emailVerification() {
 //	// https://medium.com/@stoyanov.veseline/self-hosting-a-mail-server-in-2019-6d29542dadd4

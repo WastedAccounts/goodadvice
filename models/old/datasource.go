@@ -8,7 +8,7 @@ import (
 
 var DataSource string
 
-func SetDatasource()  {
+func SetDatasource() {
 	//os.e
 	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
@@ -18,6 +18,5 @@ func SetDatasource()  {
 	SQLPW := os.Getenv("SQLPW")
 	SQLPORT := os.Getenv("SQLPORT")
 	SQLDBNAME := os.Getenv("SQLDBNAME")
-	DataSource = SQLUSER + ":" + SQLPW + "@tcp(" + SQLSERVER + ":" + SQLPORT + ")/"+ SQLDBNAME + "?parseTime=true"
+	DataSource = SQLUSER + ":" + SQLPW + "@tcp(" + SQLSERVER + ":" + SQLPORT + ")/" + SQLDBNAME + "?parseTime=true"
 }
-

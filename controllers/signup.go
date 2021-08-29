@@ -13,14 +13,14 @@ type signupController struct {
 }
 
 type Webvals struct {
-	Userval string
+	Userval      string
 	Firstnameval string
-	Emailval string
-	Msg string
+	Emailval     string
+	Msg          string
 }
 
 // html templates
-var	signuptpl = template.Must(template.ParseFiles("htmlpages/signup.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
+var signuptpl = template.Must(template.ParseFiles("htmlpages/signup.html", "htmlpages/templates/headerguest.html", "htmlpages/templates/footerguest.html"))
 
 // newSignupController
 func newSignupController() *signupController {
@@ -32,27 +32,27 @@ func newSignupController() *signupController {
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 func (sc signupController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/signup" {
-		switch r.Method  {
+		switch r.Method {
 		case http.MethodGet:
 			sc.pageLoad(w, r)
 		case http.MethodPost:
-			if r.FormValue("firstname")  == "" {
+			if r.FormValue("firstname") == "" {
 				e := "Missing first name"
 				sc.pageReload(w, r, e)
-			}else if r.FormValue("email")  == "" {
+			} else if r.FormValue("email") == "" {
 				e := "Missing email"
 				sc.pageReload(w, r, e)
-			}else if r.FormValue("username")  == "" {
+			} else if r.FormValue("username") == "" {
 				e := "Missing username"
 				sc.pageReload(w, r, e)
-			}else if r.FormValue("password") != r.FormValue("confirmpassword"){
+			} else if r.FormValue("password") != r.FormValue("confirmpassword") {
 				e := "Passwords do not match"
 				sc.pageReload(w, r, e)
 			} else {
 				if models.CheckEmail(r) == true {
 					e := "Email already exists"
 					sc.pageReload(w, r, e)
-				} else if  models.CheckUsername(r) == true {
+				} else if models.CheckUsername(r) == true {
 					e := "Username not available"
 					sc.pageReload(w, r, e)
 				} else {
@@ -76,12 +76,12 @@ func (sc *signupController) pageLoad(w http.ResponseWriter, r *http.Request) {
 }
 
 // pageReload - reloads page to display errors and info on what needs to be corrected when submitting
-func (sc *signupController) pageReload(w http.ResponseWriter, r *http.Request,e string) {
+func (sc *signupController) pageReload(w http.ResponseWriter, r *http.Request, e string) {
 	var webv = Webvals{
 		Userval:      r.FormValue("username"),
 		Firstnameval: r.FormValue("firstname"),
 		Emailval:     r.FormValue("email"),
-		Msg: 		  e,
+		Msg:          e,
 	}
-	signuptpl.Execute(w,webv)
+	signuptpl.Execute(w, webv)
 }

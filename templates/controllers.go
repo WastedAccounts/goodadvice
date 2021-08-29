@@ -31,8 +31,7 @@ func (msgc msgController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if c.Exists == false {
 		http.Redirect(w, r, "/login", 401)
-	} else
-	if r.URL.Path == "pathtohtmlpage" {
+	} else if r.URL.Path == "pathtohtmlpage" {
 		switch r.Method {
 		case http.MethodGet:
 			msgc.pageLoadSuggestionbox(w, r)

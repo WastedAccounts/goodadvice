@@ -16,7 +16,7 @@ func SaveSuggestion(w http.ResponseWriter, r *http.Request, uid string) {
 	defer db.Close()
 
 	// write code to db
-	_, err = db.Exec("INSERT INTO suggestionbox (suggestion_subject,suggestion_msg,userid) VALUES (?,?,?)",r.PostFormValue("subject"),r.PostFormValue("suggestions"),uid)
+	_, err = db.Exec("INSERT INTO suggestionbox (suggestion_subject,suggestion_msg,userid) VALUES (?,?,?)", r.PostFormValue("subject"), r.PostFormValue("suggestions"), uid)
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())

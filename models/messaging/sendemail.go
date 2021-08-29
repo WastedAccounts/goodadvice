@@ -14,16 +14,16 @@ import (
 )
 
 type Email struct {
-	recipientName string
+	recipientName  string
 	recipientEmail string
-	title string
-	body string
-	adminName string
-	adminEmail string
-	smtpServer string
-	smtpPort string
-	smtpUser string
-	smtpPW string
+	title          string
+	body           string
+	adminName      string
+	adminEmail     string
+	smtpServer     string
+	smtpPort       string
+	smtpUser       string
+	smtpPW         string
 }
 
 func SendEmail(e Email) {
@@ -56,7 +56,7 @@ func SendEmail(e Email) {
 	// Connect to the server, authenticate, set the sender and recipient,
 	// and send the email all in one step.
 	err := smtp.SendMail(
-		e.smtpServer + ":" + e.smtpPort,
+		e.smtpServer+":"+e.smtpPort,
 		auth,
 		sender.Address,
 		[]string{recipient.Address},
@@ -69,8 +69,8 @@ func SendEmail(e Email) {
 
 func VerificationEmail(newuid int64) {
 	// Vars
-	var e Email // Email struct
-	var regVal string // for each value is registry query result
+	var e Email            // Email struct
+	var regVal string      // for each value is registry query result
 	var regValues []string // array of registry results to feed into Email struct
 
 	// Open DB connection to query for values
@@ -84,7 +84,7 @@ func VerificationEmail(newuid int64) {
 	code := GenerateConfCode(6)
 
 	// write code to db
-	writeCode, err := db.Exec("INSERT INTO email_verification (userid, verification_code, expires) VALUE (?,?,UTC_TIMESTAMP() + INTERVAL 10 MINUTE)",newuid,code)
+	writeCode, err := db.Exec("INSERT INTO email_verification (userid, verification_code, expires) VALUE (?,?,UTC_TIMESTAMP() + INTERVAL 10 MINUTE)", newuid, code)
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
@@ -102,7 +102,7 @@ func VerificationEmail(newuid int64) {
 		panic(err.Error())
 	}
 	for getUserInfo.Next() {
-		err := getUserInfo.Scan(&e.recipientName,&e.recipientEmail)
+		err := getUserInfo.Scan(&e.recipientName, &e.recipientEmail)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -116,11 +116,11 @@ func VerificationEmail(newuid int64) {
 		panic(err.Error())
 	}
 	for getAdminInfo.Next() {
-  		err := getAdminInfo.Scan(&regVal)
+		err := getAdminInfo.Scan(&regVal)
 		if err != nil {
 			log.Fatal(err)
 		}
-		regValues = append(regValues,regVal)
+		regValues = append(regValues, regVal)
 	}
 	getUserInfo.Close()
 
@@ -139,7 +139,7 @@ func VerificationEmail(newuid int64) {
 		panic(err.Error())
 	}
 	for getEmailMessage.Next() {
-		err := getEmailMessage.Scan(&e.title,&e.body)
+		err := getEmailMessage.Scan(&e.title, &e.body)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -147,7 +147,7 @@ func VerificationEmail(newuid int64) {
 	getEmailMessage.Close()
 
 	// load confirmation code into email body
-	e.body = fmt.Sprintf(e.body,code)
+	e.body = fmt.Sprintf(e.body, code)
 
 	// Pass infor to SendEmail function so we can send an email
 	SendEmail(e)
@@ -169,12 +169,11 @@ func GenerateConfCode(max int) string {
 }
 
 //encoding function - I guess I don't need it?
-func encodeRFC2047(String string) string{
+func encodeRFC2047(String string) string {
 	// use mail's rfc2047 to encode any string
 	addr := mail.Address{String, ""}
 	return strings.Trim(addr.String(), " <>")
 }
-
 
 //old way
 //https://www.loginradius.com/blog/async/sending-emails-with-golang/

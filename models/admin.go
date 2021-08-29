@@ -7,12 +7,12 @@ import (
 )
 
 type Version struct {
-	Version string
+	Version     string
 	VersionDate string
 }
 
 type Movements struct {
-	Movement string
+	Movement     string
 	MovementType string
 }
 
@@ -21,24 +21,24 @@ type Movements struct {
 //}
 
 type Users struct {
-	ID string
-	Username string
-	Firstname string
+	ID           string
+	Username     string
+	Firstname    string
 	Emailaddress string
-	Isactive string
-	Isadmin string
+	Isactive     string
+	Isadmin      string
 }
 
 type User struct {
-	ID string
-	Username string
-	Firstname string
+	ID           string
+	Username     string
+	Firstname    string
 	Emailaddress string
-	Isactive string
-	Isadmin string
-	Active string
-	Role1 string
-	Role2 string
+	Isactive     string
+	Isadmin      string
+	Active       string
+	Role1        string
+	Role2        string
 }
 
 func GetVersion() Version {
@@ -53,7 +53,7 @@ func GetVersion() Version {
 		panic(err.Error())
 	}
 	for checkversion.Next() {
-		err = checkversion.Scan(&ver,&date)
+		err = checkversion.Scan(&ver, &date)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -68,7 +68,7 @@ func GetVersion() Version {
 
 func GetMovements() []Movements {
 	var m []Movements
-	var movement,movementtype string
+	var movement, movementtype string
 	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
@@ -78,11 +78,11 @@ func GetMovements() []Movements {
 		panic(err.Error())
 	}
 	for getmovements.Next() {
-		err = getmovements.Scan(&movement,&movementtype)
+		err = getmovements.Scan(&movement, &movementtype)
 		if err != nil {
 			panic(err.Error())
 		}
-		m = append(m, Movements{Movement: movement,MovementType: movementtype})
+		m = append(m, Movements{Movement: movement, MovementType: movementtype})
 	}
 	defer db.Close()
 	return m
@@ -104,7 +104,7 @@ func GetMovementTypes() []string {
 		if err != nil {
 			panic(err.Error())
 		}
-		mt = append(mt,movementtype)
+		mt = append(mt, movementtype)
 	}
 	defer db.Close()
 	return mt
@@ -116,7 +116,7 @@ func SaveMovement(m string, mt string) {
 	if err != nil {
 		panic(err.Error())
 	}
-	getid, err := db.Query("select ID from movement_types where movement_type = ?;",mt)
+	getid, err := db.Query("select ID from movement_types where movement_type = ?;", mt)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -124,7 +124,7 @@ func SaveMovement(m string, mt string) {
 		err = getid.Scan(&id)
 	}
 	//updateQry := fmt.Sprintf("insert into movements (movementtype,movementname) values (?,?)",id, m)
-	insert, err := db.Exec("insert into movements (movementtype,movementname) values (?,?)",id, m)
+	insert, err := db.Exec("insert into movements (movementtype,movementname) values (?,?)", id, m)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -134,7 +134,7 @@ func SaveMovement(m string, mt string) {
 
 func GetUsers() []Users {
 	var u []Users
-	var id,username,firstname,emailaddress,isactive,isadmin string
+	var id, username, firstname, emailaddress, isactive, isadmin string
 	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
@@ -144,13 +144,13 @@ func GetUsers() []Users {
 		panic(err.Error())
 	}
 	for getusers.Next() {
-		err = getusers.Scan(&id,&username,&firstname,&emailaddress,&isactive,&isadmin)
+		err = getusers.Scan(&id, &username, &firstname, &emailaddress, &isactive, &isadmin)
 		if err != nil {
 			panic(err.Error())
 		}
 		if isactive == "1" {
 			isactive = "Yes"
-		}else {
+		} else {
 			isactive = "No"
 		}
 		if isadmin == "5" {
@@ -160,7 +160,7 @@ func GetUsers() []Users {
 		} else {
 			isadmin = "User"
 		}
-		u = append(u, Users{ID: id,Username: username,Firstname: firstname,Emailaddress: emailaddress,Isactive: isactive,Isadmin: isadmin} )
+		u = append(u, Users{ID: id, Username: username, Firstname: firstname, Emailaddress: emailaddress, Isactive: isactive, Isadmin: isadmin})
 	}
 	defer db.Close()
 	return u
@@ -168,24 +168,24 @@ func GetUsers() []Users {
 
 func AdminGetUser(id string) User {
 	var u User
-	var username,firstname,emailaddress,isactive,isadmin,active,role1,role2 string
+	var username, firstname, emailaddress, isactive, isadmin, active, role1, role2 string
 	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
-	getusers, err := db.Query("SELECT ID,username, firstname, emailaddress, isactive, isadmin FROM users WHERE ID = ?;",id)
+	getusers, err := db.Query("SELECT ID,username, firstname, emailaddress, isactive, isadmin FROM users WHERE ID = ?;", id)
 	if err != nil {
 		panic(err.Error())
 	}
 	for getusers.Next() {
-		err = getusers.Scan(&id,&username,&firstname,&emailaddress,&isactive,&isadmin)
+		err = getusers.Scan(&id, &username, &firstname, &emailaddress, &isactive, &isadmin)
 		if err != nil {
 			panic(err.Error())
 		}
 		if isactive == "1" {
 			isactive = "Yes"
 			active = "Deactivate"
-		}else {
+		} else {
 			isactive = "No"
 			active = "Activate"
 		}
@@ -207,53 +207,53 @@ func AdminGetUser(id string) User {
 			Username:     username,
 			Firstname:    firstname,
 			Emailaddress: emailaddress,
-			Isactive: 	  isactive,
-			Isadmin:   	  isadmin,
-			Active: 	  active,
-			Role1: 		  role1,
-			Role2: 		  role2,
+			Isactive:     isactive,
+			Isadmin:      isadmin,
+			Active:       active,
+			Role1:        role1,
+			Role2:        role2,
 		}
 	}
 	defer db.Close()
 	return u
 }
 
-func UpdateUser(id string,v string) {
+func UpdateUser(id string, v string) {
 	var role string
 	var active string
 	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
-	activeValue := map[string]bool {
-		"Activate": true,
+	activeValue := map[string]bool{
+		"Activate":   true,
 		"Deactivate": true,
 	}
-	roleValue := map[string]bool {
-		"User": true,
+	roleValue := map[string]bool{
+		"User":      true,
 		"Moderator": true,
-		"Admin": true,
+		"Admin":     true,
 	}
-	if activeValue[v]{
-		if v == "Activate"{
+	if activeValue[v] {
+		if v == "Activate" {
 			active = "1"
-		} else if v == "Deactivate"{
+		} else if v == "Deactivate" {
 			active = "0"
 		}
-		update, err := db.Exec("UPDATE users SET isactive = ? WHERE ID = ?;",active,id)
+		update, err := db.Exec("UPDATE users SET isactive = ? WHERE ID = ?;", active, id)
 		if err != nil {
 			panic(err.Error())
 		}
 		update.RowsAffected()
 	} else if roleValue[v] {
-		if v == "User"{
+		if v == "User" {
 			role = "0"
-		} else if v == "Moderator"{
+		} else if v == "Moderator" {
 			role = "3"
-		} else if v == "Admin"{
+		} else if v == "Admin" {
 			role = "5"
 		}
-		update, err := db.Exec("UPDATE users SET isadmin = ? WHERE ID = ?;",role,id)
+		update, err := db.Exec("UPDATE users SET isadmin = ? WHERE ID = ?;", role, id)
 		if err != nil {
 			panic(err.Error())
 		}

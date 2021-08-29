@@ -12,40 +12,40 @@ import (
 
 type Records struct {
 	Movement string
-	Weight string
-	Date string
-	ID string
-	Time string
-	Minutes string
-	Seconds string
-	Notes string
+	Weight   string
+	Date     string
+	ID       string
+	Time     string
+	Minutes  string
+	Seconds  string
+	Notes    string
 }
 
 type Movements struct {
-	Movements []string
+	Movements   []string
 	Currentdate string
 }
 
 type Userinfo struct {
-	Name string `json:"Name"`
+	Name     string `json:"Name"`
 	Birthday string `json:"Birthday"`
-	Weight string `json:"Weight"`
-	Sex string `json:"Sex"`
-	About string `json:"About"`
-	Age int `json:"Age"`
+	Weight   string `json:"Weight"`
+	Sex      string `json:"Sex"`
+	About    string `json:"About"`
+	Age      int    `json:"Age"`
 }
 
 type Addpr struct {
-	Uid string
+	Uid          string
 	MovementName string
-	Weight string
-	Date string
-	Time string
-	Notes string
+	Weight       string
+	Date         string
+	Time         string
+	Notes        string
 }
 
 // PageLoadAboutMe - loads user info and PR info for main profile page
-func PageLoadUserProfile(uid string) ([]Records,Userinfo){
+func PageLoadUserProfile(uid string) ([]Records, Userinfo) {
 	var up Userinfo
 	var r []Records
 	// Load up for page load
@@ -53,12 +53,13 @@ func PageLoadUserProfile(uid string) ([]Records,Userinfo){
 	r = LoadPersonalRecords(uid)
 	// Need to add Goals to this call when I build it
 	//gls := LoadGoals()
-	return r,up
+	return r, up
 }
+
 // PageLoadPersonalRecords - loads PR values to the Records Struct
 //currently loads all records for all time
 // After adding functions to edit PRs I can update this as I need to change the way I store the data so I can sort better
-func LoadPersonalRecords(uid string) []Records{
+func LoadPersonalRecords(uid string) []Records {
 	var rec []Records
 	// Records struct var
 	var movement, pr, prtime, id string //display,
@@ -74,18 +75,18 @@ func LoadPersonalRecords(uid string) []Records{
 		panic(err.Error())
 	}
 	for prs.Next() {
-		err = prs.Scan(&movement,&pr,&date,&prtime,&id)
+		err = prs.Scan(&movement, &pr, &date, &prtime, &id)
 		if err != nil {
 			panic(err.Error())
 		}
 		d := strings.Split(date.String(), " ")
 		rec = append(rec, Records{
 			Movement: movement,
-			Weight:pr,
-			Date: d[0],
-			Time: prtime,
-			ID: id},
-			)
+			Weight:   pr,
+			Date:     d[0],
+			Time:     prtime,
+			ID:       id},
+		)
 		//display += movement + ": " + pr + " set on: " + d[0] + " :: " + id +"\r"
 	}
 
@@ -110,7 +111,7 @@ func LoadMovements() Movements {
 		if err != nil {
 			panic(err.Error())
 		}
-		mov.Movements = append(mov.Movements ,movementname)
+		mov.Movements = append(mov.Movements, movementname)
 	}
 	currentTime := time.Now()
 	mov.Currentdate = currentTime.Format("01/02/2006")
@@ -137,19 +138,19 @@ func LoadAboutMe(uid string) Userinfo {
 		panic(err.Error())
 	}
 	for userresults.Next() {
-		err = userresults.Scan(&name,&birthday,&sex,&weight,&about)
+		err = userresults.Scan(&name, &birthday, &sex, &weight, &about)
 		if err != nil {
 			panic(err.Error())
 		}
-		age := age(birthday,time.Now())
-		up = Userinfo{Name: name,Age: age,Birthday: birthday.Format("01/02/2006"),Weight: weight,Sex: sex,About: about}
+		age := age(birthday, time.Now())
+		up = Userinfo{Name: name, Age: age, Birthday: birthday.Format("01/02/2006"), Weight: weight, Sex: sex, About: about}
 	}
 	return up
 }
 
-func UpdateAboutMe(r *http.Request, id string){
+func UpdateAboutMe(r *http.Request, id string) {
 	// Manage incoming date values
-	bday,err := time.Parse("01/02/2006",r.PostFormValue("bday"))
+	bday, err := time.Parse("01/02/2006", r.PostFormValue("bday"))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -161,7 +162,7 @@ func UpdateAboutMe(r *http.Request, id string){
 	}
 
 	// Update the DB
-	updateAbout, err := db.Exec("UPDATE user_profile up JOIN users u ON u.ID = up.userid SET u.firstname = ?,up.userbirthday = ?,up.usersex = ?,up.userweight = ?,up.userabout = ? WHERE userid = ?;",r.PostFormValue("name"),bday,r.PostFormValue("sex"),r.PostFormValue("wgt"),r.PostFormValue("abme"),id)
+	updateAbout, err := db.Exec("UPDATE user_profile up JOIN users u ON u.ID = up.userid SET u.firstname = ?,up.userbirthday = ?,up.usersex = ?,up.userweight = ?,up.userabout = ? WHERE userid = ?;", r.PostFormValue("name"), bday, r.PostFormValue("sex"), r.PostFormValue("wgt"), r.PostFormValue("abme"), id)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -169,14 +170,14 @@ func UpdateAboutMe(r *http.Request, id string){
 }
 
 // AddRecord CHANGE to - SaveSinglePR - Write new PR value to database
-func SaveNewPR (addpr Addpr) {
+func SaveNewPR(addpr Addpr) {
 	var movementid string
 	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
 	}
 	defer db.Close()
-	mid, err := db.Query("SELECT ID FROM movements WHERE movementname = ?;",addpr.MovementName)
+	mid, err := db.Query("SELECT ID FROM movements WHERE movementname = ?;", addpr.MovementName)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -186,7 +187,7 @@ func SaveNewPR (addpr Addpr) {
 			panic(err.Error())
 		}
 	}
-	insert, err := db.Exec("INSERT INTO user_pr (userid,movementid,prvalue,prdate,prtime,prnotes) VALUES (?,?,?,?,?,?)",addpr.Uid,movementid,addpr.Weight,addpr.Date,addpr.Time,addpr.Notes)
+	insert, err := db.Exec("INSERT INTO user_pr (userid,movementid,prvalue,prdate,prtime,prnotes) VALUES (?,?,?,?,?,?)", addpr.Uid, movementid, addpr.Weight, addpr.Date, addpr.Time, addpr.Notes)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -194,10 +195,10 @@ func SaveNewPR (addpr Addpr) {
 }
 
 // LoadSinglePR Load a pr to editpr page for editing
-func LoadSinglePR(uid string, prid string) (Records,[]Records) {
+func LoadSinglePR(uid string, prid string) (Records, []Records) {
 	var r Records
 	var rhist []Records
-	var movement,value,id,prtime,notes string
+	var movement, value, id, prtime, notes string
 	var date time.Time
 	// open DB conn
 	db, err := sql.Open("mysql", datasource.DataSource)
@@ -206,12 +207,12 @@ func LoadSinglePR(uid string, prid string) (Records,[]Records) {
 	}
 	defer db.Close()
 	// Get single pr value
-	rec, err := db.Query("SELECT m.movementname, u.prvalue, u.prdate,u.ID,u.prtime,u.prnotes FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? AND u.ID = ?;",uid,prid)
+	rec, err := db.Query("SELECT m.movementname, u.prvalue, u.prdate,u.ID,u.prtime,u.prnotes FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? AND u.ID = ?;", uid, prid)
 	if err != nil {
 		panic(err.Error())
 	}
 	for rec.Next() {
-		err = rec.Scan(&movement, &value, &date, &id,&prtime,&notes)
+		err = rec.Scan(&movement, &value, &date, &id, &prtime, &notes)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -222,22 +223,22 @@ func LoadSinglePR(uid string, prid string) (Records,[]Records) {
 		prtimesplit := strings.Split(prtime, ":")
 		r = Records{
 			Movement: movement,
-			Weight:value,
-			Date: d[0],
-			ID: id,
-			Time: prtime,
-			Minutes: prtimesplit[0],
-			Seconds: prtimesplit[1],
-			Notes: notes,
+			Weight:   value,
+			Date:     d[0],
+			ID:       id,
+			Time:     prtime,
+			Minutes:  prtimesplit[0],
+			Seconds:  prtimesplit[1],
+			Notes:    notes,
 		}
 	}
 	// Get PR history
-	prhist, err := db.Query("SELECT m.movementname,u.prvalue,u.prdate,u.prtime,u.ID FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? and m.movementname = ? ORDER BY m.movementname,prdate desc", uid,r.Movement)
+	prhist, err := db.Query("SELECT m.movementname,u.prvalue,u.prdate,u.prtime,u.ID FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? and m.movementname = ? ORDER BY m.movementname,prdate desc", uid, r.Movement)
 	if err != nil {
 		panic(err.Error())
 	}
 	for prhist.Next() {
-		err = prhist.Scan(&movement,&value,&date,&prtime,&id)
+		err = prhist.Scan(&movement, &value, &date, &prtime, &id)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -251,11 +252,11 @@ func LoadSinglePR(uid string, prid string) (Records,[]Records) {
 		})
 		//display += movement + ": " + pr + " set on: " + d[0] + " :: " + id +"\r"
 	}
-	return r,rhist
+	return r, rhist
 }
 
 // UpdateSinglePR - Update a pr value after editing
-func UpdateSinglePR(r *http.Request,id string) {
+func UpdateSinglePR(r *http.Request, id string) {
 	// Format web values for storing in DB
 	time := r.PostFormValue("minutes") + ":" + r.PostFormValue("seconds")
 
@@ -266,7 +267,7 @@ func UpdateSinglePR(r *http.Request,id string) {
 	}
 	defer db.Close()
 	// Update DB
-	updatepr, err := db.Exec("UPDATE user_pr SET prvalue = ?, prdate = ?, prtime = ?, prnotes = ? WHERE ID = ?",r.PostFormValue("weight"),r.PostFormValue("date"),time,r.PostFormValue("notes"),r.PostFormValue("prid"))
+	updatepr, err := db.Exec("UPDATE user_pr SET prvalue = ?, prdate = ?, prtime = ?, prnotes = ? WHERE ID = ?", r.PostFormValue("weight"), r.PostFormValue("date"), time, r.PostFormValue("notes"), r.PostFormValue("prid"))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -297,9 +298,6 @@ func age(birthdate, today time.Time) int {
 	return age
 }
 
-
-
-
 // // // //
 // Older unused functions I might need later
 // // // //
@@ -321,7 +319,7 @@ func LoadALLPersonalRecords(uid string) Records {
 		panic(err.Error())
 	}
 	for movementresults.Next() {
-		err = movementresults.Scan(&movement,&pr,&date)
+		err = movementresults.Scan(&movement, &pr, &date)
 		if err != nil {
 			panic(err.Error())
 		}

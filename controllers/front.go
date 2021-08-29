@@ -13,12 +13,11 @@ import (
 )
 
 // html template
-var guestindexttpl = template.Must(template.ParseFiles("htmlpages/guestindex.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
-var adminindextpl = template.Must(template.ParseFiles("htmlpages/adminindex.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var userindextpl = template.Must(template.ParseFiles("htmlpages/userindex.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var userabouttpl = template.Must(template.ParseFiles("htmlpages/about.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var guestabouttpl = template.Must(template.ParseFiles("htmlpages/about.html","htmlpages/templates/headerguest.html","htmlpages/templates/footerguest.html"))
-
+var guestindexttpl = template.Must(template.ParseFiles("htmlpages/guestindex.html", "htmlpages/templates/headerguest.html", "htmlpages/templates/footerguest.html"))
+var adminindextpl = template.Must(template.ParseFiles("htmlpages/adminindex.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var userindextpl = template.Must(template.ParseFiles("htmlpages/userindex.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var userabouttpl = template.Must(template.ParseFiles("htmlpages/about.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var guestabouttpl = template.Must(template.ParseFiles("htmlpages/about.html", "htmlpages/templates/headerguest.html", "htmlpages/templates/footerguest.html"))
 
 func RegisterControllers() {
 	//uc := newUserController()
@@ -69,14 +68,13 @@ func RegisterControllers() {
 	//http.Handle("./css/", http.FileServer(http.Dir("./css/")))
 }
 
-
 // index - loads index.html based on user roles
 func index(w http.ResponseWriter, r *http.Request) {
-	userauth := models.ValidateSession(w,r)
+	userauth := models.ValidateSession(w, r)
 	if userauth.Exists == true && userauth.IsAdmin == true && userauth.IsActive == true {
 		//fmt.Fprint(w, "<h1 class='header'>Welcome, this is good advice</h1>")
 		adminindextpl.Execute(w, nil)
-	} else if userauth.Exists == true && userauth.IsAdmin != true && userauth.IsActive == true  {
+	} else if userauth.Exists == true && userauth.IsAdmin != true && userauth.IsActive == true {
 		//fmt.Fprint(w, "<h1 class='header'>Welcome, this is good advice</h1>")
 		userindextpl.Execute(w, nil)
 	} else {
@@ -87,7 +85,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 // about - loads about.html based on user roles
 func about(w http.ResponseWriter, r *http.Request) {
-	userauth := models.ValidateSession(w,r)
+	userauth := models.ValidateSession(w, r)
 	if userauth.Exists == true && userauth.IsAdmin == true && userauth.IsActive == true {
 		userabouttpl.Execute(w, nil)
 	} else {
@@ -116,4 +114,3 @@ func encodeResponseAsJSON(data interface{}, w io.Writer) {
 //	fmt.Println("wodcb",test)
 //	testtpl.Execute(w, check)
 //}
-

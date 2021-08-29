@@ -100,15 +100,12 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusNotImplemented)
 			}
 		} else if r.URL.Path == "/workouts/addwod" {
-			// This is for working with the Daily WOD.
-			// If an admin wants to add an additional workout
-			// they should do it as a user
 			switch r.Method {
 			case http.MethodGet:
 				if r.FormValue("date") == "" {
-					pageLoadAddWorkout(w)
+					pageLoadAddWorkout(w,true)
 				} else {
-					loadWODEdit(w, r)
+					loadWODEdit(w, r, true, "")
 				}
 			case http.MethodPost:
 				err := r.ParseForm()
@@ -116,7 +113,7 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					log.Fatalf("Failed to decode postFormByteSlice: %v", err)
 				}
 				if Edit == true {
-					editWOD(w, r, userauth.Uid,true)
+					editWOD(w, r, userauth.Uid, true)
 				} else {
 					postWOD(w, r, userauth.Uid, true)
 				}
@@ -129,31 +126,31 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				// Parse woid out of URL
 				u, _ := url.Parse(r.RequestURI)
 				woid, _ := url.ParseQuery(u.RawQuery)
-				// Call for WOD by woid
-				woc.customizeWOD(w, r, woid.Get("woid"), userauth, "")
+				if woid.Get("woid") == "new" {
+					// Ready to create a new user workout
+					pageLoadAddWorkout(w,false)
+				} else if woid.Get("woid") != "" {
+					// Call for WOD by woid
+					woc.customizeWOD(w, r, woid.Get("woid"), userauth, "")
+				} else {
+					// Get User WOD by date selected
+					loadWODEdit(w, r, false, userauth.Uid)
+				}
 			case http.MethodPost:
 				err := r.ParseForm()
 				if err != nil {
 					log.Fatalf("Failed to decode postFormByteSlice: %v", err)
 				}
-				//postWOD(w, r, userauth.Uid, false)
 				if Edit == true {
-					fmt.Println("here2")
 					editWOD(w, r, userauth.Uid, false)
-					// EDIT DOESN"T WORK AS USER
-					// Reason is the Uid and Date get caught
-					// but no message is sent.
 				} else {
-					fmt.Println("here3")
 					postWOD(w, r, userauth.Uid, false)
-					// pOST FAILS BECUASE Edit var is stuck on True after first
-					// round of posting
-					//Should just redirect to and /workouts/editWOD url
 				}
 			default:
 				w.WriteHeader(http.StatusNotImplemented)
 			}
 		} else if r.URL.Path == "/workouts/editwod" {
+			/////// NOT CURRENTLY IN USE AND WILL PROBABLY BE DEPRECATED
 			//switch r.Method {
 			//case http.MethodGet:
 			//	w.WriteHeader(http.StatusNotImplemented)
@@ -258,26 +255,40 @@ func (woc *workoutController) randomWorkout(w http.ResponseWriter, userauth mode
 // customizeWOD - Click the customize button and we gather the needed details and send the user off to make their own workout.
 func (woc *workoutController) customizeWOD(w http.ResponseWriter, r *http.Request, woid string, userauth models.UserAuth, msg string) {
 	data := workouts.GetWODbyID(woid)
-	//fmt.Println("data",data)
-	useraddworkouttpl.Execute(w, data)
+	if data.WODworkout == "N" && data.CreatedBy == userauth.Uid {
+		// if user loaded their own work we'll send them to edit
+		Edit = true
+		usereditworkouttpl.Execute(w, data)
+	} else {
+		Edit = false
+		// If a user loaded a Daily WOD we'll copy it and send them to create a new one for themself
+		useraddworkouttpl.Execute(w, data)
+	}
 }
 
 //// END GetWOD Functions
 
 //// START AddWOD Functions
 // pageLoadAddWorkout - initial page load
-func pageLoadAddWorkout(w http.ResponseWriter) {
-	// default load todays wod if there is one for quick edits
-	//wo := models.GetWODGuest()
+func pageLoadAddWorkout(w http.ResponseWriter,admin bool) {
+	// load a blank create workout page for creating daily wods
 	Edit = false
-	adminaddwodtpl.Execute(w, nil)
+	if admin == true {
+		adminaddwodtpl.Execute(w, nil)
+	} else {
+		useraddworkouttpl.Execute(w, nil)
+	}
 }
 
 // loadWOD - loads workout for selected date
-func loadWODEdit(w http.ResponseWriter, r *http.Request) {
-	wo := workouts.GetAddWODbydate(r.FormValue("date"))
+func loadWODEdit(w http.ResponseWriter, r *http.Request, admin bool, uid string) {
+	wo := workouts.GetAddWODbydate(r.FormValue("date"), uid)
 	Edit = true
-	admineditwodtpl.Execute(w, wo)
+	if admin == true {
+		admineditwodtpl.Execute(w, wo)
+	} else {
+		usereditworkouttpl.Execute(w, wo)
+	}
 }
 
 // postWOD - write workout to the database and reloads it to the page

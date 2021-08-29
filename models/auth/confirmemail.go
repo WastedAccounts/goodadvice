@@ -10,7 +10,7 @@ import (
 )
 
 // ConfirmEmail - validate code against DB value and timestamp and then remove from database
-func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool,string) {
+func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool, string) {
 	//vars
 	var expires time.Time
 	var dbcode string
@@ -23,12 +23,12 @@ func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool,string) {
 	db, err := sql.Open("mysql", datasource.DataSource)
 	defer db.Close()
 	// pulls code and expire time from db to validate
-	checkCode, err := db.Query("SELECT verification_code,expires FROM email_verification WHERE userid = ?;", c.Uid)//(checkSessionAgeqs)
+	checkCode, err := db.Query("SELECT verification_code,expires FROM email_verification WHERE userid = ?;", c.Uid) //(checkSessionAgeqs)
 	if err != nil {
 		panic(err.Error())
 	}
 	for checkCode.Next() {
-		err := checkCode.Scan(&dbcode,&expires)
+		err := checkCode.Scan(&dbcode, &expires)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -36,19 +36,19 @@ func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool,string) {
 
 	// now validate code and expiration
 	if dbcode != webcode {
-			msg = "Incorrect Confirmation Code"
-			return false,msg
+		msg = "Incorrect Confirmation Code"
+		return false, msg
 	}
 	if expiredby.After(expires) {
 		msg = "Expired Confirmation Code"
-		return false,msg
+		return false, msg
 	}
 	if dbcode == webcode && expiredby.Before(expires) {
 		msg = "Success"
 		//activate user UPDATE users SET isactive = 1 WHERE ID = ?;
 		// Get the existing entry present in the database for the given username
 		db, err := sql.Open("mysql", datasource.DataSource)
-		activateUser, err := db.Exec("UPDATE users SET isactive = 1 WHERE ID = ?;",c.Uid)
+		activateUser, err := db.Exec("UPDATE users SET isactive = 1 WHERE ID = ?;", c.Uid)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -59,10 +59,10 @@ func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool,string) {
 			panic(err.Error())
 		}
 
-		return true,msg
+		return true, msg
 	} else {
 		msg = "Something else is wrong"
-		return false,msg
+		return false, msg
 	}
 
 }

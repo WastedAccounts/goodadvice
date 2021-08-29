@@ -13,7 +13,7 @@ type msgController struct {
 	msgIDPattern *regexp.Regexp
 }
 
-var suggestionboxtpl = template.Must(template.ParseFiles("htmlpages/messaging/suggestionbox.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var suggestionboxtpl = template.Must(template.ParseFiles("htmlpages/messaging/suggestionbox.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 
 func NewMsgController() *msgController {
 	return &msgController{
@@ -24,20 +24,20 @@ func NewMsgController() *msgController {
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 func (msgc msgController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Validate session
-	userauth := models.ValidateSession(w,r)
+	userauth := models.ValidateSession(w, r)
 	if userauth.IsActive == false {
-		http.Redirect(w,r, "/login", 401)
+		http.Redirect(w, r, "/login", 401)
 	}
 	if userauth.Exists == false {
-		http.Redirect(w,r, "/login", 401)
+		http.Redirect(w, r, "/login", 401)
 		//} else if c.Isadmin != false {
 		//	http.Redirect(w, r, "/login", 401)
 	} else if r.URL.Path == "/messaging/suggestionbox" {
 		switch r.Method {
 		case http.MethodGet:
-			msgc.pageLoadSuggestionbox(w,r)
+			msgc.pageLoadSuggestionbox(w, r)
 		case http.MethodPost:
-			messaging.SaveSuggestion(w,r,userauth.Uid)
+			messaging.SaveSuggestion(w, r, userauth.Uid)
 		default:
 			fmt.Println("status not implemented")
 			w.WriteHeader(http.StatusNotImplemented)

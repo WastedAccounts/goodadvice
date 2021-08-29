@@ -9,7 +9,7 @@ import (
 var DataSource string
 var db string
 
-func SetDatasource()  {
+func SetDatasource() {
 	// Get environment variables
 	if err := godotenv.Load(); err != nil {
 		log.Print("No .env file found")
@@ -21,7 +21,7 @@ func SetDatasource()  {
 	SQLDBNAME := os.Getenv("SQLDBNAME")
 
 	// Create Datasource string
-	DataSource = SQLUSER + ":" + SQLPW + "@tcp(" + SQLSERVER + ":" + SQLPORT + ")/"+ SQLDBNAME + "?parseTime=true"
+	DataSource = SQLUSER + ":" + SQLPW + "@tcp(" + SQLSERVER + ":" + SQLPORT + ")/" + SQLDBNAME + "?parseTime=true"
 
 	//// create datasource
 	//db, err := sql.Open("mysql", DataSource)
@@ -30,4 +30,3 @@ func SetDatasource()  {
 	//}
 	//defer db.Close()
 }
-

@@ -5,6 +5,7 @@ import (
 	"goodadvice/v1/models/old"
 	"os"
 )
+
 //var Global_ID = ""
 
 func Init() {
@@ -12,6 +13,3 @@ func Init() {
 	old.SetDatasource()
 	datasource.SetDatasource()
 }
-
-
-

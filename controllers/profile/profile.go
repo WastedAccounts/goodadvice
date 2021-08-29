@@ -13,8 +13,9 @@ import (
 // profileController - Not sure I still need this.
 type profileController struct {
 	profileIDPattern *regexp.Regexp // Not sure if I need this now that I can parse URLs better.
-	prIDPattern *regexp.Regexp //not being used
+	prIDPattern      *regexp.Regexp //not being used
 }
+
 // M - a map for passing multiple structs to htmltmpl
 type M map[string]interface{}
 
@@ -22,15 +23,15 @@ type M map[string]interface{}
 func NewProfileController() *profileController {
 	return &profileController{
 		profileIDPattern: regexp.MustCompile(`^/profile/(\d+)/?`),
-		prIDPattern: regexp.MustCompile(`^/profile/editpr(\d+)/?`),
+		prIDPattern:      regexp.MustCompile(`^/profile/editpr(\d+)/?`),
 	}
 }
 
-var	userprofiletpl = template.Must(template.ParseFiles("htmlpages/profile/userprofile.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var	aboutmetpl = template.Must(template.ParseFiles("htmlpages/profile/aboutme.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var	goalstpl = template.Must(template.ParseFiles("htmlpages/profile/goals.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var	personalrecordstpl = template.Must(template.ParseFiles("htmlpages/profile/personalrecords.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
-var	editprtpl = template.Must(template.ParseFiles("htmlpages/profile/editpr.html","htmlpages/templates/header.html","htmlpages/templates/footer.html"))
+var userprofiletpl = template.Must(template.ParseFiles("htmlpages/profile/userprofile.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var aboutmetpl = template.Must(template.ParseFiles("htmlpages/profile/aboutme.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var goalstpl = template.Must(template.ParseFiles("htmlpages/profile/goals.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var personalrecordstpl = template.Must(template.ParseFiles("htmlpages/profile/personalrecords.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var editprtpl = template.Must(template.ParseFiles("htmlpages/profile/editpr.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 
 // set cookies: https://astaxie.gitbooks.io/build-web-application-with-golang/content/en/06.1.html
 func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +49,7 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			switch r.Method {
 			case http.MethodGet:
 				// initial page load of userprofile.html
-				pc.pageLoaduserProfile(w,r,userauth.Uid)
+				pc.pageLoaduserProfile(w, r, userauth.Uid)
 			case http.MethodPost:
 				//if models.Login(w, r) == false {
 				//} else {
@@ -87,13 +88,13 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				add := profile.Addpr{
 					Uid:          userauth.Uid,
 					MovementName: r.FormValue("prddl"),
-					Weight:     r.FormValue("weight"),
+					Weight:       r.FormValue("weight"),
 					Date:         r.FormValue("prdate"),
-					Time: time,
-					Notes: r.FormValue("notes"),
+					Time:         time,
+					Notes:        r.FormValue("notes"),
 				}
 				profile.SaveNewPR(add)
-				pc.pageLoadPersonalRecords(w,r,userauth.Uid)
+				pc.pageLoadPersonalRecords(w, r, userauth.Uid)
 			default:
 				fmt.Println("status not implemented")
 				w.WriteHeader(http.StatusNotImplemented)
@@ -101,13 +102,13 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else if r.URL.Path == "/profile/editpr" {
 			switch r.Method {
 			case http.MethodGet:
-				u,_ := url.Parse(r.RequestURI)
-				prid,_ :=  url.ParseQuery(u.RawQuery)
-				pc.pageLoadEditpr(w,r,userauth.Uid,prid.Get("prid"))
+				u, _ := url.Parse(r.RequestURI)
+				prid, _ := url.ParseQuery(u.RawQuery)
+				pc.pageLoadEditpr(w, r, userauth.Uid, prid.Get("prid"))
 
 			case http.MethodPost:
-				pc.pageSaveEditpr(w,r,userauth.Uid)
-				pc.pageLoadEditpr(w,r,userauth.Uid,r.PostFormValue("prid"))
+				pc.pageSaveEditpr(w, r, userauth.Uid)
+				pc.pageLoadEditpr(w, r, userauth.Uid, r.PostFormValue("prid"))
 			default:
 				fmt.Println("status not implemented")
 				w.WriteHeader(http.StatusNotImplemented)
@@ -118,10 +119,10 @@ func (pc profileController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (pc profileController) pageLoaduserProfile(w http.ResponseWriter, r *http.Request, id string) {
 	// get values for pages load
-	rec,up := profile.PageLoadUserProfile(id)
-	userprofiletpl.Execute(w,M{
+	rec, up := profile.PageLoadUserProfile(id)
+	userprofiletpl.Execute(w, M{
 		//"mov": mov,
-		"up": up,
+		"up":  up,
 		"rec": rec,
 	})
 }
@@ -129,24 +130,24 @@ func (pc profileController) pageLoaduserProfile(w http.ResponseWriter, r *http.R
 func (pc profileController) pageLoadAboutMe(w http.ResponseWriter, r *http.Request, id string) {
 	// load PRs on page lade
 	am := profile.LoadAboutMe(id)
-	aboutmetpl.Execute(w,am) //(w, userprofile)
+	aboutmetpl.Execute(w, am) //(w, userprofile)
 }
 
-func (pc profileController) pageSaveAboutMe(w http.ResponseWriter, r *http.Request, id string){
-	profile.UpdateAboutMe(r,id)
+func (pc profileController) pageSaveAboutMe(w http.ResponseWriter, r *http.Request, id string) {
+	profile.UpdateAboutMe(r, id)
 }
 
 func (pc profileController) pageLoadGoals(w http.ResponseWriter, r *http.Request, id string) {
 	// get goals for page lade
 	rec := profile.LoadPersonalRecords(id)
-	goalstpl.Execute(w,rec) //(w, userprofile)
+	goalstpl.Execute(w, rec) //(w, userprofile)
 }
 
 func (pc profileController) pageLoadPersonalRecords(w http.ResponseWriter, r *http.Request, id string) {
 	// get PRs for page load
 	rec := profile.LoadPersonalRecords(id)
 	mov := profile.LoadMovements()
-	personalrecordstpl.Execute(w,M{
+	personalrecordstpl.Execute(w, M{
 		//"mov": mov,
 		"mov": mov,
 		"rec": rec,
@@ -155,9 +156,9 @@ func (pc profileController) pageLoadPersonalRecords(w http.ResponseWriter, r *ht
 
 func (pc profileController) pageLoadEditpr(w http.ResponseWriter, r *http.Request, id string, prid string) {
 	//load a single PR value for editing
-	pr,prhist := profile.LoadSinglePR(id, prid)
-	editprtpl.Execute(w,M{
-		"pr": pr,
+	pr, prhist := profile.LoadSinglePR(id, prid)
+	editprtpl.Execute(w, M{
+		"pr":     pr,
 		"prhist": prhist,
 	})
 }

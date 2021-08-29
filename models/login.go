@@ -16,26 +16,21 @@ import (
 
 // Credentials - Used for logging in a useer
 type Credentials struct {
-	Id string
+	Id       string
 	Username string
 	Password string
 }
 
 // UserAuth - Stores values for authenticating users around the app
 type UserAuth struct {
-	Exists bool
-	IsActive bool
-	IsAdmin bool
-	IsCoach bool
-	Uid string
-	Path string
+	Exists     bool
+	IsActive   bool
+	IsAdmin    bool
+	IsCoach    bool
+	Uid        string
+	Path       string
 	Sessionkey string
 }
-
-//type Authenticated struct {
-//	Authenticated bool
-//	Active bool
-//}
 
 // https://www.sohamkamani.com/blog/2018/02/25/golang-password-authentication-and-storage/#implementing-user-login
 func Login(w http.ResponseWriter, r *http.Request) bool {
@@ -53,13 +48,13 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 	}
 	GetCreds, err := db.Query("select ID, password,isactive from users where username = ?", creds.Username) //("select password,isactive from users where username='?'", creds.Username)
 	for GetCreds.Next() {
-		err := GetCreds.Scan(&id,&password,&isactive)
+		err := GetCreds.Scan(&id, &password, &isactive)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 	// Check if user is active, if not fail login immediately
-	if isactive == "0"{
+	if isactive == "0" {
 		success = false
 		return success
 	}
@@ -72,7 +67,7 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 	}
 	// Capture login date and IP to login_history table
 	currentTime := time.Now().Format("2006-01-02 15:04:05")
-	insert, err := db.Exec("INSERT INTO login_history (user_id, login_date, user_ip) VALUES (?, ?, ?)", id,currentTime,r.RemoteAddr )
+	insert, err := db.Exec("INSERT INTO login_history (user_id, login_date, user_ip) VALUES (?, ?, ?)", id, currentTime, r.RemoteAddr)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -86,6 +81,7 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 	// The default 200 status is sent
 }
 
+// CreateSession - Creates a new session at login
 func CreateSession(w http.ResponseWriter, r *http.Request) {
 	// create vars
 	var uid, sessionID int
@@ -98,7 +94,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	// Get user ID from users table by searching for username
-	checkID, err := db.Query("select ID from users where username = ?", r.FormValue("username"))//(getIDqs)
+	checkID, err := db.Query("select ID from users where username = ?", r.FormValue("username")) //(getIDqs)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -121,14 +117,14 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	}
 	if sessionID == 0 {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		insert, err := db.Query("insert into user_session (userid,sessionstart,sessionkey) value(?, ?, ?)", uid, currentTime, id)//(insertQry)
+		insert, err := db.Query("insert into user_session (userid,sessionstart,sessionkey) value(?, ?, ?)", uid, currentTime, id) //(insertQry)
 		if err != nil {
 			panic(err.Error())
 		}
 		insert.Close()
 	} else {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		update, err := db.Query("update user_session set sessionstart = ?, sessionkey = ? where userid = ?", currentTime, id, uid)//(updateQry)
+		update, err := db.Query("update user_session set sessionstart = ?, sessionkey = ? where userid = ?", currentTime, id, uid) //(updateQry)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -139,18 +135,19 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	cookieID = strconv.Itoa(uid) + "/" + id.String()
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 	cookie := http.Cookie{
-		Name: "goodadvice",
-		Value: cookieID,
-		Path: "/",
+		Name:    "goodadvice",
+		Value:   cookieID,
+		Path:    "/",
 		Expires: expiration,
 	}
 	http.SetCookie(w, &cookie)
 }
 
+// ValidateSession -
 func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 	// create vars
 	//var userauth UserAuth
-	var cookieID,isAdmin,isActive string
+	var cookieID, isAdmin, isActive string
 	var sessionID int
 	var sessionAge time.Time
 	//var c Cookie
@@ -162,12 +159,12 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 	// write to DB
 	db, err := sql.Open("mysql", datasource.DataSource)
 	// Check if user is Active and their role
-	checkAdmin, err := db.Query("select isactive,isadmin from users where ID = ?", userauth.Uid)//(checkAdminqs)
+	checkAdmin, err := db.Query("select isactive,isadmin from users where ID = ?", userauth.Uid) //(checkAdminqs)
 	if err != nil {
 		panic(err.Error())
 	}
 	for checkAdmin.Next() {
-		err := checkAdmin.Scan(&isActive,&isAdmin)
+		err := checkAdmin.Scan(&isActive, &isAdmin)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -175,7 +172,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 	if isActive == "0" {
 		userauth.IsActive = false
 		return userauth
-	} else if isActive == "1"{
+	} else if isActive == "1" {
 		userauth.IsActive = true
 	}
 	if isAdmin == "5" {
@@ -188,19 +185,19 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 
 	// validate session is LESS then 48 hours old
 	//checkSessionAgeqs := fmt.Sprintf("select ID,sessionstart from user_session where userid = '%s' and sessionkey = '%s'", c.Uid, c.Sessionkey)
-	checkSessionAge, err := db.Query("select ID,sessionstart from user_session where userid = ? and sessionkey = ?", userauth.Uid, userauth.Sessionkey)//(checkSessionAgeqs)
+	checkSessionAge, err := db.Query("select ID,sessionstart from user_session where userid = ? and sessionkey = ?", userauth.Uid, userauth.Sessionkey) //(checkSessionAgeqs)
 	if err != nil {
 		panic(err.Error())
 	}
 	for checkSessionAge.Next() {
-		err := checkSessionAge.Scan(&sessionID,&sessionAge)
+		err := checkSessionAge.Scan(&sessionID, &sessionAge)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	expires := time.Now().Local().Add(-48 * time.Hour)//.Unix
-	sessionAge,	expires = sessionAge.UTC(), expires.UTC()
+	expires := time.Now().Local().Add(-48 * time.Hour) //.Unix
+	sessionAge, expires = sessionAge.UTC(), expires.UTC()
 	//var exp bool
 	if expires.After(sessionAge) {
 		//user will be redirected to login
@@ -210,7 +207,7 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 	} else {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
 		//updateQry := fmt.Sprintf("update user_session set sessionstart = '%s', sessionkey = '%s' where ID = '%d'", currentTime, suid, sessionID)
-		update, err := db.Query("update user_session set sessionstart = ?, sessionkey = ? where ID = ?", currentTime, suid, sessionID)//(updateQry)
+		update, err := db.Query("update user_session set sessionstart = ?, sessionkey = ? where ID = ?", currentTime, suid, sessionID) //(updateQry)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -219,9 +216,9 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 		cookieID = userauth.Uid + "/" + suid.String()
 		expiration := time.Now().Add(365 * 24 * time.Hour)
 		cookie := http.Cookie{
-			Name: "goodadvice",
-			Value: cookieID,
-			Path: "/",
+			Name:    "goodadvice",
+			Value:   cookieID,
+			Path:    "/",
 			Expires: expiration,
 		}
 		http.SetCookie(w, &cookie)
@@ -230,8 +227,8 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 	return userauth
 }
 
-
-func ValidateCookie (w http.ResponseWriter, r *http.Request) UserAuth {
+// ValidateCookie -
+func ValidateCookie(w http.ResponseWriter, r *http.Request) UserAuth {
 	var userauth UserAuth
 	cookie, err := r.Cookie("goodadvice")
 	// No cookie then get guest WOD page
@@ -247,4 +244,3 @@ func ValidateCookie (w http.ResponseWriter, r *http.Request) UserAuth {
 	}
 	return userauth
 }
-
