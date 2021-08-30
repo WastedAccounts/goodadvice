@@ -15,23 +15,26 @@ type workoutController struct {
 	workoutIDPattern *regexp.Regexp
 }
 
-type WorkoutPageLoad struct {
-	WoID           int
-	WoName         string
-	WoStrength     string
-	WoPace         string
-	WoConditioning string
-	WoDate         string
-	UsrID          string
-	UsrNoteID      int
-	UsrName        string
-	UsrNotes       string
-	UsrMinutes     string
-	UsrSeconds     string
-	UsrFirstname   string
-	UsrGreeting    string
+type shareController struct {
+	shareIDPattern *regexp.Regexp
 }
 
+//type WorkoutPageLoad struct {
+//	WoID           int
+//	WoName         string
+//	WoStrength     string
+//	WoPace         string
+//	WoConditioning string
+//	WoDate         string
+//	UsrID          string
+//	UsrNoteID      int
+//	UsrName        string
+//	UsrNotes       string
+//	UsrMinutes     string
+//	UsrSeconds     string
+//	UsrFirstname   string
+//	UsrGreeting    string
+//}
 //// UserAuth - Stores values for authenticating users around the app
 //type UserAuth struct {
 //	Exists bool
@@ -53,14 +56,22 @@ var userwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/userwod.h
 var guestwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/guestwod.html", "htmlpages/templates/headerguest.html", "htmlpages/templates/footerguest.html"))
 var useraddworkouttpl = template.Must(template.ParseFiles("htmlpages/workouts/useraddworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 var usereditworkouttpl = template.Must(template.ParseFiles("htmlpages/workouts/usereditworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+var shareworkouttpl = template.Must(template.ParseFiles("htmlpages/workouts/shareworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 
 // M - a map for passing multiple structs to htmltmpl
 type M map[string]interface{}
 
-// entry point from front.go
+// entry point from front.go for /workouts
 func NewWorkoutController() *workoutController {
 	return &workoutController{
 		workoutIDPattern: regexp.MustCompile(`^/workouts/wod/(\d+)/?`),
+	}
+}
+
+// entry point from front.go for /canyoubeatme
+func NewShareController() *shareController {
+	return &shareController{
+		shareIDPattern: regexp.MustCompile(`^/workouts/wod/(\d+)/?`),
 	}
 }
 
@@ -71,22 +82,27 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userauth := models.ValidateSession(w, r)
 	// If there is no cookie found redirect to guest view
 	if userauth.Exists == false || userauth.IsActive == false {
-		woc.getWOD(w, r, userauth)
+		woc.getWOD(w, r, userauth, true)
 	} else {
 		// At this point the user should be validated within 48 hour session time out
 		// and a new cookie issued with new session start time stamp
 		if r.URL.Path == "/workouts/wod" {
 			switch r.Method {
 			case http.MethodGet:
-				//submit := r.FormValue("submit")
-				// If a date is selected load workout from that date
-				if r.FormValue("random") == "Random" {
+				u, _ := url.Parse(r.RequestURI)
+				woid, _ := url.ParseQuery(u.RawQuery)
+				if woid.Get("woid") == "0" {
+					//get daily wod
+					woc.getWOD(w, r, userauth, true)
+				} else if r.FormValue("random") == "Random" {
+					// Get random workout from Random button click
 					woc.randomWorkout(w, userauth)
 				} else if r.FormValue("date") != "" {
+					// If a date is selected load workout from that date
 					woc.getWODbydate(w, r.FormValue("date"), userauth)
 				} else {
 					// if no date is selected load today's workout
-					woc.getWOD(w, r, userauth)
+					woc.getWOD(w, r, userauth, false)
 				}
 			case http.MethodPost:
 				err := r.ParseForm()
@@ -94,7 +110,7 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					log.Fatalf("Failed to decode postFormByteSlice: %v", err)
 				}
 				woc.SaveWorkoutResults(w, r)
-				woc.getWOD(w, r, userauth)
+				woc.getWOD(w, r, userauth, false)
 			case http.MethodPut:
 			default:
 				w.WriteHeader(http.StatusNotImplemented)
@@ -103,7 +119,7 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			switch r.Method {
 			case http.MethodGet:
 				if r.FormValue("date") == "" {
-					pageLoadAddWorkout(w,true)
+					pageLoadAddWorkout(w, true)
 				} else {
 					loadWODEdit(w, r, true, "")
 				}
@@ -128,7 +144,7 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				woid, _ := url.ParseQuery(u.RawQuery)
 				if woid.Get("woid") == "new" {
 					// Ready to create a new user workout
-					pageLoadAddWorkout(w,false)
+					pageLoadAddWorkout(w, false)
 				} else if woid.Get("woid") != "" {
 					// Call for WOD by woid
 					woc.customizeWOD(w, r, woid.Get("woid"), userauth, "")
@@ -149,28 +165,91 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			default:
 				w.WriteHeader(http.StatusNotImplemented)
 			}
-		} else if r.URL.Path == "/workouts/editwod" {
-			/////// NOT CURRENTLY IN USE AND WILL PROBABLY BE DEPRECATED
-			//switch r.Method {
-			//case http.MethodGet:
-			//	w.WriteHeader(http.StatusNotImplemented)
-			//case http.MethodPost:
-			//	fmt.Println("here2")
-			//	userEditWOD(w, r, userauth.Uid)
-			//	// EDIT DOESN"T WORK AS USER
-			//	// Reason is the Uid and Date get caught
-			//	// but no message is sent.
-			//default:
-			//	w.WriteHeader(http.StatusNotImplemented)
+		} else if r.URL.Path == "/workouts/share" {
+			switch r.Method {
+			case http.MethodGet:
+				u, _ := url.Parse(r.RequestURI)
+				woid, _ := url.ParseQuery(u.RawQuery)
+				woc.shareWOD(w, r, woid.Get("woid"))
+			default:
+				w.WriteHeader(http.StatusNotImplemented)
+			}
 		}
 	}
 }
 
-// getWOD - Gets WOD and User data if they're logged in and depending on Role loads the correct template
-func (woc *workoutController) getWOD(w http.ResponseWriter, r *http.Request, userauth models.UserAuth) {
-	// Call GetWOD to get structs for page load
-	wo, won, usr := workouts.GetWOD(userauth.Uid, r)
+func (share shareController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Check for a cookie first
+	userauth := models.ValidateSession(w, r)
+	u, _ := url.Parse(r.RequestURI)
+	woid, _ := url.ParseQuery(u.RawQuery)
+	// If there is no cookie found redirect to guest view
+	if userauth.Exists == false || userauth.IsActive == false {
+		if r.URL.Path == "/canyoubeatme" {
+			switch r.Method {
+			case http.MethodGet:
+				canyoubeatme(w, r, woid.Get("woid"), userauth)
+			default:
+				w.WriteHeader(http.StatusNotImplemented)
+			}
+		}
+	} else {
+		if r.URL.Path == "/canyoubeatme" {
+			switch r.Method {
+			case http.MethodGet:
+				canyoubeatme(w, r, woid.Get("woid"), userauth)
+			default:
+				w.WriteHeader(http.StatusNotImplemented)
+			}
+		}
+	}
+}
 
+// canyoubeatme - loads shared workouts for logged in users and guests
+func canyoubeatme(w http.ResponseWriter, r *http.Request, woid string, userauth models.UserAuth) {
+
+	wo, won, usr := workouts.GetWODbyID(woid, userauth.Uid)
+	data := M{
+		"wo":  wo,
+		"won": won,
+		"usr": usr,
+	}
+	if userauth.Exists == true && userauth.IsActive == true {
+		// If Admin
+		userwodtpl.Execute(w, data)
+	} else {
+		// If Guest
+		guestwodtpl.Execute(w, data)
+	}
+}
+
+func (woc *workoutController) shareWOD(w http.ResponseWriter, r *http.Request, Woid string) {
+	// Create share WOD page with url to share
+	data := map[string]interface{}{
+		"woid": Woid,
+	}
+	shareworkouttpl.Execute(w, data)
+}
+
+// getWOD - Gets WOD and User data if they're logged in and depending on Role loads the correct template
+func (woc *workoutController) getWOD(w http.ResponseWriter, r *http.Request, userauth models.UserAuth, dailywod bool) {
+	// vars
+	var uid string
+
+	// daily WOD if they want that specifically.
+	if dailywod == true {
+		uid = ""
+	} else {
+		uid = userauth.Uid
+	}
+
+	// Call GetWOD to get structs for page load
+	wo, won, usr := workouts.GetWOD(uid, r)
+
+	// Setup link to Daily WOD if we loaded a different workout
+	if wo.WODworkout == "Y" {
+		wo.Linkhidden = "hidden"
+	}
 	// Map structs to a single var to load into templates
 	data := M{
 		"wo":  wo,
@@ -218,6 +297,11 @@ func (woc *workoutController) getWOD(w http.ResponseWriter, r *http.Request, use
 // getWODbydate - displays WOD for the current date if there is one
 func (woc *workoutController) getWODbydate(w http.ResponseWriter, d string, userauth models.UserAuth) {
 	wo, won, usr := workouts.GetWODbydate(d, userauth.Uid)
+
+	// Setup link to Daily WOD if we loaded a different workout
+	if wo.WODworkout == "Y" {
+		wo.Linkhidden = "hidden"
+	}
 	// Map structs to a single var to load into templates
 	data := M{
 		"wo":  wo,
@@ -254,8 +338,13 @@ func (woc *workoutController) randomWorkout(w http.ResponseWriter, userauth mode
 
 // customizeWOD - Click the customize button and we gather the needed details and send the user off to make their own workout.
 func (woc *workoutController) customizeWOD(w http.ResponseWriter, r *http.Request, woid string, userauth models.UserAuth, msg string) {
-	data := workouts.GetWODbyID(woid)
-	if data.WODworkout == "N" && data.CreatedBy == userauth.Uid {
+	wo, won, usr := workouts.GetWODbyID(woid, userauth.Uid)
+	data := M{
+		"wo":  wo,
+		"won": won,
+		"usr": usr,
+	}
+	if wo.WODworkout == "N" && wo.CreatedBy == userauth.Uid {
 		// if user loaded their own work we'll send them to edit
 		Edit = true
 		usereditworkouttpl.Execute(w, data)
@@ -270,7 +359,7 @@ func (woc *workoutController) customizeWOD(w http.ResponseWriter, r *http.Reques
 
 //// START AddWOD Functions
 // pageLoadAddWorkout - initial page load
-func pageLoadAddWorkout(w http.ResponseWriter,admin bool) {
+func pageLoadAddWorkout(w http.ResponseWriter, admin bool) {
 	// load a blank create workout page for creating daily wods
 	Edit = false
 	if admin == true {

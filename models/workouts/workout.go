@@ -21,6 +21,7 @@ type Workout struct {
 	Conditioning string //`json:"Conditioning"`
 	Date         string //`json:"Date"`
 	WODworkout   string
+	Linkhidden   string
 	//DOW string `json:"DOW"`
 }
 
@@ -55,6 +56,7 @@ type AddWorkout struct {
 	Message      string
 	CreatedBy    string
 	WODworkout   string
+	Linkhidden   string
 }
 
 type EditWorkout struct {
@@ -75,7 +77,7 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 	//Set up Vars
 	var wo Workout
 	var id int
-	var name, strength, pace, conditioning, date string
+	var name, strength, pace, conditioning, date, wodworkout string
 
 	// Open DB conn
 	db, err := sql.Open("mysql", datasource.DataSource)
@@ -87,59 +89,91 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 	// Query DB for CURRENT_DATE WOD
 	if uid == "" {
 		// If we don't have an ID we'll assume they're a guest or new here and get the latest WOD
-		results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = CURRENT_DATE() and wo_workoutoftheday = 'Y'")
+		results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = CURRENT_DATE() and wo_workoutoftheday = 'Y'")
 		if err != nil {
 			panic(err.Error())
 		}
 		for results.Next() {
-			err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date)
+			err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &wodworkout)
 			if err != nil {
 				panic(err.Error())
 			}
-			wo = Workout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date} //u = append(results)   //u, results)
+			wo = Workout{
+				ID:           id,
+				Name:         name,
+				Strength:     strength,
+				Pace:         pace,
+				Conditioning: conditioning,
+				Date:         date,
+				WODworkout:   wodworkout,
+			}
 		}
 	} else {
-		// need to check for and then pull the work
+		// need to check for and then pull the workout
 		// First we'll check if they wrote themself a work out for today
-		results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where CURRENT_DATE() and wo_createdby = ?", uid)
+		results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where CURRENT_DATE() and wo_createdby = ?", uid)
 		if err != nil {
 			panic(err.Error())
 		}
 		for results.Next() {
-			err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date)
+			err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &wodworkout)
 			if err != nil {
 				panic(err.Error())
 			}
-			wo = Workout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date} //u = append(results)   //u, results)
+			wo = Workout{
+				ID:           id,
+				Name:         name,
+				Strength:     strength,
+				Pace:         pace,
+				Conditioning: conditioning,
+				Date:         date,
+				WODworkout:   wodworkout,
+			}
 		}
-		// If we don't get results from that call then the user doesn't have a a user create workout for that day and we'll move on
+		// If we don't get results from that call then the user doesn't have a a user create workout for that day and we'll move on to see if they have a coach assigned workout
 		if wo.ID == 0 {
 			// Next well check if they have a Coach assigned workout
 			// Need some way to get the correct WORKOUT_ID from a table and in put that here
-			results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where CURRENT_DATE() and ID = ?", 10000000)
+			results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where CURRENT_DATE() and ID = ?", 0)
 			if err != nil {
 				panic(err.Error())
 			}
 			for results.Next() {
-				err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date)
+				err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &wodworkout)
 				if err != nil {
 					panic(err.Error())
 				}
-				wo = Workout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date} //u = append(results)   //u, results)
+				wo = Workout{
+					ID:           id,
+					Name:         name,
+					Strength:     strength,
+					Pace:         pace,
+					Conditioning: conditioning,
+					Date:         date,
+					WODworkout:   wodworkout,
+				}
 			}
-			// If we don't get results from that call then the user doesn't have a coach assigned workout for that day and we'll move on
+			// If we don't get results from that call then the user doesn't have a coach assigned workout for that day and we'll move on to loading the daily WOD
 			if wo.ID == 0 {
 				// If we don't have an ID or a user created or coach assigned WOD we'll assume they're a guest or new here and get the latest WOD
-				results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = CURRENT_DATE() and wo_workoutoftheday = 'Y'")
+				results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = CURRENT_DATE() and wo_workoutoftheday = 'Y'")
 				if err != nil {
 					panic(err.Error())
 				}
 				for results.Next() {
-					err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date)
+					err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &wodworkout)
 					if err != nil {
 						panic(err.Error())
 					}
-					wo = Workout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date} //u = append(results)   //u, results)
+					wo = Workout{
+						ID:           id,
+						Name:         name,
+						Strength:     strength,
+						Pace:         pace,
+						Conditioning: conditioning,
+						Date:         date,
+						WODworkout:   wodworkout,
+					}
 				}
 			}
 		}
@@ -161,7 +195,7 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 	var wo Workout
 	var id int
-	var name, strength, pace, conditioning, date string
+	var name, strength, pace, conditioning, date, wodworkout string
 	db, err := sql.Open("mysql", datasource.DataSource)
 	if err != nil {
 		panic(err.Error())
@@ -172,18 +206,26 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 	//
 
 	// Get default WOD if user does not have their own workout.
-	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = ? and wo_workoutoftheday = 'Y'", d)
+	results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = ? and wo_workoutoftheday = 'Y'", d)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	// load results into Workout struct
 	for results.Next() {
-		err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date)
+		err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &wodworkout)
 		if err != nil {
 			panic(err.Error())
 		}
-		wo = Workout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date} //u = append(results)   //u, results)
+		wo = Workout{
+			ID:           id,
+			Name:         name,
+			Strength:     strength,
+			Pace:         pace,
+			Conditioning: conditioning,
+			Date:         date,
+			WODworkout:   wodworkout,
+		}
 	}
 	// Data ops
 	splitdate := strings.Split(wo.Date, "T")
@@ -196,7 +238,7 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 }
 
 // GetWODbyID get a workout by the ID -- Only returns the workout, no user values
-func GetWODbyID(woid string) AddWorkout {
+func GetWODbyID(woid string, uid string) (AddWorkout, WorkoutNotes, WodUser) {
 	var wo AddWorkout
 	var id int
 	var name, strength, pace, conditioning, date, createdby, wodworkout string
@@ -223,15 +265,28 @@ func GetWODbyID(woid string) AddWorkout {
 		if err != nil {
 			panic(err.Error())
 		}
-		wo = AddWorkout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date, CreatedBy: createdby, WODworkout: wodworkout} //u = append(results)   //u, results)
+		wo = AddWorkout{
+			ID:           id,
+			Name:         name,
+			Strength:     strength,
+			Pace:         pace,
+			Conditioning: conditioning,
+			Date:         date,
+			CreatedBy:    createdby,
+			WODworkout:   wodworkout,
+		}
 	}
 
 	// Data Ops
 	splitdate := strings.Split(wo.Date, "T")
 	wo.Date = splitdate[0]
 
-	// Return workout
-	return wo
+	// Load additional struct for usr and wod notes
+	usr := getUser(uid)
+	won := getWODNotes(wo.ID, uid)
+
+	// Send to Controller
+	return wo, won, usr
 }
 
 // GetWODNotes gets comment posted by user on WOD by ID

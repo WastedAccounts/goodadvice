@@ -18,19 +18,19 @@
     <a class="logo" href="/workouts/createwod?woid=new">Create New Workout</a>
     <br />
     <br />
-    <textarea name="id" id="id" hidden="true">{{ .ID }}</textarea>
+    <textarea name="id" id="id" hidden="true">{{ .wo.ID }}</textarea>
     <label id="edit" name="edit" hidden="true">edit</label>
     <b>Name:</b>
     <br />
-    <textarea name="name" id="name" style="width:250px;" id="name">{{.Name}}</textarea>
+    <textarea name="name" id="name" style="width:250px;" id="name">{{ .wo.Name }}</textarea>
     <br />
     <b>Strength:</b>
     <br />
-    <textarea name="strength" id="strength" style="width:250px;height:150px;" >{{.Strength}}</textarea>
+    <textarea name="strength" id="strength" style="width:250px;height:150px;" >{{ .wo.Strength }}</textarea>
     <br />
     <b>MetCon:</b>
     <br />
-    <textarea name="conditioning" id="conditioning" style="width:250px;height:150px;">{{.Conditioning}}</textarea>
+    <textarea name="conditioning" id="conditioning" style="width:250px;height:150px;">{{ .wo.Conditioning }}</textarea>
     <br />
     <b>Pace:</b><select name="pace" id="pace" value="{{.Pace}}">
     <option value="fast">Fast</option>
@@ -39,7 +39,7 @@
     <option value="slow">Slow</option>
 </select>
     <br />
-    <b>Date of workout:</b><input type="date" data-date-inline-picker="true" id="date" name="date" value="{{.Date}}" />
+    <b>Date of workout:</b><input type="date" data-date-inline-picker="true" id="date" name="date" value="{{ .wo.Date }}" />
     <br />
     <input type="submit" name="save" id="save" value="Save" formmethod="post">
     <input type="submit" name="load" id="load" value="Load" formmethod="get">

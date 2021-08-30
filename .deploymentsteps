@@ -1,19 +1,21 @@
 -- On Dev machine
 - Update README to include latest release info
 
+Copy: C:\Users\matthews\Documents\__ULTIMATE_SOFTWARE\___CodingProjects\LearnGO\goodadvice
+To: \\cloudninja\matt\homelab\k8s\go
+
+-- From WLS
 - Create new back up of DB in MySQL
 Add it to back up folder in project
-mysqldump -u root -pToolbox24 -h mysql --databases mjs --single-transaction --quick --lock-tables=false > /data/goodadvicebk/mysqlbk/goodadvice_full_bkup.$(date +"%Y%m%d.%H%M%S").sql
+mysqldump -u root -pToolbox24 -h mysql --databases mjs --single-transaction --quick --lock-tables=false > //cloudninja/homelab/k8s/go/goodadvice/SQLBackups/goodadvice_full_bkup.$(date +"%Y%m%d.%H%M%S").sql
 
 - Create new DB Structure file in MySQL
-mysqldump -u root -pPassword -h mysql --opt mjs -d --single-transaction | sed 's/ AUTO_INCREMENT=[0-9]*//g' > //cloudninja/mysqltest/teststructureonly.$(date +%F%T).sql
+mysqldump -u root -pPassword -h mysql --opt mjs -d --single-transaction | sed 's/ AUTO_INCREMENT=[0-9]*//g' > //cloudninja/homelab/k8s/go/goodadvice/Gooadvice.sql.Database.StructureOnly.0.0.9
 
-
+-- On Dev machine
 - Push to github
 git push
 
-Copy: C:\Users\matthews\Documents\__ULTIMATE_SOFTWARE\___CodingProjects\LearnGO\goodadvice
-To: \\cloudninja\matt\homelab\k8s\go
 
 -- From WLS
 - Clear out old goodadvice folder

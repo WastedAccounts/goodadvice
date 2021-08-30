@@ -18,10 +18,11 @@
     }
 </script>
 <form name="form1" id="form1" action="/workouts/wod" method="get">
-    <button type="submit" name="random" class="btn" value="Random" >Random</button>
+    <button type="submit" name="random" class="btn" value="Random">Random</button>
     <button type="button" class="btn" onclick="location.href='/workouts/createwod?woid={{ .wo.ID }}';">Create</button>
     <br>
-
+    <a href="/workouts/wod?woid=0" {{ .wo.Linkhidden }} >Go to Today's Daily WOD</a>
+    <br {{ .wo.Linkhidden }} ><br {{ .wo.Linkhidden }} >
     <b><label id="hello">{{ .usr.Greeting }}, {{ .usr.FirstName }}! </label>
         <br>
         <script type="text/javascript">
@@ -88,7 +89,11 @@
     <br>
     <textarea name="notes" style="width:225px;height:100px;" id="notes" type="string">{{ .won.Notes }}</textarea>
     <br>
-    <input type="submit" value="Save Workout" name="savenotes" formaction="/workouts/wod" formmethod="post"/>
+    <input type="submit" value="Save" name="savenotes" formaction="/workouts/wod" formmethod="post"/>
+    <button type="button" class="btn" onclick="location.href='/workouts/share?woid={{ .wo.ID }}';">Share</button>
+
+
+
 </form>
 </body>
 {{ template "footer" . }}

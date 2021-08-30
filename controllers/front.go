@@ -21,7 +21,7 @@ var guestabouttpl = template.Must(template.ParseFiles("htmlpages/about.html", "h
 
 func RegisterControllers() {
 	//uc := newUserController()
-	woc := workouts.NewWorkoutController()
+
 	lc := newLoginController()
 	sc := newSignupController()
 	loc := newLogOutController()
@@ -29,6 +29,8 @@ func RegisterControllers() {
 	pc := profile.NewProfileController()
 	authc := auth.NewAuthController()
 	msgc := messaging.NewMsgController()
+	woc := workouts.NewWorkoutController()
+	share := workouts.NewShareController()
 	http.HandleFunc("/", index)
 	http.HandleFunc("/about", about)
 	http.Handle("/admin", *adm)
@@ -37,12 +39,13 @@ func RegisterControllers() {
 	http.Handle("/login/", *lc)
 	http.Handle("/signup", *sc)
 	http.Handle("/signup/", *sc)
-	http.Handle("/workouts/", *woc)
 	http.Handle("/logout", *loc)
 	http.Handle("/logout/", *loc)
 	http.Handle("/profile/", *pc)
 	http.Handle("/auth/", *authc)
 	http.Handle("/messaging/", *msgc)
+	http.Handle("/workouts/", *woc)
+	http.Handle("/canyoubeatme", *share)
 
 	//// Test page
 	//http.HandleFunc("/test", test)

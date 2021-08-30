@@ -1,17 +1,14 @@
 Welcome to thisisgoodadvice.com - A README
 
-0.0.8y Change log
-Major Reorg of the UI
-    Streamlined header and footer menus
-Added more Profile functionality
-    You can now added, edit and review past PRs. 
-    Save some information about yourself
-Add Email confirmation on signup
-    You'll receive and email with a 6 digit code to verify yourself
-Sessions are now valid for 48 hours from your last action in the app. 
-    After that you'll need to log in again. 
-Suggestion Box
-    Users can submit ideas
+0.0.9 Change log
+Added user created workouts
+    Use "Write Your Own Workout" link on homepage 
+    Or copy and edit today's WOD with the "Create" link on the WOD page
+
+Share a workout with friends. 
+    Link at bottom will take you toa page that create a URL you can share
+    Friends don't need to be logged in or have an accounts to see the workout. 
+
 
 
 goodadvice is a fitness tracking app 
@@ -40,5 +37,20 @@ Leader Boards
 Coach Level Role 
     Have a list of your own clients that you coach
 Search functionality
+
+
+
+0.0.8y Change log
+Major Reorg of the UI
+Streamlined header and footer menus
+Added more Profile functionality
+You can now added, edit and review past PRs.
+Save some information about yourself
+Add Email confirmation on signup
+You'll receive and email with a 6 digit code to verify yourself
+Sessions are now valid for 48 hours from your last action in the app.
+After that you'll need to log in again.
+Suggestion Box
+Users can submit ideas
     
 

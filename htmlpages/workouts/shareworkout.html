@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Share this Workout</title>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+</head>
+{{ template "header" . }}
+<body>
+<ul class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li><a href="/workouts/wod">Today's Workout</a></li>
+  <li>Share Workout</li>
+</ul>
+<p>Copy the link below and share this workout with friends. <br>
+  They don't need to have an account to see the workout.</p>
+
+<br>
+<label>https://thisisgoodadvice.com/canyoubeatme?woid={{ .woid }}</label>
+<br>
+<br>
+</body>
+{{ template "footer" . }}
+</html>

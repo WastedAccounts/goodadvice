@@ -16,30 +16,30 @@
     <li>User Create Workout</li>
 </ul>
 <form action="/workouts/createwod">
-    <textarea id="id" name="id" hidden>{{ .ID }}</textarea><br>
-    <label id="msg" name="msg"><b style="color:red; "> {{ .Message }}</b></label>
+    <textarea id="id" name="id" hidden>{{ .wo.ID }}</textarea><br>
+    <label id="msg" name="msg"><b style="color:red; "> {{ .wo.Message }}</b></label>
     <br>
     <br>
     <b>Name:</b>
     <br>
-    <textarea name="name" id="name" style="width:250px;" id="name">{{ .Name }}</textarea>
+    <textarea name="name" id="name" style="width:250px;" id="name">{{ .wo.Name }}</textarea>
     <br>
     <b>Strength work:</b>
     <br>
-    <textarea name="strength" id="strength" style="width:250px;height:150px;">{{ .Strength }}</textarea>
+    <textarea name="strength" id="strength" style="width:250px;height:150px;">{{ .wo.Strength }}</textarea>
     <br>
     <b>Conditioning work:</b>
     <br>
-    <textarea name="conditioning" id="conditioning" style="width:250px;height:150px;">{{ .Conditioning }}</textarea>
+    <textarea name="conditioning" id="conditioning" style="width:250px;height:150px;">{{ .wo.Conditioning }}</textarea>
     <br>
-    <b>Pace:</b><select name="pace" id="pace" value="{{ .Pace }}">
+    <b>Pace:</b><select name="pace" id="pace" value="{{ .wo.Pace }}">
     <option value="fast">Fast</option>
     <!--option-- value="moderate">Moderate</option-->
     <option value="steady">Steady</option>
     <option value="slow">Slow</option>
 </select>
     <br>
-    <b>Date of workout:</b><input type="date" data-date-inline-picker="true" id="date" name="date" value="{{ .Date }}"/>
+    <b>Date of workout:</b><input type="date" data-date-inline-picker="true" id="date" name="date" value="{{ .wo.Date }}"/>
     <br>
     <input type="submit" name="save" id="save" value="Save" formmethod="post">
     <input type="submit" name="load" id="load" value="Load" formmethod="get">
