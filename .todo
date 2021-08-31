@@ -1,17 +1,23 @@
-===================DB CHANGES WHEN RELEASING===================
 
+===================0.0.9 BUGS===================
+
+
+
+
+
+
+===================DB CHANGES WHEN RELEASING===================
+None currently.
 
 ===================PRIORITY===================
-Shareable link for workouts
-    link on workout page "Share this work"
-    Show users time if there is one.
 
-A way to get back to the WOD if a user has created or been assigned a workout
 
 Show app version in footer
 Display app and DB version in Admin
 
 ===================WANTS===================
+Show users time if there is one on shared workouts.
+
 A place under admin to review and mark read suggestions
 
 Workout Leader board
@@ -40,6 +46,11 @@ Disclaimer in Registry
 
 
 ===================DONE===================
+Shareable link for workouts
+    link on workout page "Share this work"
+    Show users time if there is one.
+
+A way to get back to the WOD if a user has created or been assigned a workout
 User Create/Edit Load isn't loading a workout.
 
 User workouts
@@ -56,6 +67,13 @@ Add About Page
     to describe the site and put up the disclaimer
 
 User Feed back page for users to submit feed back
+
+==========BUGS FIXED===========
+Save workout saves the workout but doesn't properly redisplay it.
+    FIX - Join was breaking if no data was in one of the tables
+Admin user WastedAccounts(uid: 2) loads the last workout they wrote when loading WOD
+Need to test regular user create workouts. I think it does the same thing.
+    FIX - missing column name for date selection in models.GetWOD
 
 
 ===================OLD TO DO LIST NEED TO REORG IT===================

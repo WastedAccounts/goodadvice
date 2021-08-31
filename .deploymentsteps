@@ -1,3 +1,10 @@
+THIS IS OUT OF ORDER AND A BIT OF A MESS
+Too much manual copying of data for backups from WLS to CloudNinja and local Dev laptop for git
+
+BACK UP K8s etcd from k8s box
+sudo ETCDCTL_API=3 etcdctl --endpoints=https://192.168.10.50:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key snapshot save /data/etcdbk/etcd_backup.$(date +"%Y%m%d.%H%M%S").bk
+cp /data/etcdbk/etcd_backup.20210830.163205.bk //cloudninja/homelab/etcdbk/
+
 -- On Dev machine
 - Update README to include latest release info
 

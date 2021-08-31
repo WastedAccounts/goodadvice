@@ -26,15 +26,15 @@ type Workout struct {
 }
 
 type WorkoutNotes struct {
-	ID       int    // `json:"ID"`
-	WoId     int    //`json:"WoId"`
-	UserName string //`json:"UserName"`
-	UserId   string //`json:"UserId"`
-	Notes    string //`json:"Notes"`
-	Minutes  string
-	Seconds  string
-	Loved    string
-	Hated    string
+	ID         int    // `json:"ID"`
+	WoId       int    //`json:"WoId"`
+	UserName   string //`json:"UserName"`
+	UserId     string //`json:"UserId"`
+	Notes      string //`json:"Notes"`
+	Minutes    string
+	Seconds    string
+	Loved      sql.NullString //string
+	Hated      sql.NullString //string
 }
 
 type WodUser struct {
@@ -111,7 +111,7 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 	} else {
 		// need to check for and then pull the workout
 		// First we'll check if they wrote themself a work out for today
-		results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where CURRENT_DATE() and wo_createdby = ?", uid)
+		results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = CURRENT_DATE() and wo_createdby = ?", uid)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -134,7 +134,7 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 		if wo.ID == 0 {
 			// Next well check if they have a Coach assigned workout
 			// Need some way to get the correct WORKOUT_ID from a table and in put that here
-			results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where CURRENT_DATE() and ID = ?", 0)
+			results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = CURRENT_DATE() and ID = ?", 0)
 			if err != nil {
 				panic(err.Error())
 			}
@@ -153,7 +153,7 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 					WODworkout:   wodworkout,
 				}
 			}
-			// If we don't get results from that call then the user doesn't have a coach assigned workout for that day and we'll move on to loading the daily WOD
+			// If we don't get results from that call then we'll just load the daily WOD
 			if wo.ID == 0 {
 				// If we don't have an ID or a user created or coach assigned WOD we'll assume they're a guest or new here and get the latest WOD
 				results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = CURRENT_DATE() and wo_workoutoftheday = 'Y'")
@@ -305,12 +305,12 @@ func getWODNotes(woid int, userid string) WorkoutNotes {
 	defer db.Close()
 
 	// Query for workout notes
-	results, err := db.Query("SELECT c.ID,c.user_id,c.workout_id,c.comment,c.time,uwr.loved,uwr.hated FROM comments c JOIN user_workout_rating uwr ON uwr.workoutid = c.workout_id where user_id = ? and workout_id = ?", uid, wid)
+	results, err := db.Query("SELECT c.ID,c.user_id,c.workout_id,c.comment,c.time,uwr.loved,uwr.hated FROM (select 1) dummy LEFT JOIN comments c ON c.user_id = ? LEFT JOIN user_workout_rating uwr ON uwr.workoutid = c.workout_id where c.workout_id = ?", uid, wid)
 	if err != nil {
 		panic(err.Error())
 	}
 	for results.Next() {
-		err = results.Scan(&id, &userid, &woid, &notes, &time, &loved, &hated)
+		err = results.Scan(&id, &userid,&woid,&notes,&time,&sql.NullString{String: loved, Valid: true},&sql.NullString{String: hated, Valid: true})
 		if err != nil {
 			panic(err.Error())
 		}
@@ -332,7 +332,16 @@ func getWODNotes(woid int, userid string) WorkoutNotes {
 		} else {
 			hated = ""
 		}
-		won = WorkoutNotes{ID: id, UserId: userid, WoId: woid, Notes: notes, Minutes: min, Seconds: sec, Loved: loved, Hated: hated} //u = append(results)   //u, results)
+		won = WorkoutNotes{
+			ID:      id,
+			UserId:  userid,
+			WoId:    woid,
+			Notes:   notes,
+			Minutes: min,
+			Seconds: sec,
+			Loved:   sql.NullString{String: loved, Valid: true},
+			Hated:   sql.NullString{String: hated, Valid: true},
+		}
 	}
 	return won
 }
