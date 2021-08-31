@@ -1,6 +1,8 @@
 Welcome to thisisgoodadvice.com - A README
 
-0.0.9 Change log
+0.0.9y Change log
+9y changes:
+    bug fixes
 Added user created workouts
     Use "Write Your Own Workout" link on homepage 
     Or copy and edit today's WOD with the "Create" link on the WOD page
