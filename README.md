@@ -1,16 +1,15 @@
 Welcome to thisisgoodadvice.com - A README
 
-0.0.9y Change log
-9y changes:
-    bug fixes
+0.0.9 Change log
 Added user created workouts
     Use "Write Your Own Workout" link on homepage 
     Or copy and edit today's WOD with the "Create" link on the WOD page
 
 Share a workout with friends. 
     Link at bottom will take you toa page that create a URL you can share
-    Friends don't need to be logged in or have an accounts to see the workout. 
-
+    Friends don't need to be logged in or have an accounts to see the workout.
+0.0.9x Change log:
+bug fixes
 
 
 goodadvice is a fitness tracking app 
