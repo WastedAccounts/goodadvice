@@ -102,7 +102,7 @@ func LoadMovements() Movements {
 	if err != nil {
 		panic(err.Error())
 	}
-	movements, err := db.Query("SELECT movementname FROM mjs.movements;")
+	movements, err := db.Query("SELECT movementname FROM movements ORDER BY movementtype,movementname;")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -304,8 +304,10 @@ func age(birthdate, today time.Time) int {
 
 // LoadALLPersonalRecords - loads all history of PR values to the Records Struct
 func LoadALLPersonalRecords(uid string) Records {
-	var rec Records
 	// Records struct var
+	var rec Records
+
+	// vars
 	var movement, pr, display, movementname string
 	var date time.Time
 	db, err := sql.Open("mysql", datasource.DataSource)
@@ -313,7 +315,7 @@ func LoadALLPersonalRecords(uid string) Records {
 		panic(err.Error())
 	}
 
-	// THis code will fill the Records struct
+	// This code will fill the Records struct
 	movementresults, err := db.Query("select m.movementname, u.prvalue, u.prdate From user_pr u join movements m ON m.ID = u.movementid where u.userid = ?", uid)
 	if err != nil {
 		panic(err.Error())
@@ -326,8 +328,8 @@ func LoadALLPersonalRecords(uid string) Records {
 		d := strings.Split(date.String(), " ")
 		display += movement + ": " + pr + " set on: " + d[0] + "\r"
 	}
-	//rec.Record = display
-	movements, err := db.Query("SELECT movementname FROM mjs.movements;")
+
+	movements, err := db.Query("SELECT movementname FROM movements;")
 	if err != nil {
 		panic(err.Error())
 	}
@@ -336,9 +338,7 @@ func LoadALLPersonalRecords(uid string) Records {
 		if err != nil {
 			panic(err.Error())
 		}
-		//rec.Movements = append(rec.Movements ,movementname)
 	}
-	//currentTime := time.Now()
-	//rec.Date = currentTime.Format("01/02/2006")
+
 	return rec
 }

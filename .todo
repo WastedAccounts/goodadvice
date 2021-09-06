@@ -1,6 +1,7 @@
 
 ===================0.0.9 BUGS===================
 
+Admin/AddWOD is not setting the Y flag for workout of the day? It was, then it stopped, strange. 
 
 
 

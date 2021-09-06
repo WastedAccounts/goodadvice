@@ -1,7 +1,6 @@
 package workouts
 
 import (
-	"fmt"
 	"goodadvice/v1/models"
 	"goodadvice/v1/models/workouts"
 	"html/template"
@@ -383,21 +382,24 @@ func loadWODEdit(w http.ResponseWriter, r *http.Request, admin bool, uid string)
 // postWOD - write workout to the database and reloads it to the page
 func postWOD(w http.ResponseWriter, r *http.Request, uid string, admin bool) {
 	wo := workouts.AddWOD(r, uid, false)
+	data := M{
+		"wo":  wo,
+	}
 	if wo.Message == "" {
-		fmt.Println("msg null")
+		//fmt.Println("msg null")
 		Edit = true
 		if admin == true {
-			admineditwodtpl.Execute(w, wo)
+			admineditwodtpl.Execute(w, data)
 		} else {
-			usereditworkouttpl.Execute(w, wo)
+			usereditworkouttpl.Execute(w, data)
 		}
 	} else {
-		fmt.Println("msg not null", wo.Message)
+		//fmt.Println("msg not null", wo.Message)
 		Edit = false
 		if admin == true {
-			adminaddwodtpl.Execute(w, wo)
+			adminaddwodtpl.Execute(w, data)
 		} else {
-			useraddworkouttpl.Execute(w, wo)
+			useraddworkouttpl.Execute(w, data)
 		}
 	}
 }
@@ -407,10 +409,13 @@ func editWOD(w http.ResponseWriter, r *http.Request, uid string, admin bool) {
 	workouts.EditAddWOD(r, uid, true)
 	Edit = true
 	wo := workouts.GetAddWODbyID(r.FormValue("id"))
+	data := M{
+		"wo":  wo,
+	}
 	if admin == true {
-		admineditwodtpl.Execute(w, wo)
+		admineditwodtpl.Execute(w, data)
 	} else {
-		usereditworkouttpl.Execute(w, wo)
+		usereditworkouttpl.Execute(w, data)
 	}
 
 }

@@ -26,8 +26,8 @@ type Workout struct {
 }
 
 type WorkoutNotes struct {
-	ID         int    // `json:"ID"`
-	WoId       int    //`json:"WoId"`
+	ID         string    // `json:"ID"`
+	WoId       string    //`json:"WoId"`
 	UserName   string //`json:"UserName"`
 	UserId     string //`json:"UserId"`
 	Notes      string //`json:"Notes"`
@@ -47,7 +47,7 @@ type WodUser struct {
 }
 
 type AddWorkout struct {
-	ID           int    //`json:"ID"`
+	ID           string //int    //`json:"ID"`
 	Name         string //`json:"Name"`
 	Strength     string //`json:"Strength"`
 	Pace         string //`json:"Pace"`
@@ -185,7 +185,7 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 
 	// Load additional struct for usr and wod notes
 	usr := getUser(uid)
-	won := getWODNotes(wo.ID, uid)
+	won := getWODNotes(string(wo.ID), uid)
 
 	// Send to Controller
 	return wo, won, usr
@@ -232,7 +232,7 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 	wo.Date = splitdate[0]
 
 	// Load additional struct for usr and wod notes
-	won := getWODNotes(wo.ID, uid)
+	won := getWODNotes(string(wo.ID), uid)
 	usr := getUser(uid)
 	return wo, won, usr
 }
@@ -266,7 +266,7 @@ func GetWODbyID(woid string, uid string) (AddWorkout, WorkoutNotes, WodUser) {
 			panic(err.Error())
 		}
 		wo = AddWorkout{
-			ID:           id,
+			ID:           "",
 			Name:         name,
 			Strength:     strength,
 			Pace:         pace,
@@ -290,12 +290,11 @@ func GetWODbyID(woid string, uid string) (AddWorkout, WorkoutNotes, WodUser) {
 }
 
 // GetWODNotes gets comment posted by user on WOD by ID
-func getWODNotes(woid int, userid string) WorkoutNotes {
+func getWODNotes(woid string, userid string) WorkoutNotes {
 	var won WorkoutNotes
-	var id int
+	var id string
 	var notes, time, min, sec, loved, hated string
 	uid := userid
-	wid := strconv.Itoa(woid)
 
 	// OPen DB Conn
 	db, err := sql.Open("mysql", datasource.DataSource)
@@ -305,7 +304,7 @@ func getWODNotes(woid int, userid string) WorkoutNotes {
 	defer db.Close()
 
 	// Query for workout notes
-	results, err := db.Query("SELECT c.ID,c.user_id,c.workout_id,c.comment,c.time,uwr.loved,uwr.hated FROM (select 1) dummy LEFT JOIN comments c ON c.user_id = ? LEFT JOIN user_workout_rating uwr ON uwr.workoutid = c.workout_id where c.workout_id = ?", uid, wid)
+	results, err := db.Query("SELECT c.ID,c.user_id,c.workout_id,c.comment,c.time,uwr.loved,uwr.hated FROM (select 1) dummy LEFT JOIN comments c ON c.user_id = ? LEFT JOIN user_workout_rating uwr ON uwr.workoutid = c.workout_id where c.workout_id = ?", uid, woid)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -641,7 +640,7 @@ func GetRandomWorkout() string {
 func AdminAddWOD(r *http.Request, uid string) AddWorkout {
 	// Vars
 	awo := AddWorkout{
-		ID:           0,
+		ID:           "",
 		Name:         r.FormValue("name"),
 		Strength:     r.FormValue("strength"),
 		Pace:         r.FormValue("pace"),
@@ -672,7 +671,7 @@ func AdminAddWOD(r *http.Request, uid string) AddWorkout {
 				panic(err.Error())
 			}
 			insertid, _ := insert.LastInsertId()
-			awo.ID = int(insertid)
+			awo.ID = string(insertid) //int(insertid)
 		}
 	} else {
 		insert, err := db.Exec("insert into workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) values (?,?,?,?,?,?,'N')", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid)
@@ -680,7 +679,7 @@ func AdminAddWOD(r *http.Request, uid string) AddWorkout {
 			panic(err.Error())
 		}
 		insertid, _ := insert.LastInsertId()
-		awo.ID = int(insertid)
+		awo.ID = string(insertid) //int(insertid)
 	}
 	// Date Ops
 	if awo.WODworkout == "on" { // set value so we can set the checked state of the check box
@@ -707,7 +706,7 @@ func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 		wodworkout = "N"
 	}
 	awo := AddWorkout{
-		ID:           0,
+		ID:           "",
 		Name:         r.FormValue("name"),
 		Strength:     r.FormValue("strength"),
 		Pace:         r.FormValue("pace"),
@@ -740,7 +739,7 @@ func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 			panic(err.Error())
 		}
 		insertid, _ := insert.LastInsertId()
-		awo.ID = int(insertid)
+		awo.ID = string(insertid)
 
 		// Data Ops
 		// Set up date for display
@@ -821,8 +820,7 @@ func GetAddWODbydate(d string, uid string) Workout {
 func GetAddWODbyID(woid string) AddWorkout {
 	// Setup Vars
 	var wo AddWorkout
-	var id int
-	var name, strength, pace, conditioning, wodworkout string
+	var name,strength,pace,conditioning,wodworkout,id string
 	var date string
 
 	// Open DB Conn
@@ -846,7 +844,15 @@ func GetAddWODbyID(woid string) AddWorkout {
 		if err != nil {
 			panic(err.Error())
 		}
-		wo = AddWorkout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date, WODworkout: wodworkout} //u = append(results)   //u, results)
+		wo = AddWorkout{
+			ID: id,
+			Name: name,
+			Strength: strength,
+			Pace: pace,
+			Conditioning: conditioning,
+			Date: date,
+			WODworkout: wodworkout,
+		} //u = append(results)   //u, results)
 	}
 
 	// Date Ops

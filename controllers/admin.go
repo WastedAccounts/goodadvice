@@ -89,7 +89,7 @@ func (ac adminController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					models.UpdateUser(r.FormValue("userID"), submit)
 					pageLoadUser(w, r)
 				} else {
-					fmt.Println("notmovements lol")
+					fmt.Println("notmovements")
 				}
 			default:
 				w.WriteHeader(http.StatusNotImplemented)
