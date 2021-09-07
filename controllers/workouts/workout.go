@@ -371,11 +371,14 @@ func pageLoadAddWorkout(w http.ResponseWriter, admin bool) {
 // loadWOD - loads workout for selected date
 func loadWODEdit(w http.ResponseWriter, r *http.Request, admin bool, uid string) {
 	wo := workouts.GetAddWODbydate(r.FormValue("date"), uid)
+	data := M{
+		"wo":  wo,
+	}
 	Edit = true
 	if admin == true {
-		admineditwodtpl.Execute(w, wo)
+		admineditwodtpl.Execute(w, data)
 	} else {
-		usereditworkouttpl.Execute(w, wo)
+		usereditworkouttpl.Execute(w, data)
 	}
 }
 

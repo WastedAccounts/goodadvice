@@ -889,7 +889,7 @@ func EditAddWOD(r *http.Request, uid string, edit bool) string {
 		Conditioning: r.FormValue("conditioning"),
 		Date:         r.FormValue("date"),
 		Message:      "",
-		WODworkout:   r.PostFormValue("wodcb"),
+		WODworkout:   wodworkout, // r.PostFormValue("wodcb"),
 	}
 
 	// Check workout values
