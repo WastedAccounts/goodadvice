@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"goodadvice/v1/appinit"
 	"goodadvice/v1/controllers"
+	"goodadvice/v1/datasource"
 	"net/http"
 )
 
 func main() {
 	fmt.Println("Server is starting")
-	//
-	//fmt.Println("Email sent????")
-	//emailVerification()
 	appinit.Init()
 	fmt.Println("App initialization complete")
 	controllers.RegisterControllers()
@@ -22,6 +20,7 @@ func main() {
 	fmt.Println("Serving asset files complete")
 	http.ListenAndServe(":3000", nil)
 	fmt.Println("Server has stopped")
+	defer datasource.DBconn.Close()
 }
 
 //func emailVerification() {

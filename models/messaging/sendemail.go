@@ -2,7 +2,6 @@ package messaging
 
 import (
 	"crypto/rand"
-	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"goodadvice/v1/datasource"
@@ -73,30 +72,24 @@ func VerificationEmail(newuid int64) {
 	var regVal string      // for each value is registry query result
 	var regValues []string // array of registry results to feed into Email struct
 
-	// Open DB connection to query for values
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		// If there is any issue with inserting into the database, return a 500 error
-		panic(err.Error())
-	}
-	defer db.Close()
 	// Generate confirmation code
 	code := GenerateConfCode(6)
 
 	// write code to db
-	writeCode, err := db.Exec("INSERT INTO email_verification (userid, verification_code, expires) VALUE (?,?,UTC_TIMESTAMP() + INTERVAL 10 MINUTE)", newuid, code)
+	_, err := datasource.DBconn.Exec("INSERT INTO email_verification (userid, verification_code, expires) VALUE (?,?,UTC_TIMESTAMP() + INTERVAL 10 MINUTE)", newuid, code)
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
 	}
-	// Get code ID from verification table to use for verifying users code
-	_, err = writeCode.LastInsertId()
+	//// Get code ID from verification table to use for verifying users code
+	//_, err = writeCode.LastInsertId()
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
 	}
 	// Query user table for user info
-	getUserInfo, err := db.Query("select username,emailaddress from users where ID = ?", newuid)
+	getUserInfo, err := datasource.DBconn.Query("SELECT username,emailaddress FROM users WHERE ID = ?", newuid)
+	defer getUserInfo.Close()
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
@@ -107,10 +100,10 @@ func VerificationEmail(newuid int64) {
 			log.Fatal(err)
 		}
 	}
-	getUserInfo.Close()
 
 	// Query for Admin and SMTP information
-	getAdminInfo, err := db.Query("SELECT value FROM registry WHERE name IN ('SMTP_SERVER','SMTP_USER','SMTP_PW','SMTP_PORT','ADMIN_NAME','ADMIN_EMAIL') ORDER BY name DESC;")
+	getAdminInfo, err := datasource.DBconn.Query("SELECT value FROM registry WHERE name IN ('SMTP_SERVER','SMTP_USER','SMTP_PW','SMTP_PORT','ADMIN_NAME','ADMIN_EMAIL') ORDER BY name DESC;")
+	defer getAdminInfo.Close()
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
@@ -122,7 +115,7 @@ func VerificationEmail(newuid int64) {
 		}
 		regValues = append(regValues, regVal)
 	}
-	getUserInfo.Close()
+	//getUserInfo.Close()
 
 	// load registry results from array into struct
 	e.smtpUser = regValues[0]
@@ -133,7 +126,8 @@ func VerificationEmail(newuid int64) {
 	e.adminEmail = regValues[5]
 
 	// Query for Message format
-	getEmailMessage, err := db.Query("SELECT message_subject,message_body FROM message_templates WHERE message_name = 'VerificationEmail';")
+	getEmailMessage, err := datasource.DBconn.Query("SELECT message_subject,message_body FROM message_templates WHERE message_name = 'VerificationEmail';")
+	defer getEmailMessage.Close()
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
@@ -144,7 +138,7 @@ func VerificationEmail(newuid int64) {
 			log.Fatal(err)
 		}
 	}
-	getEmailMessage.Close()
+	//getEmailMessage.Close()
 
 	// load confirmation code into email body
 	e.body = fmt.Sprintf(e.body, code)

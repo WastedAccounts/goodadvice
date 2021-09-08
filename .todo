@@ -1,8 +1,11 @@
 
 ===================0.0.9 BUGS===================
 
-
-
+DB connection changes
+    models/Login.go
+        models.ValidateSession
+    models/admin.go
+        GetVersion
 
 
 

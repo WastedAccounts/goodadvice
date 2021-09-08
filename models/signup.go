@@ -1,8 +1,6 @@
 package models
 
 import (
-	"database/sql"
-	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
 	"golang.org/x/crypto/bcrypt"
 	"goodadvice/v1/datasource"
@@ -30,9 +28,9 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	// Salt and hash the password using the bcrypt algorithm
 	// The second argument is the cost of hashing, which we arbitrarily set as 8 (this value can be more or less, depending on the computing power you wish to utilize)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(nu.Password), 8)
+
 	// Next, insert the user values and hashed password into the database
-	db, err := sql.Open("mysql", datasource.DataSource)
-	insertuser, err := db.Exec("insert into users (username, firstname,lastlogindate,emailaddress,password,createdate) values (?,?,CURDATE(),?,?,CURDATE())", nu.User, nu.Firstname, nu.Email, string(hashedPassword))
+	insertuser, err := datasource.DBconn.Exec("insert into users (username, firstname,lastlogindate,emailaddress,password,createdate) values (?,?,CURDATE(),?,?,CURDATE())", nu.User, nu.Firstname, nu.Email, string(hashedPassword))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -43,7 +41,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		panic(err.Error())
 	}
 	//Create an empty profile record
-	insertprofile, err := db.Exec("INSERT INTO user_profile (userid,userbirthday,userweight) VALUES (?,NOW() - INTERVAL 21 YEAR,120);", newuid)
+	insertprofile, err := datasource.DBconn.Exec("INSERT INTO user_profile (userid,userbirthday,userweight) VALUES (?,NOW() - INTERVAL 21 YEAR,120);", newuid)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -59,9 +57,10 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 
 func CheckEmail(r *http.Request) bool {
 	ef := false
-	db, err := sql.Open("mysql", datasource.DataSource)
-	//esq := fmt.Sprintf("select ID from users where emailaddress = '%s'", r.FormValue("email"))
-	chkemail, err := db.Query("select ID from users where emailaddress = ?", r.FormValue("email"))
+
+	// query db
+	chkemail, err := datasource.DBconn.Query("select ID from users where emailaddress = ?", r.FormValue("email"))
+	defer chkemail.Close()
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
@@ -83,9 +82,10 @@ func CheckEmail(r *http.Request) bool {
 
 func CheckUsername(r *http.Request) bool {
 	uf := false
-	db, err := sql.Open("mysql", datasource.DataSource)
-	usq := fmt.Sprintf("select ID from users where username = '%s'", r.FormValue("username"))
-	chkusername, err := db.Query(usq)
+
+	// query db
+	chkusername, err := datasource.DBconn.Query("SELECT ID FROM users WHERE username = ?", r.FormValue("username"))
+	defer chkusername.Close()
 	if err != nil {
 		// If there is any issue with inserting into the database, return a 500 error
 		panic(err.Error())
@@ -97,7 +97,7 @@ func CheckUsername(r *http.Request) bool {
 			log.Fatal(err)
 		}
 	}
-	chkusername.Close()
+	//chkusername.Close()
 	if checkUsername != 0 {
 		//if username already exists (not 0) return true
 		uf = true

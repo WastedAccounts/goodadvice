@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"github.com/segmentio/ksuid"
 	"golang.org/x/crypto/bcrypt"
 	"goodadvice/v1/datasource"
@@ -41,12 +40,10 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 		Username: r.FormValue("username"),
 		Password: r.FormValue("password"),
 	}
-	// Get the existing entry present in the database for the given username
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	GetCreds, err := db.Query("select ID, password,isactive from users where username = ?", creds.Username) //("select password,isactive from users where username='?'", creds.Username)
+
+	//query db
+	GetCreds, err := datasource.DBconn.Query("select ID, password,isactive from users where username = ?", creds.Username) //("select password,isactive from users where username='?'", creds.Username)
+	defer GetCreds.Close()
 	for GetCreds.Next() {
 		err := GetCreds.Scan(&id, &password, &isactive)
 		if err != nil {
@@ -67,13 +64,12 @@ func Login(w http.ResponseWriter, r *http.Request) bool {
 	}
 	// Capture login date and IP to login_history table
 	currentTime := time.Now().Format("2006-01-02 15:04:05")
-	insert, err := db.Exec("INSERT INTO login_history (user_id, login_date, user_ip) VALUES (?, ?, ?)", id, currentTime, r.RemoteAddr)
+	insert, err := datasource.DBconn.Exec("INSERT INTO login_history (user_id, login_date, user_ip) VALUES (?, ?, ?)", id, currentTime, r.RemoteAddr)
 	if err != nil {
 		panic(err.Error())
 	}
 	insert.RowsAffected()
-	//close DB connection
-	defer db.Close()
+
 	// return success
 	success = true
 	return success
@@ -89,12 +85,9 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	// Generate unique session value
 	id := ksuid.New()
 
-	// Open DB connection
-	db, err := sql.Open("mysql", datasource.DataSource)
-	defer db.Close()
-
 	// Get user ID from users table by searching for username
-	checkID, err := db.Query("select ID from users where username = ?", r.FormValue("username")) //(getIDqs)
+	checkID, err := datasource.DBconn.Query("select ID from users where username = ?", r.FormValue("username")) //(getIDqs)
+	defer checkID.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -105,7 +98,8 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	checkSessionID, err := db.Query("select ID from user_session where userid = ?", uid)
+	checkSessionID, err := datasource.DBconn.Query("select ID from user_session where userid = ?", uid)
+	defer checkSessionID.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -117,18 +111,16 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	}
 	if sessionID == 0 {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		insert, err := db.Query("insert into user_session (userid,sessionstart,sessionkey) value(?, ?, ?)", uid, currentTime, id) //(insertQry)
+		_, err := datasource.DBconn.Exec("INSERT INTO user_session (userid,sessionstart,sessionkey) VALUE (?, ?, ?)", uid, currentTime, id) //(insertQry)
 		if err != nil {
 			panic(err.Error())
 		}
-		insert.Close()
 	} else {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		update, err := db.Query("update user_session set sessionstart = ?, sessionkey = ? where userid = ?", currentTime, id, uid) //(updateQry)
+		_, err := datasource.DBconn.Exec("UPDATE user_session SET sessionstart = ?, sessionkey = ? WHERE userid = ?", currentTime, id, uid) //(updateQry)
 		if err != nil {
 			panic(err.Error())
 		}
-		update.Close()
 	}
 	checkID.Close()
 	//create cookie on client
@@ -156,10 +148,9 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 		userauth.IsActive = false
 		return userauth
 	}
-	// write to DB
-	db, err := sql.Open("mysql", datasource.DataSource)
-	// Check if user is Active and their role
-	checkAdmin, err := db.Query("select isactive,isadmin from users where ID = ?", userauth.Uid) //(checkAdminqs)
+
+	checkAdmin, err := datasource.DBconn.Query("SELECT isactive,isadmin FROM users WHERE ID = ?", userauth.Uid) //(checkAdminqs)
+	defer checkAdmin.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -185,7 +176,8 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 
 	// validate session is LESS then 48 hours old
 	//checkSessionAgeqs := fmt.Sprintf("select ID,sessionstart from user_session where userid = '%s' and sessionkey = '%s'", c.Uid, c.Sessionkey)
-	checkSessionAge, err := db.Query("select ID,sessionstart from user_session where userid = ? and sessionkey = ?", userauth.Uid, userauth.Sessionkey) //(checkSessionAgeqs)
+	checkSessionAge, err := datasource.DBconn.Query("SELECT ID,sessionstart FROM user_session WHERE userid = ? AND sessionkey = ?", userauth.Uid, userauth.Sessionkey) //(checkSessionAgeqs)
+	defer checkSessionAge.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -206,12 +198,13 @@ func ValidateSession(w http.ResponseWriter, r *http.Request) UserAuth {
 		userauth.Sessionkey = ""
 	} else {
 		currentTime := time.Now().Format("2006-01-02 15:04:05")
-		//updateQry := fmt.Sprintf("update user_session set sessionstart = '%s', sessionkey = '%s' where ID = '%d'", currentTime, suid, sessionID)
-		update, err := db.Query("update user_session set sessionstart = ?, sessionkey = ? where ID = ?", currentTime, suid, sessionID) //(updateQry)
+
+		// update db
+		_, err := datasource.DBconn.Exec("UPDATE user_session SET sessionstart = ?, sessionkey = ? WHERE ID = ?", currentTime, suid, sessionID) //(updateQry)
 		if err != nil {
 			panic(err.Error())
 		}
-		update.Close()
+
 		// update cookie on client
 		cookieID = userauth.Uid + "/" + suid.String()
 		expiration := time.Now().Add(365 * 24 * time.Hour)

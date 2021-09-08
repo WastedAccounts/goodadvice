@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"database/sql"
 	"goodadvice/v1/datasource"
 	"goodadvice/v1/models"
 	"log"
@@ -19,11 +18,9 @@ func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool, string) {
 	webcode := r.FormValue("code")
 	expiredby := time.Now().UTC()
 
-	// open db conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	defer db.Close()
-	// pulls code and expire time from db to validate
-	checkCode, err := db.Query("SELECT verification_code,expires FROM email_verification WHERE userid = ?;", c.Uid) //(checkSessionAgeqs)
+	// query db
+	checkCode, err := datasource.DBconn.Query("SELECT verification_code,expires FROM email_verification WHERE userid = ?;", c.Uid) //(checkSessionAgeqs)
+	defer checkCode.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -47,8 +44,7 @@ func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool, string) {
 		msg = "Success"
 		//activate user UPDATE users SET isactive = 1 WHERE ID = ?;
 		// Get the existing entry present in the database for the given username
-		db, err := sql.Open("mysql", datasource.DataSource)
-		activateUser, err := db.Exec("UPDATE users SET isactive = 1 WHERE ID = ?;", c.Uid)
+		activateUser, err := datasource.DBconn.Exec("UPDATE users SET isactive = 1 WHERE ID = ?;", c.Uid)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -58,11 +54,9 @@ func ConfirmEmail(w http.ResponseWriter, r *http.Request) (bool, string) {
 			// If there is any issue with inserting into the database, return a 500 error
 			panic(err.Error())
 		}
-
 		return true, msg
 	} else {
 		msg = "Something else is wrong"
 		return false, msg
 	}
-
 }

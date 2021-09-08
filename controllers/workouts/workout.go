@@ -18,33 +18,6 @@ type shareController struct {
 	shareIDPattern *regexp.Regexp
 }
 
-//type WorkoutPageLoad struct {
-//	WoID           int
-//	WoName         string
-//	WoStrength     string
-//	WoPace         string
-//	WoConditioning string
-//	WoDate         string
-//	UsrID          string
-//	UsrNoteID      int
-//	UsrName        string
-//	UsrNotes       string
-//	UsrMinutes     string
-//	UsrSeconds     string
-//	UsrFirstname   string
-//	UsrGreeting    string
-//}
-//// UserAuth - Stores values for authenticating users around the app
-//type UserAuth struct {
-//	Exists bool
-//	IsActive bool
-//	Isadmin bool
-//	IsCoach bool
-//	Uid string
-//	Path string
-//	Sessionkey string
-//}
-
 // Used to control NEW vs EDIT templates
 var Edit bool
 

@@ -79,17 +79,12 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 	var id int
 	var name, strength, pace, conditioning, date, wodworkout string
 
-	// Open DB conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
 
 	// Query DB for CURRENT_DATE WOD
 	if uid == "" {
 		// If we don't have an ID we'll assume they're a guest or new here and get the latest WOD
-		results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = CURRENT_DATE() and wo_workoutoftheday = 'Y'")
+		results, err := datasource.DBconn.Query("SELECT ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday FROM workout WHERE wo_date = CURRENT_DATE() AND wo_workoutoftheday = 'Y'")
+		defer results.Close()
 		if err != nil {
 			panic(err.Error())
 		}
@@ -111,7 +106,8 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 	} else {
 		// need to check for and then pull the workout
 		// First we'll check if they wrote themself a work out for today
-		results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = CURRENT_DATE() and wo_createdby = ?", uid)
+		results, err := datasource.DBconn.Query("SELECT ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday FROM workout WHERE wo_date = CURRENT_DATE() AND wo_createdby = ?", uid)
+		defer results.Close()
 		if err != nil {
 			panic(err.Error())
 		}
@@ -134,7 +130,8 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 		if wo.ID == 0 {
 			// Next well check if they have a Coach assigned workout
 			// Need some way to get the correct WORKOUT_ID from a table and in put that here
-			results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = CURRENT_DATE() and ID = ?", 0)
+			results, err := datasource.DBconn.Query("SELECT ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday FROM workout WHERE wo_date = CURRENT_DATE() AND ID = ?", 0)
+			defer results.Close()
 			if err != nil {
 				panic(err.Error())
 			}
@@ -156,7 +153,8 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 			// If we don't get results from that call then we'll just load the daily WOD
 			if wo.ID == 0 {
 				// If we don't have an ID or a user created or coach assigned WOD we'll assume they're a guest or new here and get the latest WOD
-				results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = CURRENT_DATE() and wo_workoutoftheday = 'Y'")
+				results, err := datasource.DBconn.Query("SELECT ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday FROM workout WHERE wo_date = CURRENT_DATE() AND wo_workoutoftheday = 'Y'")
+				defer results.Close()
 				if err != nil {
 					panic(err.Error())
 				}
@@ -185,7 +183,7 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 
 	// Load additional struct for usr and wod notes
 	usr := getUser(uid)
-	won := getWODNotes(string(wo.ID), uid)
+	won := getWODNotes(strconv.Itoa(wo.ID), uid)
 
 	// Send to Controller
 	return wo, won, usr
@@ -196,17 +194,10 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 	var wo Workout
 	var id int
 	var name, strength, pace, conditioning, date, wodworkout string
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-	// Check if user did a different workout on this date
-	// A user_workout_history table? Store workout.ID, users.ID, A_DATE,
-	//
 
 	// Get default WOD if user does not have their own workout.
-	results, err := db.Query("select ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday from workout where wo_date = ? and wo_workoutoftheday = 'Y'", d)
+	results, err := datasource.DBconn.Query("SELECT ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday FROM workout WHERE wo_date = ? AND wo_workoutoftheday = 'Y'", d)
+	defer results.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -242,17 +233,10 @@ func GetWODbyID(woid string, uid string) (AddWorkout, WorkoutNotes, WodUser) {
 	var wo AddWorkout
 	var id int
 	var name, strength, pace, conditioning, date, createdby, wodworkout string
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-	// Check if user did a different workout on this date
-	// A user_workout_history table? Store workout.ID, users.ID, A_DATE,
-	//
 
 	// Get default WOD if user does not have their own workout.
-	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby, wo_workoutoftheday from workout where ID = ?", woid)
+	results, err := datasource.DBconn.Query("SELECT ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby, wo_workoutoftheday FROM workout WHERE ID = ?", woid)
+	defer results.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -296,15 +280,9 @@ func getWODNotes(woid string, userid string) WorkoutNotes {
 	var notes, time, min, sec, loved, hated string
 	uid := userid
 
-	// OPen DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-
 	// Query for workout notes
-	results, err := db.Query("SELECT c.ID,c.user_id,c.workout_id,c.comment,c.time,uwr.loved,uwr.hated FROM (select 1) dummy LEFT JOIN comments c ON c.user_id = ? LEFT JOIN user_workout_rating uwr ON uwr.workoutid = c.workout_id where c.workout_id = ?", uid, woid)
+	results, err := datasource.DBconn.Query("SELECT c.ID,c.user_id,c.workout_id,c.comment,c.time,uwr.loved,uwr.hated FROM (SELECT 1) dummy LEFT JOIN comments c ON c.user_id = ? LEFT JOIN user_workout_rating uwr ON uwr.workoutid = c.workout_id WHERE c.workout_id = ?", uid, woid)
+	defer results.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -366,16 +344,10 @@ func SaveWorkoutResults(r *http.Request) {
 	woidint, err := strconv.Atoi(woid)
 	n = strings.Replace(n, "'", "\\'", -1)
 
-	// Open DB connection
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-
 	//check if notes for this work out exist already
 	var checkValue int
-	checkID, err := db.Query("select ID from comments where user_id = ? and workout_id = ?", uid, woid)
+	checkID, err := datasource.DBconn.Query("SELECT ID FROM comments WHERE user_id = ? AND workout_id = ?", uid, woid)
+	defer checkID.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -387,19 +359,17 @@ func SaveWorkoutResults(r *http.Request) {
 	}
 	if checkValue == 0 {
 		// if no notes exist the insert a new record
-		insert, err := db.Exec("insert into comments (user_id,workout_id,comment,time) values (?,?,?,?)", uidint, woidint, n, time)
+		_, err := datasource.DBconn.Exec("INSERT INTO  comments (user_id,workout_id,comment,time) VALUES (?,?,?,?)", uidint, woidint, n, time)
 		if err != nil {
 			panic(err.Error())
 		}
-		insert.RowsAffected()
 	} else {
 		// if notes do exist, update them with the current values
 		// This shouldn't overwrite but make a new note I think
-		update, err := db.Exec("update comments set comment = ?, time = ? where ID = ? and user_id = ? and workout_id = ?", n, time, checkValue, uidint, woidint)
+		_, err := datasource.DBconn.Exec("UPDATE comments SET comment = ?, time = ? WHERE ID = ? AND user_id = ? AND workout_id = ?", n, time, checkValue, uidint, woidint)
 		if err != nil {
 			panic(err.Error())
 		}
-		update.RowsAffected()
 	}
 	checkID.Close()
 	// check if user selected a work out rating
@@ -409,7 +379,8 @@ func SaveWorkoutResults(r *http.Request) {
 		// Set up var for function
 		var rateID, lovedval, hatedval int
 		// check if this has been rating previously
-		ratechk, err := db.Query("SELECT ID FROM user_workout_rating WHERE userid = ? AND workoutid = ?;", uid, woid)
+		ratechk, err := datasource.DBconn.Query("SELECT ID FROM user_workout_rating WHERE userid = ? AND workoutid = ?;", uid, woid)
+		defer ratechk.Close()
 		if err != nil {
 			panic(err.Error())
 		}
@@ -419,8 +390,6 @@ func SaveWorkoutResults(r *http.Request) {
 				log.Fatal(err)
 			}
 		}
-		//fmt.Println("ratechk:", ratechk)
-		//fmt.Println("rateID:", rateID)
 		// check which value is checked
 		if loved == "on" {
 			lovedval = 1
@@ -430,27 +399,27 @@ func SaveWorkoutResults(r *http.Request) {
 		}
 		if rateID == 0 {
 			// if no previous rating then insert a new record
-			insert, err := db.Exec("INSERT INTO user_workout_rating (userid,workoutid,loved,hated) VALUE (?,?,?,?)", uidint, woidint, lovedval, hatedval)
+			_, err := datasource.DBconn.Exec("INSERT INTO user_workout_rating (userid,workoutid,loved,hated) VALUE (?,?,?,?)", uidint, woidint, lovedval, hatedval)
 			if err != nil {
 				panic(err.Error())
 			}
-			insert.RowsAffected()
+			//insert.RowsAffected()
 		} else {
 			// if a rating already exists then increment the existing record
 			if loved == "on" {
 				// increment loved value by 1
-				update, err := db.Exec("UPDATE user_workout_rating SET loved = loved+1 WHERE ID = ?;", rateID)
+				_, err := datasource.DBconn.Exec("UPDATE user_workout_rating SET loved = loved+1 WHERE ID = ?;", rateID)
 				if err != nil {
 					panic(err.Error())
 				}
-				update.RowsAffected()
+				//update.RowsAffected()
 			} else if hated == "on" {
 				// increment hated value by 1
-				update, err := db.Exec("UPDATE user_workout_rating SET hated = hated+1 WHERE ID = ?;", rateID)
+				_, err := datasource.DBconn.Exec("UPDATE user_workout_rating SET hated = hated+1 WHERE ID = ?;", rateID)
 				if err != nil {
 					panic(err.Error())
 				}
-				update.RowsAffected()
+				//update.RowsAffected()
 			}
 		}
 	}
@@ -463,15 +432,9 @@ func getUser(uid string) WodUser {
 	var id int
 	var username, firstname, lastname, emailaddress string
 
-	//// Open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-
 	// Query DB for user by ID
-	results, err := db.Query("select ID, username, firstname,lastlogindate,emailaddress from users where ID = ?", uid)
+	results, err := datasource.DBconn.Query("SELECT ID, username, firstname,lastlogindate,emailaddress FROM users WHERE ID = ?", uid)
+	defer results.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -506,16 +469,9 @@ func getRandomGreeting() string {
 	var greeting string
 	var id int
 
-	// Open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-
 	// Query DB for list of indexex
-	ids, err := db.Query("select ID from greetings")
-	//fmt.Println("ids:",ids)
+	ids, err := datasource.DBconn.Query("SELECT ID FROM greetings")
+	defer ids.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -532,7 +488,8 @@ func getRandomGreeting() string {
 	pick := gid[randomIndex]
 
 	// Query DB for randomized index id
-	result, err := db.Query("select greeting from greetings where ID = ?", pick.ID)
+	result, err := datasource.DBconn.Query("SELECT greeting FROM greetings WHERE ID = ?", pick.ID)
+	defer result.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -556,15 +513,9 @@ func GetRandomWorkout() string {
 	var wodate string
 	var id int
 
-	//Open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-
 	// get list of ALL workout IDs from workouts table
-	ids, err := db.Query("SELECT ID FROM mjs.workout;")
+	ids, err := datasource.DBconn.Query("SELECT ID FROM workout;")
+	defer ids.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -579,7 +530,8 @@ func GetRandomWorkout() string {
 	// This is to add weight to loved or hated workouts when generating random workouts.
 	//if uid != "" {
 	//	// get list of ALL Loved workout IDs from user_workout_rating table
-	//	lids, err := db.Query("SELECT workoutid FROM user_workout_rating WHERE userid = ? AND userrating = 1;", uid)
+	//	lids, err := datasource.DBconn.Query("SELECT workoutid FROM user_workout_rating WHERE userid = ? AND userrating = 1;", uid)
+	//  defer lids.Close()
 	//	if err != nil {
 	//		panic(err.Error())
 	//	}
@@ -600,7 +552,8 @@ func GetRandomWorkout() string {
 	//		woid = append(woid, WorkoutID{id})
 	//	}
 	//	// get all Hated IDs
-	//	hids, err := db.Query("SELECT workoutid FROM user_workout_rating WHERE userid = ? AND userrating = 2;", uid)
+	//	hids, err := datasource.DBconn.Query("SELECT workoutid FROM user_workout_rating WHERE userid = ? AND userrating = 2;", uid)
+	//	defer hids.Close()
 	//	if err != nil {
 	//		panic(err.Error())
 	//	}
@@ -618,7 +571,8 @@ func GetRandomWorkout() string {
 	pick := woid[randomIndex]
 
 	// Now get workout date from database
-	date, err := db.Query("SELECT wo_date FROM workout where ID = ?;", pick.WOID)
+	date, err := datasource.DBconn.Query("SELECT wo_date FROM workout where ID = ?;", pick.WOID)
+	defer date.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -649,24 +603,19 @@ func AdminAddWOD(r *http.Request, uid string) AddWorkout {
 		Message:      "",
 		WODworkout:   r.PostFormValue("wodcb"),
 	}
-	// Open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
 
 	// Check if this is a WOD workout or a just a usr/random workout
 	if awo.WODworkout == "on" {
 		// Write WOD workout to DB if it's a designated WOD workout
-		checkWOD, err := db.Query("select * from workout where wo_date = ? and wo_workoutoftheday = 'Y'", awo.Date)
+		checkWOD, err := datasource.DBconn.Query("SELECT * FROM workout WHERE wo_date = ? AND wo_workoutoftheday = 'Y'", awo.Date)
+		defer checkWOD.Close()
 		if err != nil {
 			panic(err.Error())
 		}
 		if checkWOD.Next() != false {
 			awo.Message = "A WOD already exists for " + awo.Date
 		} else {
-			insert, err := db.Exec("insert into workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) values (?,?,?,?,?,?,'Y')", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid)
+			insert, err := datasource.DBconn.Exec("INSERT INTO workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) VALUES (?,?,?,?,?,?,'Y')", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid)
 			if err != nil {
 				panic(err.Error())
 			}
@@ -674,7 +623,7 @@ func AdminAddWOD(r *http.Request, uid string) AddWorkout {
 			awo.ID = string(insertid) //int(insertid)
 		}
 	} else {
-		insert, err := db.Exec("insert into workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) values (?,?,?,?,?,?,'N')", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid)
+		insert, err := datasource.DBconn.Exec("INSERT INTO workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) VALUES (?,?,?,?,?,?,'N')", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -715,12 +664,6 @@ func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 		Message:      "",
 		WODworkout:   r.PostFormValue("wodcb"),
 	}
-	// Open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
 
 	// Check adn make sure WOD is valid and not a dub
 	awo.Message = checkWODValues(awo.Date, awo.WODworkout, uid, edit)
@@ -734,7 +677,7 @@ func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 		// Return struct to report issues to users
 		return awo
 	} else { // If value write to DB
-		insert, err := db.Exec("insert into workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) values (?,?,?,?,?,?,?)", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid, wodworkout)
+		insert, err := datasource.DBconn.Exec("INSERT INTO workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) VALUES (?,?,?,?,?,?,?)", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid, wodworkout)
 		if err != nil {
 			panic(err.Error())
 		}
@@ -759,16 +702,10 @@ func GetAddWODbydate(d string, uid string) Workout {
 	var name, strength, pace, conditioning, wodworkout string
 	var date string
 
-	// Open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-
 	if uid == "" {
 		// today's WOD workout from db
-		results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date,wo_workoutoftheday from workout where wo_date = ? AND wo_workoutoftheday = 'Y'", d)
+		results, err := datasource.DBconn.Query("SELECT ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date,wo_workoutoftheday FROM workout WHERE wo_date = ? AND wo_workoutoftheday = 'Y'", d)
+		defer results.Close()
 		if err != nil {
 			panic(err.Error())
 		}
@@ -788,7 +725,8 @@ func GetAddWODbydate(d string, uid string) Workout {
 		}
 	} else {
 		// today's WOD workout from db
-		results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date,wo_workoutoftheday from workout where wo_date = ? AND wo_createdby = ? AND wo_workoutoftheday = 'N'", d, uid)
+		results, err := datasource.DBconn.Query("SELECT ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date,wo_workoutoftheday FROM workout WHERE wo_date = ? AND wo_createdby = ? AND wo_workoutoftheday = 'N'", d, uid)
+		defer results.Close()
 		if err != nil {
 			panic(err.Error())
 		}
@@ -823,17 +761,11 @@ func GetAddWODbyID(woid string) AddWorkout {
 	var name,strength,pace,conditioning,wodworkout,id string
 	var date string
 
-	// Open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-
 	// today's WOD workout from db
 	// Removed  "AND wo_workoutoftheday = 'Y'"
 	// I don't care about that here, right, I have the ID so it's hella specific anyway, right?
-	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date,wo_workoutoftheday from workout where ID = ?", woid)
+	results, err := datasource.DBconn.Query("SELECT ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date,wo_workoutoftheday FROM workout WHERE ID = ?", woid)
+	defer results.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -896,19 +828,11 @@ func EditAddWOD(r *http.Request, uid string, edit bool) string {
 	msg := checkWODValues(ew.Date, ew.WODworkout, uid, edit)
 
 	if msg == "" { // If we're good write to db
-		// Open DB Conn
-		db, err := sql.Open("mysql", datasource.DataSource)
-		if err != nil {
-			panic(err.Error())
-		}
-		defer db.Close()
-
 		// Write to DB
-		update, err := db.Exec("update workout set wo_name = ?, wo_strength= ?, wo_pace = ?, wo_conditioning = ?, wo_workoutoftheday = ? where ID = ?", ew.Name, ew.Strength, ew.Pace, ew.Conditioning, wodworkout, ew.ID)
+		_, err := datasource.DBconn.Exec("UPDATE workout STRAIGHT_JOIN comments c on workout.ID = c.workout_id wo_name = ?, wo_strength= ?, wo_pace = ?, wo_conditioning = ?, wo_workoutoftheday = ? WHERE ID = ?", ew.Name, ew.Strength, ew.Pace, ew.Conditioning, wodworkout, ew.ID)
 		if err != nil {
 			panic(err.Error())
 		}
-		_, err = update.LastInsertId()
 
 		// Return all clear in an empty string
 		return msg
@@ -933,17 +857,11 @@ func checkWODValues(date string, wodworkout string, uid string, edit bool) strin
 		msg += "Can't schedule workouts that far in the future\n"
 	}
 
-	// Open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-
 	if edit == false { // If we're editing then we don't care if the dates or createdby or wodworkouts are the same since we're updating.
 		if wodworkout == "" {
 			// Check if it's a duplicate for a user wod
-			checkUserWOD, err := db.Query("SELECT ID FROM workout WHERE wo_date = ? AND wo_createdby = ? AND wo_workoutoftheday = 'N'", date, uid)
+			checkUserWOD, err := datasource.DBconn.Query("SELECT ID FROM workout WHERE wo_date = ? AND wo_createdby = ? AND wo_workoutoftheday = 'N'", date, uid)
+			defer checkUserWOD.Close()
 			if err != nil {
 				panic(err.Error())
 			}
@@ -952,7 +870,8 @@ func checkWODValues(date string, wodworkout string, uid string, edit bool) strin
 			}
 		} else if wodworkout == "on" {
 			// Check if it's a duplicate for an admin WOD workout
-			checkAdminWOD, err := db.Query("SELECT ID FROM workout WHERE wo_date = ? AND wo_workoutoftheday = 'Y'", date)
+			checkAdminWOD, err := datasource.DBconn.Query("SELECT ID FROM workout WHERE wo_date = ? AND wo_workoutoftheday = 'Y'", date)
+			defer checkAdminWOD.Close()
 			if err != nil {
 				panic(err.Error())
 			}
@@ -968,86 +887,3 @@ func checkWODValues(date string, wodworkout string, uid string, edit bool) strin
 
 // END - Daily WOD functions
 
-// GetUserWorkout
-
-/////////////////
-// Older stuff
-/////////////////
-////func CheckWOD(r *http.Request, uid string) string {
-//	// Runs some checks on the data to prevent things
-//	// should I put any restrictions on user WODs?
-//	//  YES
-//	// One a day should be good and will minimize spamming assholes
-//	// Also, shouldn't be allow to set any in the past
-//	// or more then 6 months in the future
-//
-//	// Set up check Queries
-//	//userdate := fmt.Sprintf("select ID from users where username = '%s'", r.FormValue("username"))
-//
-//	// vars
-//	var msg string
-//	var woid string
-//	date := r.FormValue("date")
-//
-//	// Open DB Conn
-//	db, err := sql.Open("mysql", datasource.DataSource)
-//	if err != nil {
-//		// If there is any issue with inserting into the database, return a 500 error
-//		panic(err.Error())
-//	}
-//	defer db.Close()
-//
-//	//usq := fmt.Sprintf()
-//	chkwod, err := db.Query("select id from workout where wo_date = ? and wo_createdby = ?", date, uid)
-//	if err != nil {
-//		// If there is any issue with inserting into the database, return a 500 error
-//		panic(err.Error())
-//	}
-//	for chkwod.Next() {
-//		err := chkwod.Scan(&woid)
-//		if err != nil {
-//			log.Fatal(err)
-//		}
-//	}
-//	if woid != "" {
-//		// if this returns a results fail the update
-//		msg += "A work out exists for this date already\n"
-//	}
-//	// check workout date make sure it's today or later
-//	workoutdate, _ := time.Parse("2006-01-02", date)
-//	if workoutdate.Before(time.Now().AddDate(0, 0, -7)) {
-//		msg += "Can't schedule workouts that far in the past\n"
-//	}
-//	// check workout date make sure it's not over 6 months in the future
-//	if workoutdate.After(time.Now().AddDate(0, 6, 0)) {
-//		msg += "Can't schedule workouts that far in the future\n"
-//	}
-//
-//	// Final msg return, should be ""
-//	return msg
-//
-//}
-//// GetWOD get today's workout and post it to /wod on first page load
-//func GetWODGuest() Workout {
-//	var wo Workout
-//	var id int
-//	var name, strength, pace, conditioning string
-//	var date string
-//	db, err := sql.Open("mysql", datasource.DataSource)
-//	if err != nil {
-//		panic(err.Error())
-//	}
-//	results, err := db.Query("select ID ,wo_name, wo_strength, wo_pace, wo_conditioning, wo_date from workout where wo_date = CURDATE()")
-//	if err != nil {
-//		panic(err.Error())
-//	}
-//	for results.Next() {
-//		err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date)
-//		if err != nil {
-//			panic(err.Error())
-//		}
-//		wo = Workout{ID: id, Name: name, Strength: strength, Pace: pace, Conditioning: conditioning, Date: date} //u = append(results)   //u, results)
-//	}
-//	defer db.Close()
-//	return wo //, won, usr
-//}

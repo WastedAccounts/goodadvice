@@ -1,13 +1,16 @@
 package datasource
 
 import (
+	"database/sql"
 	"github.com/joho/godotenv"
 	"log"
 	"os"
 )
 
-var DataSource string
-var db string
+var (
+	DBconn *sql.DB
+    DataSource string
+)
 
 func SetDatasource() {
 	// Get environment variables
@@ -22,11 +25,4 @@ func SetDatasource() {
 
 	// Create Datasource string
 	DataSource = SQLUSER + ":" + SQLPW + "@tcp(" + SQLSERVER + ":" + SQLPORT + ")/" + SQLDBNAME + "?parseTime=true"
-
-	//// create datasource
-	//db, err := sql.Open("mysql", DataSource)
-	//if err != nil {
-	//	panic(err.Error())
-	//}
-	//defer db.Close()
 }

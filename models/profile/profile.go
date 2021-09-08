@@ -1,7 +1,6 @@
 package profile
 
 import (
-	"database/sql"
 	"goodadvice/v1/datasource"
 	"net/http"
 	"strings"
@@ -64,13 +63,10 @@ func LoadPersonalRecords(uid string) []Records {
 	// Records struct var
 	var movement, pr, prtime, id string //display,
 	var date time.Time
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
 
 	// THis code will fill the Records struct
-	prs, err := db.Query("SELECT m.movementname,u.prvalue,u.prdate,u.prtime,u.ID FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? ORDER BY m.movementname,prdate desc", uid)
+	prs, err := datasource.DBconn.Query("SELECT m.movementname,u.prvalue,u.prdate,u.prtime,u.ID FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? ORDER BY m.movementname,prdate desc", uid)
+	defer prs.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -87,9 +83,7 @@ func LoadPersonalRecords(uid string) []Records {
 			Time:     prtime,
 			ID:       id},
 		)
-		//display += movement + ": " + pr + " set on: " + d[0] + " :: " + id +"\r"
 	}
-
 	return rec
 }
 
@@ -97,12 +91,10 @@ func LoadPersonalRecords(uid string) []Records {
 func LoadMovements() Movements {
 	var mov Movements
 	var movementname string
-	//rec.Record = display
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	movements, err := db.Query("SELECT movementname FROM movements ORDER BY movementtype,movementname;")
+
+	// query db
+	movements, err := datasource.DBconn.Query("SELECT movementname FROM movements ORDER BY movementtype,movementname;")
+	defer movements.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -125,15 +117,9 @@ func LoadAboutMe(uid string) Userinfo {
 	var name, weight, sex, about string //, birthday string
 	var birthday time.Time
 
-	// open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	defer db.Close()
-	if err != nil {
-		panic(err.Error())
-	}
-
 	// Load the Userprofile struct from db
-	userresults, err := db.Query("SELECT u.firstname,up.userbirthday,up.usersex,up.userweight,up.userabout FROM user_profile up JOIN users u ON u.ID = up.userid where userid = ?;", uid)
+	userresults, err := datasource.DBconn.Query("SELECT u.firstname,up.userbirthday,up.usersex,up.userweight,up.userabout FROM user_profile up JOIN users u ON u.ID = up.userid where userid = ?;", uid)
+	defer userresults.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -154,30 +140,20 @@ func UpdateAboutMe(r *http.Request, id string) {
 	if err != nil {
 		panic(err.Error())
 	}
-	// open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	defer db.Close()
-	if err != nil {
-		panic(err.Error())
-	}
-
 	// Update the DB
-	updateAbout, err := db.Exec("UPDATE user_profile up JOIN users u ON u.ID = up.userid SET u.firstname = ?,up.userbirthday = ?,up.usersex = ?,up.userweight = ?,up.userabout = ? WHERE userid = ?;", r.PostFormValue("name"), bday, r.PostFormValue("sex"), r.PostFormValue("wgt"), r.PostFormValue("abme"), id)
+	_, err = datasource.DBconn.Exec("UPDATE user_profile up JOIN users u ON u.ID = up.userid SET u.firstname = ?,up.userbirthday = ?,up.usersex = ?,up.userweight = ?,up.userabout = ? WHERE userid = ?;", r.PostFormValue("name"), bday, r.PostFormValue("sex"), r.PostFormValue("wgt"), r.PostFormValue("abme"), id)
 	if err != nil {
 		panic(err.Error())
 	}
-	updateAbout.RowsAffected()
 }
 
 // AddRecord CHANGE to - SaveSinglePR - Write new PR value to database
 func SaveNewPR(addpr Addpr) {
 	var movementid string
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
-	mid, err := db.Query("SELECT ID FROM movements WHERE movementname = ?;", addpr.MovementName)
+
+	// query db
+	mid, err := datasource.DBconn.Query("SELECT ID FROM movements WHERE movementname = ?;", addpr.MovementName)
+	defer mid.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -187,11 +163,11 @@ func SaveNewPR(addpr Addpr) {
 			panic(err.Error())
 		}
 	}
-	insert, err := db.Exec("INSERT INTO user_pr (userid,movementid,prvalue,prdate,prtime,prnotes) VALUES (?,?,?,?,?,?)", addpr.Uid, movementid, addpr.Weight, addpr.Date, addpr.Time, addpr.Notes)
+	// insert record to DB
+	_, err = datasource.DBconn.Exec("INSERT INTO user_pr (userid,movementid,prvalue,prdate,prtime,prnotes) VALUES (?,?,?,?,?,?)", addpr.Uid, movementid, addpr.Weight, addpr.Date, addpr.Time, addpr.Notes)
 	if err != nil {
 		panic(err.Error())
 	}
-	insert.RowsAffected()
 }
 
 // LoadSinglePR Load a pr to editpr page for editing
@@ -200,14 +176,10 @@ func LoadSinglePR(uid string, prid string) (Records, []Records) {
 	var rhist []Records
 	var movement, value, id, prtime, notes string
 	var date time.Time
-	// open DB conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
+
 	// Get single pr value
-	rec, err := db.Query("SELECT m.movementname, u.prvalue, u.prdate,u.ID,u.prtime,u.prnotes FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? AND u.ID = ?;", uid, prid)
+	rec, err := datasource.DBconn.Query("SELECT m.movementname, u.prvalue, u.prdate,u.ID,u.prtime,u.prnotes FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? AND u.ID = ?;", uid, prid)
+	defer rec.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -233,7 +205,8 @@ func LoadSinglePR(uid string, prid string) (Records, []Records) {
 		}
 	}
 	// Get PR history
-	prhist, err := db.Query("SELECT m.movementname,u.prvalue,u.prdate,u.prtime,u.ID FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? and m.movementname = ? ORDER BY m.movementname,prdate desc", uid, r.Movement)
+	prhist, err := datasource.DBconn.Query("SELECT m.movementname,u.prvalue,u.prdate,u.prtime,u.ID FROM user_pr u JOIN movements m ON m.ID = u.movementid WHERE u.userid = ? and m.movementname = ? ORDER BY m.movementname,prdate desc", uid, r.Movement)
+	defer prhist.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -250,7 +223,6 @@ func LoadSinglePR(uid string, prid string) (Records, []Records) {
 			ID:       id,
 			Time:     prtime,
 		})
-		//display += movement + ": " + pr + " set on: " + d[0] + " :: " + id +"\r"
 	}
 	return r, rhist
 }
@@ -260,18 +232,12 @@ func UpdateSinglePR(r *http.Request, id string) {
 	// Format web values for storing in DB
 	time := r.PostFormValue("minutes") + ":" + r.PostFormValue("seconds")
 
-	// Open DB Conn
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
-	defer db.Close()
+
 	// Update DB
-	updatepr, err := db.Exec("UPDATE user_pr SET prvalue = ?, prdate = ?, prtime = ?, prnotes = ? WHERE ID = ?", r.PostFormValue("weight"), r.PostFormValue("date"), time, r.PostFormValue("notes"), r.PostFormValue("prid"))
+	_, err := datasource.DBconn.Exec("UPDATE user_pr SET prvalue = ?, prdate = ?, prtime = ?, prnotes = ? WHERE ID = ?", r.PostFormValue("weight"), r.PostFormValue("date"), time, r.PostFormValue("notes"), r.PostFormValue("prid"))
 	if err != nil {
 		panic(err.Error())
 	}
-	updatepr.RowsAffected()
 
 }
 
@@ -310,13 +276,11 @@ func LoadALLPersonalRecords(uid string) Records {
 	// vars
 	var movement, pr, display, movementname string
 	var date time.Time
-	db, err := sql.Open("mysql", datasource.DataSource)
-	if err != nil {
-		panic(err.Error())
-	}
+
 
 	// This code will fill the Records struct
-	movementresults, err := db.Query("select m.movementname, u.prvalue, u.prdate From user_pr u join movements m ON m.ID = u.movementid where u.userid = ?", uid)
+	movementresults, err := datasource.DBconn.Query("select m.movementname, u.prvalue, u.prdate From user_pr u join movements m ON m.ID = u.movementid where u.userid = ?", uid)
+	defer movementresults.Close()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -329,7 +293,8 @@ func LoadALLPersonalRecords(uid string) Records {
 		display += movement + ": " + pr + " set on: " + d[0] + "\r"
 	}
 
-	movements, err := db.Query("SELECT movementname FROM movements;")
+	movements, err := datasource.DBconn.Query("SELECT movementname FROM movements;")
+	defer movements.Close()
 	if err != nil {
 		panic(err.Error())
 	}
