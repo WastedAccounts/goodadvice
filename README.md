@@ -30,6 +30,9 @@ Search functionality
 
 
 ==================CHANGE LOG==================
+0.0.12 Change log
+Fixed bug where Admin's couldn't edit DailyWOD workout
+
 0.0.11 Change log
 Major updates
 database connection management has been re-architected

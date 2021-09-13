@@ -11,12 +11,12 @@ cp /data/etcdbk/etcd_backup.20210830.163205.bk //cloudninja/homelab/etcdbk/
 - Update README to include latest release info
 
 Copy: C:\Users\matthews\Documents\__ULTIMATE_SOFTWARE\___CodingProjects\LearnGO\goodadvice
-To: \\cloudninja\matt\homelab\k8s\go
+To: \\cloudninja\matt\homelab\k8s\go-- From WLS
+                                    - Create new back up of DB in MySQL
+                                    Add it to back up folder in project
+                                    mysqldump -u root -pToolbox24 -h mysql --databases mjs --single-transaction --quick --lock-tables=false > //cloudninja/homelab/goodadvice_db_backups/goodadvice_full_bkup.$(date +"%Y%m%d.%H%M%S").sql
 
--- From WLS
-- Create new back up of DB in MySQL
-Add it to back up folder in project
-mysqldump -u root -pToolbox24 -h mysql --databases mjs --single-transaction --quick --lock-tables=false > //cloudninja/homelab/goodadvice_db_backups/goodadvice_full_bkup.$(date +"%Y%m%d.%H%M%S").sql
+
 
 - Create new DB Structure file in MySQL
 mysqldump -u root -pPassword -h mysql --opt mjs -d --single-transaction | sed 's/ AUTO_INCREMENT=[0-9]*//g' > //cloudninja/homelab/k8s/go/goodadvice/Gooadvice.sql.Database.StructureOnly.0.0.9
@@ -30,7 +30,7 @@ git push
 - Clear out old goodadvice folder
 rm -rf mattscloud/go/goodadvice
 - copy in new version
-cp /cloudninja/homelab/k8s/go/goodadvice -r mattscloud/go
+cp /cloudninja/homelab/goodadviceapp/latestappdeployment/goodadvice -r mattscloud/go
 - build and push the docker image
 docker build -t 192.168.10.50:5000/local/goodadvice:0.0.**VERSION** mattscloud/go/goodadvice/.
 docker push 192.168.10.50:5000/local/goodadvice:0.0.**VERSION**

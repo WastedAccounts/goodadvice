@@ -26,7 +26,7 @@ type Email struct {
 }
 
 func SendEmail(e Email) {
-	//https://gist.github.com/andelf/5004821
+	// https://gist.github.com/andelf/5004821
 	// Set up authentication information.
 	auth := smtp.PlainAuth(
 		"",
@@ -115,7 +115,6 @@ func VerificationEmail(newuid int64) {
 		}
 		regValues = append(regValues, regVal)
 	}
-	//getUserInfo.Close()
 
 	// load registry results from array into struct
 	e.smtpUser = regValues[0]
@@ -138,19 +137,18 @@ func VerificationEmail(newuid int64) {
 			log.Fatal(err)
 		}
 	}
-	//getEmailMessage.Close()
 
 	// load confirmation code into email body
 	e.body = fmt.Sprintf(e.body, code)
 
-	// Pass infor to SendEmail function so we can send an email
+	// Pass info to SendEmail function so we can send an email
 	SendEmail(e)
 
 }
 
 // Create 6 digit code for verification
 func GenerateConfCode(max int) string {
-	var table = [...]byte{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}
+	var table = [...]byte{'1','2','3','4','5','6','7','8','9','0'}
 	b := make([]byte, max)
 	n, err := io.ReadAtLeast(rand.Reader, b, max)
 	if n != max {

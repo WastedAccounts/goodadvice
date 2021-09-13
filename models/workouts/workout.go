@@ -829,7 +829,7 @@ func EditAddWOD(r *http.Request, uid string, edit bool) string {
 
 	if msg == "" { // If we're good write to db
 		// Write to DB
-		_, err := datasource.DBconn.Exec("UPDATE workout STRAIGHT_JOIN comments c on workout.ID = c.workout_id wo_name = ?, wo_strength= ?, wo_pace = ?, wo_conditioning = ?, wo_workoutoftheday = ? WHERE ID = ?", ew.Name, ew.Strength, ew.Pace, ew.Conditioning, wodworkout, ew.ID)
+		_, err := datasource.DBconn.Exec("UPDATE workout SET wo_name = ?, wo_strength= ?, wo_pace = ?, wo_conditioning = ?, wo_workoutoftheday = ? WHERE ID = ?", ew.Name, ew.Strength, ew.Pace, ew.Conditioning, wodworkout, ew.ID)
 		if err != nil {
 			panic(err.Error())
 		}

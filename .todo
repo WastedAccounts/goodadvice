@@ -1,20 +1,18 @@
 
-===================0.0.9 BUGS===================
+===================0.0.11 BUGS===================
+if previously saved values don't load into the workout blank values get saved over
+    Need to check if Time or Notes exist IF new notes are blank on page load
 
-DB connection changes
-    models/Login.go
-        models.ValidateSession
-    models/admin.go
-        GetVersion
-
-
-
+Fix - Can't Edit DailyWOD
+    Found bad SQL in update/edit function
 
 ===================DB CHANGES WHEN RELEASING===================
 None currently.
 
 ===================PRIORITY===================
+workout page displays strength and MetCon fields wider then phone screen
 
+Share workout link is hard to copy on mobile
 
 Show app version in footer
 Display app and DB version in Admin
