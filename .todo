@@ -1,15 +1,15 @@
 
-===================0.0.11 BUGS===================
+===================0.0.12 BUGS===================
 if previously saved values don't load into the workout blank values get saved over
     Need to check if Time or Notes exist IF new notes are blank on page load
 
-Fix - Can't Edit DailyWOD
-    Found bad SQL in update/edit function
+
 
 ===================DB CHANGES WHEN RELEASING===================
 None currently.
 
 ===================PRIORITY===================
+Need to add a way to record AMRAP scores(rounds+)
 workout page displays strength and MetCon fields wider then phone screen
 
 Share workout link is hard to copy on mobile
@@ -76,6 +76,8 @@ Save workout saves the workout but doesn't properly redisplay it.
 Admin user WastedAccounts(uid: 2) loads the last workout they wrote when loading WOD
 Need to test regular user create workouts. I think it does the same thing.
     FIX - missing column name for date selection in models.GetWOD
+Fix - Can't Edit DailyWOD
+    Found bad SQL in update/edit function
 
 
 ===================OLD TO DO LIST NEED TO REORG IT===================
