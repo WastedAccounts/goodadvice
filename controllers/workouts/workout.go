@@ -63,15 +63,15 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			case http.MethodGet:
 				u, _ := url.Parse(r.RequestURI)
 				woid, _ := url.ParseQuery(u.RawQuery)
-				if woid.Get("woid") == "0" {
-					//get daily wod
-					woc.getWOD(w, r, userauth, true)
+				if r.FormValue("date") != "" {
+					// If a date is selected load workout from that date
+					woc.getWODbydate(w, r.FormValue("date"), userauth)
 				} else if r.FormValue("random") == "Random" {
 					// Get random workout from Random button click
 					woc.randomWorkout(w, userauth)
-				} else if r.FormValue("date") != "" {
-					// If a date is selected load workout from that date
-					woc.getWODbydate(w, r.FormValue("date"), userauth)
+				} else if woid.Get("woid") == "0" {
+				//get daily wod
+				woc.getWOD(w, r, userauth, true)
 				} else {
 					// if no date is selected load today's workout
 					woc.getWOD(w, r, userauth, false)
