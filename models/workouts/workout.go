@@ -223,7 +223,7 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 	wo.Date = splitdate[0]
 
 	// Load additional struct for usr and wod notes
-	won := getWODNotes(string(wo.ID), uid)
+	won := getWODNotes(strconv.Itoa(wo.ID), uid)
 	usr := getUser(uid)
 	return wo, won, usr
 }
