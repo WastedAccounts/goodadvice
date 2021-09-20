@@ -620,7 +620,7 @@ func AdminAddWOD(r *http.Request, uid string) AddWorkout {
 				panic(err.Error())
 			}
 			insertid, _ := insert.LastInsertId()
-			awo.ID = string(insertid) //int(insertid)
+			awo.ID = strconv.FormatInt(insertid, 10)
 		}
 	} else {
 		insert, err := datasource.DBconn.Exec("INSERT INTO workout (wo_name, wo_strength, wo_pace, wo_conditioning, wo_date, wo_createdby,wo_workoutoftheday) VALUES (?,?,?,?,?,?,'N')", awo.Name, awo.Strength, awo.Pace, awo.Conditioning, awo.Date, uid)
@@ -628,7 +628,7 @@ func AdminAddWOD(r *http.Request, uid string) AddWorkout {
 			panic(err.Error())
 		}
 		insertid, _ := insert.LastInsertId()
-		awo.ID = string(insertid) //int(insertid)
+		awo.ID = strconv.FormatInt(insertid, 10)
 	}
 	// Date Ops
 	if awo.WODworkout == "on" { // set value so we can set the checked state of the check box
@@ -682,7 +682,7 @@ func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 			panic(err.Error())
 		}
 		insertid, _ := insert.LastInsertId()
-		awo.ID = string(insertid)
+		awo.ID = strconv.FormatInt(insertid, 10)
 
 		// Data Ops
 		// Set up date for display
