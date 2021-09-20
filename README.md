@@ -17,7 +17,7 @@ Guests can only view the daily workout.
 Coming soon:
 Workouts
     ability to save AMRAP scores 
-    round instead of time
+    rounds instead of time
 Friends
     See how they're doing
     Send messages
