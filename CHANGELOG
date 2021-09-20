@@ -1,5 +1,10 @@
 ==================CHANGE LOG==================
-0.0.15
+0.0.16 09/20/2021
+Added forward and back date control on daily wod page
+updated formating at daily wod page
+some other minor UX changes
+
+0.0.15 09/20/2021
 Bug Fix
     after adding a Daily WOD you couldn't edit immediate without reloading it to edit.
         awo.ID = string(insertid)

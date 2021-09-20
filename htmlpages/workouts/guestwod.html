@@ -17,37 +17,24 @@
   <br />
   <b><label id="hello" >Howdy Stranger!  You can <a href="/login">Login</a> or <a href="/signup">Signup</a> here</label></b>
   <br />
-
   <textarea id="woid"  name="woid" type="string" hidden="true" >{{ .wo.ID }}</textarea>
   <textarea id="uid" name="uid" type="string" hidden="true" >{{ .usr.ID }}</textarea>
   <br />
-  </label>
   <b>Name:</b>
-  <br />
-  <label name="name" id="name" type="string"><pre>{{ .wo.Name }}</pre></label>
-  <br />
-  <b>Strength work:</b>
-  <br />
-  <label id="strength" style="width:250px;height:150px;" id="strength" type="string" ><pre>{{ .wo.Strength }}</pre></label>
-  <br />
-  <b>Conditioning work:</b>
-  <br />
-  <label style="width:250px;height:150px;" id="conditioning" name="conditioning" type="string" ><pre>{{ .wo.Conditioning }}</pre></label>
-  <br />
-  <b>Pace:</b>
-  <br /><label id="pace" name="pace" type="string"><pre>{{ .wo.Pace }}</pre></label>
-  <br />
-  <!--b>Pick another day</b>:<input type="date" data-date-inline-picker="true" id="date" name="date"/>
   <br>
-  <input type="submit" name="loadWOD" value="Load WOD" />
-  <br />
-  <br />
-  <br />
-  <b>Notes:</b>
-  <br />
-  <textarea name="notes" style="width:250px;height:150px;" id="notes" type="string">{{.UsrNotes}}</textarea>
-  <br />
-  <input type="submit" value="Save notes" name="savenotes" formaction="/wod" formmethod="post" /-->
+  <pre style="max-width:350px;word-wrap: break-word;margin-top:0; margin-bottom:0;white-space: pre-line;">{{ .wo.Name }}</pre>
+  <br>
+  <b>Strength:</b>
+  <br>
+  <pre style="max-width:350px;word-wrap: break-word;margin-top:0; margin-bottom:0;white-space: pre-line;">{{ .wo.Strength }}</pre>
+  <br>
+  <b>MetCon:</b>
+  <br>
+  <pre style="max-width:350px;word-wrap: break-word;margin-top:0; margin-bottom:0;white-space: pre-line;">{{ .wo.Conditioning }}</pre>
+  <br>
+  <b>Pace:</b>
+  <pre style="max-width:350px;word-wrap: break-word;margin-top:0; margin-bottom:0;white-space: pre-line;">{{ .wo.Pace }}</pre>
+  <br>
 </form>
 </body>
 {{template "footer" .}}

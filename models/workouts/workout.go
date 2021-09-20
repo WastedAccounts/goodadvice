@@ -26,15 +26,15 @@ type Workout struct {
 }
 
 type WorkoutNotes struct {
-	ID         string    // `json:"ID"`
-	WoId       string    //`json:"WoId"`
-	UserName   string //`json:"UserName"`
-	UserId     string //`json:"UserId"`
-	Notes      string //`json:"Notes"`
-	Minutes    string
-	Seconds    string
-	Loved      sql.NullString //string
-	Hated      sql.NullString //string
+	ID       string // `json:"ID"`
+	WoId     string //`json:"WoId"`
+	UserName string //`json:"UserName"`
+	UserId   string //`json:"UserId"`
+	Notes    string //`json:"Notes"`
+	Minutes  string
+	Seconds  string
+	Loved    sql.NullString //string
+	Hated    sql.NullString //string
 }
 
 type WodUser struct {
@@ -78,7 +78,6 @@ func GetWOD(uid string, r *http.Request) (Workout, WorkoutNotes, WodUser) {
 	var wo Workout
 	var id int
 	var name, strength, pace, conditioning, date, wodworkout string
-
 
 	// Query DB for CURRENT_DATE WOD
 	if uid == "" {
@@ -219,8 +218,15 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 		}
 	}
 	// Data ops
-	splitdate := strings.Split(wo.Date, "T")
-	wo.Date = splitdate[0]
+	if wo.ID == 0 {
+		// handle no workout found condition - still display date selected on web
+		splitdate := strings.Split(d, " ")
+		wo.Date = splitdate[0]
+	} else {
+		// cut date to just date, no time stamp
+		splitdate := strings.Split(wo.Date, "T")
+		wo.Date = splitdate[0]
+	}
 
 	// Load additional struct for usr and wod notes
 	won := getWODNotes(strconv.Itoa(wo.ID), uid)
@@ -287,7 +293,7 @@ func getWODNotes(woid string, userid string) WorkoutNotes {
 		panic(err.Error())
 	}
 	for results.Next() {
-		err = results.Scan(&id, &userid,&woid,&notes,&time,&sql.NullString{String: loved, Valid: true},&sql.NullString{String: hated, Valid: true})
+		err = results.Scan(&id, &userid, &woid, &notes, &time, &sql.NullString{String: loved, Valid: true}, &sql.NullString{String: hated, Valid: true})
 		if err != nil {
 			panic(err.Error())
 		}
@@ -647,12 +653,14 @@ func AdminAddWOD(r *http.Request, uid string) AddWorkout {
 // UserAddWOD - Add new WOD to workout table
 func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 	// vars
-	var wodworkout string
+	var wodworkout, wodworkoutchkbx string
 	// Set wodworkout based on checkbox
 	if r.PostFormValue("wodcb") == "on" {
 		wodworkout = "Y"
+		wodworkoutchkbx = "checked"
 	} else {
 		wodworkout = "N"
+		wodworkoutchkbx = ""
 	}
 	awo := AddWorkout{
 		ID:           "",
@@ -662,7 +670,7 @@ func AddWOD(r *http.Request, uid string, edit bool) AddWorkout {
 		Conditioning: r.FormValue("conditioning"),
 		Date:         r.FormValue("date"),
 		Message:      "",
-		WODworkout:   r.PostFormValue("wodcb"),
+		WODworkout:   wodworkoutchkbx,
 	}
 
 	// Check adn make sure WOD is valid and not a dub
@@ -758,7 +766,7 @@ func GetAddWODbydate(d string, uid string) Workout {
 func GetAddWODbyID(woid string) AddWorkout {
 	// Setup Vars
 	var wo AddWorkout
-	var name,strength,pace,conditioning,wodworkout,id string
+	var name, strength, pace, conditioning, wodworkout, id string
 	var date string
 
 	// today's WOD workout from db
@@ -777,13 +785,13 @@ func GetAddWODbyID(woid string) AddWorkout {
 			panic(err.Error())
 		}
 		wo = AddWorkout{
-			ID: id,
-			Name: name,
-			Strength: strength,
-			Pace: pace,
+			ID:           id,
+			Name:         name,
+			Strength:     strength,
+			Pace:         pace,
 			Conditioning: conditioning,
-			Date: date,
-			WODworkout: wodworkout,
+			Date:         date,
+			WODworkout:   wodworkout,
 		} //u = append(results)   //u, results)
 	}
 
@@ -886,4 +894,3 @@ func checkWODValues(date string, wodworkout string, uid string, edit bool) strin
 }
 
 // END - Daily WOD functions
-

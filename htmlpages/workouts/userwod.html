@@ -21,8 +21,8 @@
     <button type="submit" name="random" class="btn" value="Random">Random</button>
     <button type="button" class="btn" onclick="location.href='/workouts/createwod?woid={{ .wo.ID }}';">Create</button>
     <br>
-    <a href="/workouts/wod?woid=0" {{ .wo.Linkhidden }} >Go to Today's Daily WOD</a>
-    <br {{ .wo.Linkhidden }} ><br {{ .wo.Linkhidden }} >
+    <a href="/workouts/wod?woid=0" {{ .wo.Linkhidden }}>Go to Today's Daily WOD</a>
+    <br {{ .wo.Linkhidden }}><br {{ .wo.Linkhidden }}>
     <b><label id="hello">{{ .usr.Greeting }}, {{ .usr.FirstName }}! </label>
         <br>
         <script type="text/javascript">
@@ -49,32 +49,32 @@
     <br>
     <b>Pick another day</b>:
     <br>
-    <input type="date" data-date-inline-picker="true" id="date" name="date" value="{{.wo.Date}}"
+    <button type="submit" class="btn2" name="forwardback" value="back">Back</button>
+    <input type="date" data-date-inline-picker="true" id="date" name="date" value="{{ .wo.Date }}"
            onchange="submitform()"/>
+    <button type="submit" class="btn2" name="forwardback" value="forward">Forward</button>
     <br>
     <textarea id="woid" name="woid" type="string" hidden="true">{{ .wo.ID }}</textarea>
     <textarea id="uid" name="uid" type="string" hidden="true">{{ .usr.ID }}</textarea>
     <br>
-    </label>
     <b>Name:</b>
-    <label name="name" id="name" type="string">
-        <pre>{{ .wo.Name }}</pre>
-    </label>
+    <br>
+    <pre style="max-width:350px;word-wrap: break-word;margin-top:0; margin-bottom:0;white-space: pre-line;">{{ .wo.Name }}</pre>
+    <br>
     <b>Strength:</b>
-    <label id="strength" style="width:250px;height:150px;" id="strength" type="string">
-        <pre>{{ .wo.Strength }}</pre>
-    </label>
+    <br>
+    <pre style="max-width:350px;word-wrap: break-word;margin-top:0; margin-bottom:0;white-space: pre-line;">{{ .wo.Strength }}</pre>
+    <br>
     <b>MetCon:</b>
-    <label style="width:250px;height:150px;" id="conditioning" name="conditioning" type="string">
-        <pre>{{ .wo.Conditioning }}</pre>
-    </label>
+    <br>
+    <pre style="max-width:350px;word-wrap: break-word;margin-top:0; margin-bottom:0;white-space: pre-line;font-size: 13px">{{ .wo.Conditioning }}</pre>
+    <br>
     <b>Pace:</b>
-    <label id="pace" name="pace" type="string">
-        <pre>{{ .wo.Pace }}</pre>
-    </label>
+    <pre style="max-width:350px;word-wrap: break-word;margin-top:0; margin-bottom:0;white-space: pre-line;">{{ .wo.Pace }}</pre>
+    <br>
     <b>MetCon Time:</b>
     <br>
-    Minutes:<input type="number" min="0" max="99" name="minutes" value="{{ .won.Minutes }}">
+    Minutes: <input type="number" min="0" max="99" name="minutes" value="{{ .won.Minutes }}">
     <br>
     Seconds: <input type="number" min="0" max="59" name="seconds" value="{{ .won.Seconds }}">
     <br>
@@ -87,13 +87,10 @@
     <br>
     <b>Notes:</b>
     <br>
-    <textarea name="notes" style="width:225px;height:100px;" id="notes" type="string">{{ .won.Notes }}</textarea>
+    <textarea name="notes" style="width:350px;height:100px;" id="notes" type="string">{{ .won.Notes }}</textarea>
     <br>
     <input type="submit" value="Save" name="savenotes" formaction="/workouts/wod" formmethod="post"/>
     <button type="button" class="btn" onclick="location.href='/workouts/share?woid={{ .wo.ID }}';">Share</button>
-
-
-
 </form>
 </body>
 {{ template "footer" . }}

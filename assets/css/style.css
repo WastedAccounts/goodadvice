@@ -36,6 +36,15 @@ button.btn {
     display: inline-block;
     color: black;
 }
+button.btn2 {
+    border: none;
+    background-color: inherit;
+    /*padding: 14px 28px;*/
+    font-size: 14px;
+    cursor: pointer;
+    display: inline-block;
+    color: black;
+}
 /* Bread crumb CSS */
 ul.breadcrumb {
     padding: 8px 12px;

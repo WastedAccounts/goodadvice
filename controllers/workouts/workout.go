@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"time"
 )
 
 type workoutController struct {
@@ -63,12 +64,25 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			case http.MethodGet:
 				u, _ := url.Parse(r.RequestURI)
 				woid, _ := url.ParseQuery(u.RawQuery)
-				if r.FormValue("date") != "" {
-					// If a date is selected load workout from that date
-					woc.getWODbydate(w, r.FormValue("date"), userauth)
+				submit := r.FormValue("forwardback")
+				if submit == "forward" || submit == "back"  {
+					date, _ := time.Parse("2006-01-02" , r.FormValue("date"))
+					var newDate time.Time
+					if submit == "forward"{
+						newDate = date.Add(time.Hour * 24)
+					} else if submit == "back"{
+						newDate = date.Add(time.Hour * -24)
+					}
+					// Get workout from new date
+					woc.getWODbydate(w, newDate.String(), userauth)
 				} else if r.FormValue("random") == "Random" {
 					// Get random workout from Random button click
+					// Gets random date then looks up workout from that date
+					// selects from available dates in database.
 					woc.randomWorkout(w, userauth)
+				} else if r.FormValue("date") != "" {
+					// If a date is selected load workout from that date
+					woc.getWODbydate(w, r.FormValue("date"), userauth)
 				} else if woid.Get("woid") == "0" {
 				//get daily wod
 				woc.getWOD(w, r, userauth, true)
@@ -243,29 +257,6 @@ func (woc *workoutController) getWOD(w http.ResponseWriter, r *http.Request, use
 	}
 }
 
-//// GetWODGuest for non auth'd users
-//func (woc *workoutController) GetWODGuest(w http.ResponseWriter, r *http.Request) {
-//	wo := workouts.GetWODGuest()
-//	wpl := WorkoutPageLoad{
-//		wo.ID,
-//		wo.Name,
-//		wo.Strength,
-//		wo.Pace,
-//		wo.Conditioning,
-//		wo.Date,
-//		//wo.DOW,
-//		"", //strconv.Itoa(usr.ID), //<-- I should be getting this from somewhere else NOT from the notes
-//		0, //won.ID,
-//		"",//usr.UserName,
-//		"",//won.Notes,
-//		"",
-//		"",
-//		"",
-//		"",
-//	}
-//	wodguesttpl.Execute(w, wpl)
-//}
-
 // getWODbydate - displays WOD for the current date if there is one
 func (woc *workoutController) getWODbydate(w http.ResponseWriter, d string, userauth models.UserAuth) {
 	wo, won, usr := workouts.GetWODbydate(d, userauth.Uid)
@@ -418,3 +409,26 @@ func adminPostWOD(w http.ResponseWriter, r *http.Request, uid string) {
 		adminaddwodtpl.Execute(w, wo)
 	}
 }
+
+//// GetWODGuest for non auth'd users
+//func (woc *workoutController) GetWODGuest(w http.ResponseWriter, r *http.Request) {
+//	wo := workouts.GetWODGuest()
+//	wpl := WorkoutPageLoad{
+//		wo.ID,
+//		wo.Name,
+//		wo.Strength,
+//		wo.Pace,
+//		wo.Conditioning,
+//		wo.Date,
+//		//wo.DOW,
+//		"", //strconv.Itoa(usr.ID), //<-- I should be getting this from somewhere else NOT from the notes
+//		0, //won.ID,
+//		"",//usr.UserName,
+//		"",//won.Notes,
+//		"",
+//		"",
+//		"",
+//		"",
+//	}
+//	wodguesttpl.Execute(w, wpl)
+//}
