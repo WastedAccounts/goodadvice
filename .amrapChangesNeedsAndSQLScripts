@@ -1,0 +1,29 @@
+
+################Changes needed###################
+
+Need to record AmRap scores
+Should be able to set workout type at creation
+
+
+#####################SQL SCRIPTS BELOW############################
+
+## changes to workout table
+## add column that defines workout type
+ALTER TABLE `goodadvice_dev`.`workout`
+ADD COLUMN `wo_type` INT NOT NULL AFTER `wo_workoutoftheday`;
+
+
+## changes to comments table
+## adds round column for amraps
+ALTER TABLE `goodadvice_dev`.`comments`
+ADD COLUMN `rounds` VARCHAR(15) NOT NULL AFTER `time`,
+CHANGE COLUMN `comment` `comment` VARCHAR(500) NOT NULL ,
+CHANGE COLUMN `time` `time` VARCHAR(15) NOT NULL ;
+
+## create workout_type table
+## store work out types/styles
+CREATE TABLE `goodadvice_dev`.`workout_type` (
+  `ID` INT NOT NULL AUTO_INCREMENT,
+  `wt_type` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE INDEX `ID_UNIQUE` (`ID` ASC) VISIBLE);
