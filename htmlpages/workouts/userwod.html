@@ -72,12 +72,33 @@
     <b>Pace:</b>
     <pre style="max-width:350px;word-wrap: break-word;margin-top:0; margin-bottom:0;white-space: pre-line;">{{ .wo.Pace }}</pre>
     <br>
-    <b>MetCon Time:</b>
-    <br>
-    Minutes: <input type="number" min="0" max="99" name="minutes" value="{{ .won.Minutes }}">
-    <br>
-    Seconds: <input type="number" min="0" max="59" name="seconds" value="{{ .won.Seconds }}">
-    <br>
+    <!-- start scoring here -->
+    <div {{ .wot.Fortime }}>
+        <b>For Time:</b>
+        <br>
+        Minutes: <input type="number" min="0" max="99" name="minutes" value="{{ .won.Minutes }}">
+        <br>
+        Seconds: <input type="number" min="0" max="59" name="seconds" value="{{ .won.Seconds }}">
+        <br>
+    </div>
+    <div {{ .wot.Amrap }}>
+        <b>AMRAP Score:</b>
+        <br>
+        Rounds: <input type="number" min="0" max="999" name="rounds" value="{{ .won.Rounds }}">
+        <br>
+        Reps: <input type="number" min="0" max="999" name="reps" value="{{ .won.Reps }}">
+        <br>
+    </div>
+    <div {{ .wot.PRTest }}>
+        <b>{{ .wo.Type }}:</b>
+        <p>Make sure to save your <br>PR in your  <a class="logo" href="/profile/personalrecords">User Profile</a>
+        </p>
+    </div>
+    <div {{ .wot.Other }}>
+        <b>{{ .wo.Type }}:</b>
+        <p>No score</p>
+    </div>
+    <!-- end scoring here -->
     <br>
     <b>Check a box if you want</b>
     <br>

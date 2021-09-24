@@ -19,6 +19,13 @@ type shareController struct {
 	shareIDPattern *regexp.Regexp
 }
 
+type wotypeTemplate struct {
+	Amrap   string
+	Fortime string
+	PRTest  string
+	Other   string
+}
+
 // Used to control NEW vs EDIT templates
 var Edit bool
 
@@ -26,6 +33,8 @@ var Edit bool
 var adminaddwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/adminaddworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 var admineditwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/admineditworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 var userwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/userwod.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
+
+//var userwodtpl = template.Must(template.ParseGlob("htmlpages/templates/*"))
 var guestwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/guestwod.html", "htmlpages/templates/headerguest.html", "htmlpages/templates/footerguest.html"))
 var useraddworkouttpl = template.Must(template.ParseFiles("htmlpages/workouts/useraddworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 var usereditworkouttpl = template.Must(template.ParseFiles("htmlpages/workouts/usereditworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
@@ -65,12 +74,12 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				u, _ := url.Parse(r.RequestURI)
 				woid, _ := url.ParseQuery(u.RawQuery)
 				submit := r.FormValue("forwardback")
-				if submit == "forward" || submit == "back"  {
-					date, _ := time.Parse("2006-01-02" , r.FormValue("date"))
+				if submit == "forward" || submit == "back" {
+					date, _ := time.Parse("2006-01-02", r.FormValue("date"))
 					var newDate time.Time
-					if submit == "forward"{
+					if submit == "forward" {
 						newDate = date.Add(time.Hour * 24)
-					} else if submit == "back"{
+					} else if submit == "back" {
 						newDate = date.Add(time.Hour * -24)
 					}
 					// Get workout from new date
@@ -84,8 +93,8 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 					// If a date is selected load workout from that date
 					woc.getWODbydate(w, r.FormValue("date"), userauth)
 				} else if woid.Get("woid") == "0" {
-				//get daily wod
-				woc.getWOD(w, r, userauth, true)
+					//get daily wod
+					woc.getWOD(w, r, userauth, true)
 				} else {
 					// if no date is selected load today's workout
 					woc.getWOD(w, r, userauth, false)
@@ -221,6 +230,7 @@ func (woc *workoutController) shareWOD(w http.ResponseWriter, r *http.Request, W
 func (woc *workoutController) getWOD(w http.ResponseWriter, r *http.Request, userauth models.UserAuth, dailywod bool) {
 	// vars
 	var uid string
+	var wot wotypeTemplate
 
 	// daily WOD if they want that specifically.
 	if dailywod == true {
@@ -236,14 +246,38 @@ func (woc *workoutController) getWOD(w http.ResponseWriter, r *http.Request, use
 	if wo.WODworkout == "Y" {
 		wo.Linkhidden = "hidden"
 	}
+
+	// set up template variable to display correct scoring options
+	switch wo.Type {
+	case "For Time":
+		wot.Amrap = "hidden"
+		wot.PRTest = "hidden"
+		wot.Other = "hidden"
+	case "AMRAP":
+		wot.Fortime = "hidden"
+		wot.PRTest = "hidden"
+		wot.Other = "hidden"
+	case "PR Test":
+		wot.Amrap = "hidden"
+		wot.Fortime = "hidden"
+		wot.Other = "hidden"
+	default:
+		wot.Amrap = "hidden"
+		wot.Fortime = "hidden"
+		wot.PRTest = "hidden"
+	}
+
 	// Map structs to a single var to load into templates
 	data := M{
 		"wo":  wo,
 		"won": won,
 		"usr": usr,
+		"wot": wot,
 	}
+
 	if userauth.Exists == true && userauth.IsAdmin == true && userauth.IsActive == true {
 		// If Admin
+		//userwodtpl.ExecuteTemplate(w,"userwod.html",data)
 		userwodtpl.Execute(w, data)
 	} else if userauth.Exists == true && userauth.IsCoach == true && userauth.IsActive == true {
 		// If Coach
@@ -259,18 +293,44 @@ func (woc *workoutController) getWOD(w http.ResponseWriter, r *http.Request, use
 
 // getWODbydate - displays WOD for the current date if there is one
 func (woc *workoutController) getWODbydate(w http.ResponseWriter, d string, userauth models.UserAuth) {
+	// vars
+	var wot wotypeTemplate
+
+	// Load workout structs
 	wo, won, usr := workouts.GetWODbydate(d, userauth.Uid)
 
 	// Setup link to Daily WOD if we loaded a different workout
 	if wo.WODworkout == "Y" {
 		wo.Linkhidden = "hidden"
 	}
+
+	// set up template variable to display correct scoring options
+	switch wo.Type {
+	case "For Time":
+		wot.Amrap = "hidden"
+		wot.PRTest = "hidden"
+		wot.Other = "hidden"
+	case "AMRAP":
+		wot.Fortime = "hidden"
+		wot.PRTest = "hidden"
+		wot.Other = "hidden"
+	case "PR Test":
+		wot.Amrap = "hidden"
+		wot.Fortime = "hidden"
+		wot.Other = "hidden"
+	default:
+		wot.Amrap = "hidden"
+		wot.Fortime = "hidden"
+		wot.PRTest = "hidden"
+	}
 	// Map structs to a single var to load into templates
 	data := M{
 		"wo":  wo,
 		"won": won,
 		"usr": usr,
+		"wot": wot,
 	}
+
 	if userauth.Exists == true && userauth.IsAdmin == true && userauth.IsActive == true {
 		// If Admin
 		userwodtpl.Execute(w, data)
@@ -324,11 +384,17 @@ func (woc *workoutController) customizeWOD(w http.ResponseWriter, r *http.Reques
 // pageLoadAddWorkout - initial page load
 func pageLoadAddWorkout(w http.ResponseWriter, admin bool) {
 	// load a blank create workout page for creating daily wods
+	var wo workouts.AddWorkout
+	wo.Types = workouts.GetWorkoutType()
+	//wo.Type = "HIIT"
+	data := M{
+		"wo": wo,
+	}
 	Edit = false
 	if admin == true {
-		adminaddwodtpl.Execute(w, nil)
+		adminaddwodtpl.Execute(w, data)
 	} else {
-		useraddworkouttpl.Execute(w, nil)
+		useraddworkouttpl.Execute(w, data)
 	}
 }
 
@@ -336,7 +402,7 @@ func pageLoadAddWorkout(w http.ResponseWriter, admin bool) {
 func loadWODEdit(w http.ResponseWriter, r *http.Request, admin bool, uid string) {
 	wo := workouts.GetAddWODbydate(r.FormValue("date"), uid)
 	data := M{
-		"wo":  wo,
+		"wo": wo,
 	}
 	Edit = true
 	if admin == true {
@@ -350,7 +416,7 @@ func loadWODEdit(w http.ResponseWriter, r *http.Request, admin bool, uid string)
 func postWOD(w http.ResponseWriter, r *http.Request, uid string, admin bool) {
 	wo := workouts.AddWOD(r, uid, false)
 	data := M{
-		"wo":  wo,
+		"wo": wo,
 	}
 	if wo.Message == "" {
 		//fmt.Println("msg null")
@@ -377,7 +443,7 @@ func editWOD(w http.ResponseWriter, r *http.Request, uid string, admin bool) {
 	Edit = true
 	wo := workouts.GetAddWODbyID(r.FormValue("id"))
 	data := M{
-		"wo":  wo,
+		"wo": wo,
 	}
 	if admin == true {
 		admineditwodtpl.Execute(w, data)
