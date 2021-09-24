@@ -1,0 +1,98 @@
+==========add-amrap-scores==========
+::::IN PROGRESS
+Need to display the workout based on workout type
+    New functions to pull and update data
+    Updates to html pages to show way to record score (time vs rnds+reps)
+    HTML Pages that need updates
+        adminaddworkout.html :::COMPLETE
+        admineditworkout.html
+        useraddworkout.html :::COMPLETE
+        usereditworkout.html
+        userwod.html
+
+:::COMPLETE
+Need to set workout type at create
+   DDL populated from workout_types table
+
+Need to add fields to database to store amrap score
+    Tables needing changes^
+        comments: amrapscore column
+        workouts: workout type column
+    New tables
+        workout_types
+            ID,
+            type,
+
+================================================================================================
+
+
+#####################SQL SCRIPTS BELOW############################
+
+## changes to workout table
+## add column that defines workout type
+ALTER TABLE `workout`
+ADD COLUMN `wo_type` INT NOT NULL AFTER `wo_workoutoftheday`;
+
+
+## changes to comments table
+## adds round column for amraps
+ALTER TABLE `comments`
+ADD COLUMN `amrapscore` VARCHAR(15) NOT NULL AFTER `time`,
+CHANGE COLUMN `comment` `comment` VARCHAR(500) NOT NULL ,
+CHANGE COLUMN `time` `time` VARCHAR(15) NOT NULL ;
+
+## create workout_type table
+## store work out types/styles
+CREATE TABLE `workout_type` (
+  `ID` int NOT NULL AUTO_INCREMENT,
+  `wt_type` varchar(45) NOT NULL,
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `ID_UNIQUE` (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+insert into workout_type (wt_type) values ('');
+insert into workout_type (wt_type) values ('For Time');
+insert into workout_type (wt_type) values ('AMRAP');
+insert into workout_type (wt_type) values ('EMOM');
+insert into workout_type (wt_type) values ('Tabata');
+insert into workout_type (wt_type) values ('HIIT');
+insert into workout_type (wt_type) values ('PR Test');
+
+
+## Update wo_types for all workout already in system
+update workout
+set wo_type = 2
+where wo_conditioning like '%rounds%'
+
+update goodadvice_AMRAPSCORES.workout
+set wo_type = 2
+where wo_conditioning like '%rnds%'
+
+update workout
+set wo_type = 3
+where wo_conditioning like '%amrap%'
+
+update goodadvice_AMRAPSCORES.workout
+set wo_type = 6
+where wo_conditioning like '%5 minutes%'
+
+update goodadvice_AMRAPSCORES.workout
+set wo_type = 8
+where wo_type = 0
+
+######################################DB RESTORE SCRIPTS, MAYBE ############################3
+## DUMP
+20:50:09 Dumping goodadvice_dev (all tables)
+Running: mysqldump.exe --defaults-file="C:\Users\matthews\AppData\Local\Temp\tmppixmygsc.cnf"  --host=192.168.10.201 --port=3306 --default-character-set=utf8 --user=root --protocol=tcp --single-transaction=TRUE --skip-triggers "goodadvice_dev"
+20:50:10 Export of C:\Users\matthews\Documents\dumps\Dump20210920.sql has finished
+
+
+## RESTORE
+Creating schema goodadvice_AMRAPSCORES
+
+20:51:29 Restoring C:\Users\matthews\Documents\dumps\Dump20210920.sql
+Running: mysql.exe --defaults-file="C:\Users\matthews\AppData\Local\Temp\tmpvrfxkmuz.cnf"  --protocol=tcp --host=192.168.10.201 --user=root --port=3306 --default-character-set=utf8 --comments --database=goodadvice_AMRAPSCORES  < "C:\\Users\\matthews\\Documents\\dumps\\Dump20210920.sql"
+20:51:30 Import of C:\Users\matthews\Documents\dumps\Dump20210920.sql has finished
+
+
+

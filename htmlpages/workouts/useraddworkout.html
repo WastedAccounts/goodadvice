@@ -32,6 +32,13 @@
     <br>
     <textarea name="conditioning" id="conditioning" style="width:250px;height:150px;">{{ .wo.Conditioning }}</textarea>
     <br>
+    <b>Type:</b>
+    <select id="typeddl" name="typeddl">
+        {{ range $value := .wo.Types }}
+        <option value="{{ $value }}" {{ if eq $value $.wo.Type }}selected{{ end }}>{{ $value }}</option>
+        {{ end }}
+    </select>
+    <br>
     <b>Pace:</b><select name="pace" id="pace" value="{{ .wo.Pace }}">
     <option value="fast">Fast</option>
     <!--option-- value="moderate">Moderate</option-->

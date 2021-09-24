@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>Admin Add Workout</title>
-    <link rel="stylesheet" href="../../assets/css/style.css" >
+    <link rel="stylesheet" href="../../assets/css/style.css">
 </head>
 {{template "header" .}}
 <body>
@@ -15,37 +15,44 @@
     <li><a href="/wod">WOD</a></li-->
     <li>Admin Add Workout</li>
 </ul>
-  <form action="/workouts/addwod">
-      <textarea id="id" name="id" hidden>{{ .wo.ID }}</textarea>
-      <label id="msg" name="msg" ><b style="color:red ">     {{ .wo.Message }}</b></label>
-      <br>
-      <br>
+<form action="/workouts/addwod">
+    <textarea id="id" name="id" hidden>{{ .wo.ID }}</textarea>
+    <label id="msg" name="msg"><b style="color:red "> {{ .wo.Message }}</b></label>
+    <br>
+    <br>
     <b>Name:</b>
     <br>
     <textarea name="name" id="name" style="width:250px;" id="name">{{ .wo.Name }}</textarea>
     <br>
-      <b>Strength work:</b>
+    <b>Strength work:</b>
     <br>
-    <textarea name="strength" id="strength" style="width:250px;height:150px;" >{{ .wo.Strength }}</textarea>
+    <textarea name="strength" id="strength" style="width:250px;height:150px;">{{ .wo.Strength }}</textarea>
     <br>
-        <b>Conditioning work:</b>
+    <b>Conditioning work:</b>
     <br>
     <textarea name="conditioning" id="conditioning" style="width:250px;height:150px;">{{ .wo.Conditioning }}</textarea>
     <br>
-      <b hidden >WOD workout:</b><input type="checkbox" name="wodcb" checked hidden>
-      <br>
-          <b>Pace:</b><select name="pace" id="pace" value="{{ .wo.Pace }}">
-          <option value="fast">Fast</option>
-          <!--option-- value="moderate">Moderate</option-->
-          <option value="steady">Steady</option>
-          <option value="slow">Slow</option>
-      </select>
+    <b hidden>WOD workout:</b><input type="checkbox" name="wodcb" checked hidden>
+    <b>Type:</b>
+    <select id="typeddl" name="typeddl">
+        {{ range $value := .wo.Types }}
+        <option value="{{ $value }}" {{ if eq $value $.wo.Type }}selected{{ end }}>{{ $value }}</option>
+        {{ end }}
+    </select>
     <br>
-            <b>Date of workout:</b><input type="date" data-date-inline-picker="true" id="date" name="date" value="{{ .wo.Date }}" />
+    <b>Pace:</b><select name="pace" id="pace" value="{{ .wo.Pace }}">
+    <option value="fast">Fast</option>
+    <!--option-- value="moderate">Moderate</option-->
+    <option value="steady">Steady</option>
+    <option value="slow">Slow</option>
+</select>
+    <br>
+    <b>Date of workout:</b><input type="date" data-date-inline-picker="true" id="date" name="date"
+                                  value="{{ .wo.Date }}"/>
     <br>
     <input type="submit" name="save" id="save" value="save WOD" formmethod="post">
     <input type="submit" name="load" id="load" value="load WOD" formmethod="get">
-  </form>
+</form>
 </body>
 {{template "footer" .}}
 </html>
