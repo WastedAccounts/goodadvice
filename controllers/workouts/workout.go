@@ -247,6 +247,11 @@ func (woc *workoutController) getWOD(w http.ResponseWriter, r *http.Request, use
 		wo.Linkhidden = "hidden"
 	}
 
+	// Set up today date in wo.Date so page functionality works - specifically forward and back buttons
+	if wo.Date == "" {
+		wo.Date = time.Now().Format("2006-01-02")
+	}
+
 	// set up template variable to display correct scoring options
 	switch wo.Type {
 	case "For Time":
