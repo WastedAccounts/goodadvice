@@ -3,7 +3,6 @@ package workouts
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
 	"goodadvice/v1/datasource"
 	"log"
 	"math/rand"
@@ -11,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 type Workout struct {
@@ -226,7 +227,7 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 	//if err != nil {
 	//	panic(err.Error())
 	//}
-//
+	//
 	//// load results into Workout struct
 	//for results.Next() {
 	//	err = results.Scan(&id, &name, &strength, &pace, &conditioning, &date, &wodworkout, &wotypeid)
@@ -246,7 +247,7 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 	// Query DB for CURRENT_DATE WOD
 	if uid == "" {
 		// If we don't have an ID we'll assume they're a guest or new here and get the latest WOD
-		results, err = datasource.DBconn.Query("SELECT ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday,wo_type FROM workout WHERE wo_date = ? AND wo_workoutoftheday = 'Y'",d)
+		results, err = datasource.DBconn.Query("SELECT ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday,wo_type FROM workout WHERE wo_date = ? AND wo_workoutoftheday = 'Y'", d)
 		defer results.Close()
 		if err != nil {
 			panic(err.Error())
@@ -320,7 +321,7 @@ func GetWODbydate(d string, uid string) (Workout, WorkoutNotes, WodUser) {
 		// If we don't get results from that call then we'll just load the daily WOD
 		if wo.ID == 0 {
 			// If we don't have an ID or a user created or coach assigned WOD we'll assume they're a guest or new here and get the latest WOD
-			results, err := datasource.DBconn.Query("SELECT ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday,wo_type FROM workout WHERE wo_date = ? AND wo_workoutoftheday = 'Y'",d)
+			results, err := datasource.DBconn.Query("SELECT ID,wo_name,wo_strength,wo_pace,wo_conditioning,wo_date,wo_workoutoftheday,wo_type FROM workout WHERE wo_date = ? AND wo_workoutoftheday = 'Y'", d)
 			defer results.Close()
 			if err != nil {
 				panic(err.Error())

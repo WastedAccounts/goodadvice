@@ -34,7 +34,7 @@ var adminaddwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/admin
 var admineditwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/admineditworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 var userwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/userwod.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 
-//var userwodtpl = template.Must(template.ParseGlob("htmlpages/templates/*"))
+// var userwodtpl = template.Must(template.ParseGlob("htmlpages/templates/*"))
 var guestwodtpl = template.Must(template.ParseFiles("htmlpages/workouts/guestwod.html", "htmlpages/templates/headerguest.html", "htmlpages/templates/footerguest.html"))
 var useraddworkouttpl = template.Must(template.ParseFiles("htmlpages/workouts/useraddworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
 var usereditworkouttpl = template.Must(template.ParseFiles("htmlpages/workouts/usereditworkout.html", "htmlpages/templates/header.html", "htmlpages/templates/footer.html"))
@@ -57,14 +57,15 @@ func NewShareController() *shareController {
 	}
 }
 
-//// START GetWOD Functions
+// // START GetWOD Functions
 // ServeHTTP - Entry point for the /wod page - Comes in from front.go
 func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Check for a cookie first
 	userauth := models.ValidateSession(w, r)
 	// If there is no cookie found redirect to guest view
 	if userauth.Exists == false || userauth.IsActive == false {
-		woc.getWOD(w, r, userauth, true)
+		// woc.getWOD(w, r, userauth, true)
+		woc.randomWorkout(w, userauth)
 	} else {
 		// At this point the user should be validated within 48 hour session time out
 		// and a new cookie issued with new session start time stamp
@@ -98,6 +99,7 @@ func (woc workoutController) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				} else {
 					// if no date is selected load today's workout
 					woc.getWOD(w, r, userauth, false)
+					// woc.randomWorkout(w, userauth)
 				}
 			case http.MethodPost:
 				err := r.ParseForm()
@@ -361,6 +363,7 @@ func (woc *workoutController) SaveWorkoutResults(w http.ResponseWriter, r *http.
 func (woc *workoutController) randomWorkout(w http.ResponseWriter, userauth models.UserAuth) {
 	//var date string
 	date := workouts.GetRandomWorkout()
+	// userauth.Uid = "1"
 	woc.getWODbydate(w, date, userauth)
 }
 
@@ -385,7 +388,7 @@ func (woc *workoutController) customizeWOD(w http.ResponseWriter, r *http.Reques
 
 //// END GetWOD Functions
 
-//// START AddWOD Functions
+// // START AddWOD Functions
 // pageLoadAddWorkout - initial page load
 func pageLoadAddWorkout(w http.ResponseWriter, admin bool) {
 	// load a blank create workout page for creating daily wods
@@ -460,7 +463,7 @@ func editWOD(w http.ResponseWriter, r *http.Request, uid string, admin bool) {
 
 //// END AddWOD Functions
 
-//Not currently used
+// Not currently used
 // adminEditWOD - saves changes made to the ADMIN CREATED workout and reloads it to the page
 func adminEditWOD(w http.ResponseWriter, r *http.Request, uid string) {
 	workouts.EditAddWOD(r, uid, true)
