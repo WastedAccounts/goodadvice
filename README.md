@@ -2,6 +2,10 @@ Welcome to thisisgoodadvice.com
 
 goodadvice is a fitness tracking app 
 
+Sign up is easy and secure using bcrypt and an MFA code. 
+If you want to just check it out there is a test user you can use too! 
+Login with 'testuser/testuser'
+
 What it does:
 Admins can create daily workouts that are accessible to users and guests.
 Those workouts are editable by admins as well.
@@ -28,6 +32,8 @@ Leader Boards
 Coach Level Role 
     Have a list of your own clients that you coach
 Search functionality
+
+Technic
 
 
 
